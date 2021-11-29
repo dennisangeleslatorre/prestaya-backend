@@ -16,6 +16,7 @@ exports.App = void 0;
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = require("dotenv");
 const morgan_1 = __importDefault(require("morgan"));
+var cors = require('cors');
 // Routes
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
 const role_routes_1 = __importDefault(require("./routes/role.routes"));
@@ -25,6 +26,7 @@ class App {
     constructor(port) {
         this.port = port;
         this.app = (0, express_1.default)();
+        this.app.use(cors());
         (0, dotenv_1.config)();
         this.settings();
         this.middlewares();
