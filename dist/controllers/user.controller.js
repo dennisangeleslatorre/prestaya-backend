@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.getByUsername = exports.getUserById = exports.updateUser = exports.registerUser = exports.getUsers = void 0;
+exports.login = exports.getByUsername = exports.getUserByCodigoUsuario = exports.updateUser = exports.registerUser = exports.getUsers = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 const bcrypt = __importStar(require("bcrypt"));
@@ -39,12 +39,13 @@ function getUsers(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('SELECT * FROM user');
+            const data = yield conn.query('SELECT * FROM MA_USUARIOS');
+            yield conn.end();
             const userRes = data[0];
             if (!userRes[0]) {
-                return res.status(200).json({ succes: true, data: [], message: "No se encontró usuarios" });
+                return res.status(200).json({ success: false, data: [], message: "No se encontró usuarios." });
             }
-            return res.status(200).json({ data: data[0], message: "Se obtuvo usuarios" });
+            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo usuarios." });
         }
         catch (error) {
             console.error(error);
@@ -57,21 +58,24 @@ function registerUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = req.body;
-            body.status = 1;
-            body.created_at = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:SS');
-            body.password = bcrypt.hashSync(body.password, 10);
+            body.c_estado = 'A';
+            if (body.c_codigousuario_r)
+                body.c_usuarioregistro = body.c_codigousuario_r;
+            body.d_fecharegistro = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+            body.c_clave = bcrypt.hashSync(body.c_clave, 10);
             const user = body;
             const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('INSERT INTO user SET ?', [user]);
+            const data = yield conn.query('INSERT INTO MA_USUARIOS SET ?', [user]);
+            yield conn.end();
             const parsedRes = data[0];
-            return res.status(200).json({ success: true, data: user, id: parsedRes.insertId, message: "Se registró el usuario con éxito" });
+            return res.status(200).json({ success: true, data: user, message: "Se registró el usuario con éxito." });
         }
         catch (error) {
             console.error(error);
             const errorAux = JSON.parse(JSON.stringify(error));
             let message = "Hubo un error";
             if (errorAux.errno === 1062)
-                message = "Existe un usuario con esos datos";
+                message = "Existe un usuario con esos datos.";
             return res.status(500).send({ error: error, message: message });
         }
     });
@@ -80,39 +84,43 @@ exports.registerUser = registerUser;
 function updateUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const c_codigousuario = req.params.c_codigousuario;
             const body = req.body;
-            body.updated_at = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:SS');
-            if (body.password != undefined) {
-                body.password = bcrypt.hashSync(body.password, 10);
+            body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+            if (body.c_codigousuario_m)
+                body.c_ultimousuario = body.c_codigousuario_m;
+            if (body.c_clave != undefined) {
+                body.c_clave = bcrypt.hashSync(body.c_clave, 10);
             }
             const user = body;
-            const id = req.params.id;
             const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('UPDATE user SET ? WHERE id = ?', [user, id]);
-            return res.status(200).json({ success: true, data: Object.assign(Object.assign({}, user), { id: parseInt(id) }), message: "Se actualizó el usuario con éxito" });
+            yield conn.query('UPDATE MA_USUARIOS SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
+            yield conn.end();
+            return res.status(200).json({ success: true, data: Object.assign(Object.assign({}, user), { message: "Se actualizó el usuario con éxito." }) });
         }
         catch (error) {
             console.error(error);
             const errorAux = JSON.parse(JSON.stringify(error));
             let message = "";
             if (errorAux.errno === 1062)
-                message = "Existe un usuario con esos datos";
+                message = "Existe un usuario con esos datos.";
             return res.status(500).send({ error: error, message: message });
         }
     });
 }
 exports.updateUser = updateUser;
-function getUserById(req, res) {
+function getUserByCodigoUsuario(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const id = req.params.id;
+            const c_codigousuario = req.params.c_codigousuario;
             const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('SELECT * FROM user WHERE id = ?', [id]);
+            const data = yield conn.query('SELECT * FROM MA_USUARIOS WHERE c_codigousuario = ?', [c_codigousuario]);
+            yield conn.end();
             const userRes = data[0];
             if (!userRes[0]) {
-                return res.status(200).json({ succes: true, data: {}, message: "No se encontró el usuario" });
+                return res.status(200).json({ success: false, data: {}, message: "No se encontró el usuario." });
             }
-            return res.status(200).json({ succes: true, data: userRes[0], message: "Se obtuvo el usuario con éxito" });
+            return res.status(200).json({ success: true, data: userRes[0], message: "Se obtuvo el usuario con éxito." });
         }
         catch (error) {
             console.error(error);
@@ -120,12 +128,13 @@ function getUserById(req, res) {
         }
     });
 }
-exports.getUserById = getUserById;
-function getByUsername(username) {
+exports.getUserByCodigoUsuario = getUserByCodigoUsuario;
+function getByUsername(c_codigousuario) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const conn = yield (0, database_1.connect)();
-            const res = yield conn.query('SELECT * FROM user u INNER JOIN role r on u.role_id = r.id WHERE u.username = ?', username);
+            const res = yield conn.query('SELECT u.c_nombres, u.c_codigousuario, u.c_estado, u.c_clave, r.c_codigoperfil, r.c_paginas, r.c_botones FROM MA_USUARIOS u INNER JOIN MA_PERFIL r on u.n_perfil = r.n_perfil WHERE u.c_codigousuario = ?', c_codigousuario);
+            yield conn.end();
             return Promise.resolve({ success: true, data: res[0] });
         }
         catch (error) {
@@ -138,15 +147,20 @@ exports.getByUsername = getByUsername;
 function login(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { username, password } = req.body;
-            const userRes = yield getByUsername(username);
+            const { c_codigousuario, c_clave } = req.body;
+            const userRes = yield getByUsername(c_codigousuario);
             const user = userRes.data;
-            if (user[0] != undefined && user[0].password && bcrypt.compareSync(password, user[0].password)) {
-                delete user[0].password;
-                return res.status(200).json({ succes: true, data: user[0], message: "Login con éxito" });
+            if (!user.length)
+                return res.status(200).json({ success: false, message: "Usuario no registrado." });
+            if (user[0].c_estado !== "A")
+                return res.status(200).json({ success: false, message: "El usuario no está activo." });
+            if (user[0] != undefined && user[0].c_clave && bcrypt.compareSync(c_clave, user[0].c_clave)) {
+                delete user[0].c_clave;
+                user[0].c_paginas = user[0].c_paginas.split(",");
+                return res.status(200).json({ success: true, data: user[0], message: "Login con éxito" });
             }
             else {
-                return res.status(400).json({ success: false, message: "Usuario o contraseña incorrectos." });
+                return res.status(200).json({ success: false, message: "Usuario y/o contraseña incorrectos." });
             }
         }
         catch (error) {

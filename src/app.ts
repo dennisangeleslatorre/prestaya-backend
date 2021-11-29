@@ -1,6 +1,7 @@
-import express, { Application } from 'express';
+import express, { Application } from 'express'
 import {config as envConfig} from 'dotenv'
-import morgan from 'morgan';
+import morgan from 'morgan'
+var cors = require('cors')
 
 // Routes
 import UserRoute from './routes/user.routes'
@@ -12,9 +13,10 @@ export class App {
     //Quiere decir qye lo que recibes puede ser tipo numero o string
     //El signo de pregunta dice que puede o no puede llegar una propiedad
     constructor(private port?: number | string) {
-        this.app = express()
-        envConfig()
-        this.settings()
+        this.app = express();
+        this.app.use(cors());
+        envConfig();
+        this.settings();
         this.middlewares();
         this.routes();
     }
