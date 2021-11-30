@@ -20,6 +20,12 @@ var cors = require('cors');
 // Routes
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
 const role_routes_1 = __importDefault(require("./routes/role.routes"));
+const compania_routes_1 = __importDefault(require("./routes/compania.routes"));
+const pais_routes_1 = __importDefault(require("./routes/pais.routes"));
+const departamento_routes_1 = __importDefault(require("./routes/departamento.routes"));
+const provincia_routes_1 = __importDefault(require("./routes/provincia.routes"));
+const tipoDocumento_routes_1 = __importDefault(require("./routes/tipoDocumento.routes"));
+const unidadMedida_routes_1 = __importDefault(require("./routes/unidadMedida.routes"));
 class App {
     //Quiere decir qye lo que recibes puede ser tipo numero o string
     //El signo de pregunta dice que puede o no puede llegar una propiedad
@@ -43,6 +49,12 @@ class App {
     routes() {
         this.app.use('/user', user_routes_1.default);
         this.app.use('/role', role_routes_1.default);
+        this.app.use('/compania', compania_routes_1.default);
+        this.app.use('/pais', pais_routes_1.default);
+        this.app.use('/departamento', departamento_routes_1.default);
+        this.app.use('/provincia', provincia_routes_1.default);
+        this.app.use('/tipodocumento', tipoDocumento_routes_1.default);
+        this.app.use('/unidadmedida', unidadMedida_routes_1.default);
     }
     listen() {
         return __awaiter(this, void 0, void 0, function* () {

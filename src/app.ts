@@ -6,6 +6,13 @@ var cors = require('cors')
 // Routes
 import UserRoute from './routes/user.routes'
 import RoleRoute from './routes/role.routes'
+import CompaniaRoute from './routes/compania.routes'
+import PaisRoute from './routes/pais.routes'
+import DepartamentoRoute from './routes/departamento.routes'
+import ProvinciaRoute from './routes/provincia.routes'
+import TipoDocumentoRoute from './routes/tipoDocumento.routes'
+import UnidadMedidaRoute from './routes/unidadMedida.routes'
+
 
 export class App {
     private app: Application
@@ -34,6 +41,12 @@ export class App {
     routes() {
         this.app.use('/user', UserRoute);
         this.app.use('/role', RoleRoute);
+        this.app.use('/compania', CompaniaRoute);
+        this.app.use('/pais', PaisRoute);
+        this.app.use('/departamento', DepartamentoRoute);
+        this.app.use('/provincia', ProvinciaRoute);
+        this.app.use('/tipodocumento', TipoDocumentoRoute);
+        this.app.use('/unidadmedida', UnidadMedidaRoute);
     }
 
     async listen() {
