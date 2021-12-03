@@ -24,7 +24,6 @@ export async function getUsers(req: Request, res: Response) {
 export async function registerUser(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        body.c_estado = 'A';
         if(body.c_codigousuario_r) body.c_usuarioregistro = body.c_codigousuario_r;
         body.d_fecharegistro = moment().format('YYYY-MM-DD HH:MM:ss');
         body.c_clave = bcrypt.hashSync(body.c_clave, 10);
@@ -47,7 +46,7 @@ export async function updateUser(req: Request, res: Response): Promise<Response>
     try {
         const c_codigousuario = req.params.c_codigousuario;
         const body = req.body;
-        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');//AGREGAR UN CAMPO AL BODY
         if(body.c_codigousuario_m) body.c_ultimousuario = body.c_codigousuario_m;
         if(body.c_clave != undefined){
             body.c_clave = bcrypt.hashSync(body.c_clave, 10)
