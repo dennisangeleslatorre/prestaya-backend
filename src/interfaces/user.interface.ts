@@ -9,5 +9,7 @@ export interface User {
     d_fecharegistro?: Date,
     c_ultimousuario?: string,
     d_ultimafechamodificacion?: Date,
-    c_clave?: string
+    c_clave?: string,
+    a_paginas?: Array<string>,
+    c_paginas: string
 }
