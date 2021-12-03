@@ -95,7 +95,7 @@ function getRoleByNPerfil(req, res) {
             yield conn.end();
             const roleRes = data[0];
             if (!roleRes[0]) {
-                return res.status(200).json({ success: false, data: {}, message: "No se encontró el rol" });
+                return res.status(503).json({ message: "No se encontró el rol" });
             }
             return res.status(200).json({ success: true, data: roleRes[0], message: "Se obtuvo el rol con éxito" });
         }
