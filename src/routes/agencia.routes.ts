@@ -1,9 +1,10 @@
 import { Router } from "express"
+import { getAgencia,registerAgencia} from '../controllers/agencia.controller'
 
 const router = Router();
 
-router.get('/list', );
-router.post('/register', );
-router.put('/update/:n_perfil', );
+router.get('/list', getAgencia);
+router.post('/register', registerAgencia);
+
 
 export default router;

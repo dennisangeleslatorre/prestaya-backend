@@ -24,7 +24,6 @@ export async function getUsers(req: Request, res: Response) {
 export async function registerUser(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        body.c_estado = 'A';
         if(body.c_codigousuario_r) body.c_usuarioregistro = body.c_codigousuario_r;
         body.d_fecharegistro = moment().format('YYYY-MM-DD HH:MM:ss');
         body.c_clave = bcrypt.hashSync(body.c_clave, 10);
