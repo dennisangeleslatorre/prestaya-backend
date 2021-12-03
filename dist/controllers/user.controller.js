@@ -58,7 +58,6 @@ function registerUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = req.body;
-            body.c_estado = 'A';
             if (body.c_codigousuario_r)
                 body.c_usuarioregistro = body.c_codigousuario_r;
             body.d_fecharegistro = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
@@ -86,7 +85,7 @@ function updateUser(req, res) {
         try {
             const c_codigousuario = req.params.c_codigousuario;
             const body = req.body;
-            body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+            body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss'); //AGREGAR UN CAMPO AL BODY
             if (body.c_codigousuario_m)
                 body.c_ultimousuario = body.c_codigousuario_m;
             if (body.c_clave != undefined) {

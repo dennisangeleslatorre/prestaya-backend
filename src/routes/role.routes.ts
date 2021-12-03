@@ -5,7 +5,7 @@ const router = Router();
 
 router.get('/list', getRoles);
 router.post('/register', registerRole);
-router.put('/update/:n_perfil', updateRole);
-router.get('/getRoleByNPerfil/:n_perfil', getRoleByNPerfil);
+router.put('/:n_perfil/update', updateRole);
+router.get('/:n_perfil/getRoleByNPerfil', getRoleByNPerfil);
 
 export default router;
