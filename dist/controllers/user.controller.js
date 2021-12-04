@@ -58,16 +58,18 @@ function registerUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = req.body;
-            if (body.c_codigousuario_r)
-                body.c_usuarioregistro = body.c_codigousuario_r;
-            body.d_fecharegistro = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
-            body.c_clave = bcrypt.hashSync(body.c_clave, 10);
-            const user = body;
-            const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('INSERT INTO MA_USUARIOS SET ?', [user]);
-            yield conn.end();
-            const parsedRes = data[0];
-            return res.status(200).json({ success: true, data: user, message: "Se registró el usuario con éxito." });
+            console.log("Body", body);
+            if (body.c_usuarioregistro) {
+                body.d_fecharegistro = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+                body.c_clave = bcrypt.hashSync(body.c_clave, 10);
+                const user = body;
+                const conn = yield (0, database_1.connect)();
+                const data = yield conn.query('INSERT INTO MA_USUARIOS SET ?', [user]);
+                yield conn.end();
+                const parsedRes = data[0];
+                return res.status(200).json({ success: true, data: user, message: "Se registró el usuario con éxito." });
+            }
+            return res.status(500).json({ message: "No se está enviando el usuario que realiza el registro." });
         }
         catch (error) {
             console.error(error);
@@ -85,17 +87,18 @@ function updateUser(req, res) {
         try {
             const c_codigousuario = req.params.c_codigousuario;
             const body = req.body;
-            body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss'); //AGREGAR UN CAMPO AL BODY
-            if (body.c_codigousuario_m)
-                body.c_ultimousuario = body.c_codigousuario_m;
-            if (body.c_clave != undefined) {
-                body.c_clave = bcrypt.hashSync(body.c_clave, 10);
+            if (body.c_ultimousuario) {
+                body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss'); //AGREGAR UN CAMPO AL BODY
+                if (body.c_clave != undefined) {
+                    body.c_clave = bcrypt.hashSync(body.c_clave, 10);
+                }
+                const user = body;
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('UPDATE MA_USUARIOS SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
+                yield conn.end();
+                return res.status(200).json({ success: true, data: Object.assign(Object.assign({}, user), { message: "Se actualizó el usuario con éxito." }) });
             }
-            const user = body;
-            const conn = yield (0, database_1.connect)();
-            yield conn.query('UPDATE MA_USUARIOS SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
-            yield conn.end();
-            return res.status(200).json({ success: true, data: Object.assign(Object.assign({}, user), { message: "Se actualizó el usuario con éxito." }) });
+            return res.status(500).json({ message: "No se está enviando el usuario que realiza la actualización." });
         }
         catch (error) {
             console.error(error);

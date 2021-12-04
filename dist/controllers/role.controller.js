@@ -38,16 +38,16 @@ function registerRole(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = req.body;
-            body.d_fecharegistro = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
-            if (body.c_codigousuario)
-                body.c_usuarioregistro = body.c_codigousuario;
-            body.c_estado = "A";
-            const role = body;
-            const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('INSERT INTO MA_PERFIL SET ?', [role]);
-            yield conn.end();
-            const parsedRes = data[0];
-            return res.status(200).json({ success: true, data: role, message: "Se registró el rol con éxito" });
+            if (body.c_usuarioregistro) {
+                body.d_fecharegistro = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+                body.c_estado = "A";
+                const role = body;
+                const conn = yield (0, database_1.connect)();
+                const data = yield conn.query('INSERT INTO MA_PERFIL SET ?', [role]);
+                yield conn.end();
+                return res.status(200).json({ data: role, message: "Se registró el rol con éxito" });
+            }
+            return res.status(500).json({ message: "No se está enviando el usuario que realiza el registro." });
         }
         catch (error) {
             console.error(error);
@@ -66,14 +66,15 @@ function updateRole(req, res) {
             //Obtener datos
             const n_perfil = req.params.n_perfil;
             const body = req.body;
-            body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
-            if (body.c_codigousuario)
-                body.c_ultimousuario = body.c_codigousuario;
-            const role = req.body;
-            const conn = yield (0, database_1.connect)();
-            yield conn.query('UPDATE MA_PERFIL SET ? WHERE n_perfil = ?', [role, n_perfil]);
-            yield conn.end();
-            return res.status(200).json({ success: true, data: Object.assign({}, role), message: "Se actualizó el rol con éxito" });
+            if (body.c_ultimousuario) {
+                body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+                const role = req.body;
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('UPDATE MA_PERFIL SET ? WHERE n_perfil = ?', [role, n_perfil]);
+                yield conn.end();
+                return res.status(200).json({ message: "Se actualizó el rol con éxito" });
+            }
+            return res.status(500).json({ message: "No se está enviando el usuario que realiza la actualización." });
         }
         catch (error) {
             console.error(error);
