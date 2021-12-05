@@ -24,15 +24,18 @@ export async function getUsers(req: Request, res: Response) {
 export async function registerUser(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        if(body.c_codigousuario_r) body.c_usuarioregistro = body.c_codigousuario_r;
-        body.d_fecharegistro = moment().format('YYYY-MM-DD HH:MM:ss');
-        body.c_clave = bcrypt.hashSync(body.c_clave, 10);
-        const user: User = body;
-        const conn = await connect();
-        const data = await conn.query('INSERT INTO MA_USUARIOS SET ?', [user]);
-        await conn.end();
-        const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
-        return res.status(200).json({ success: true, data: user, message: "Se registró el usuario con éxito." });
+        console.log("Body", body)
+        if(body.c_usuarioregistro) {
+            body.d_fecharegistro = moment().format('YYYY-MM-DD HH:MM:ss');
+            body.c_clave = bcrypt.hashSync(body.c_clave, 10);
+            const user: User = body;
+            const conn = await connect();
+            const data = await conn.query('INSERT INTO MA_USUARIOS SET ?', [user]);
+            await conn.end();
+            const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
+            return res.status(200).json({ success: true, data: user, message: "Se registró el usuario con éxito." });
+        }
+        return res.status(500).json({ message: "No se está enviando el usuario que realiza el registro."  });
     } catch (error) {
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
@@ -46,16 +49,18 @@ export async function updateUser(req: Request, res: Response): Promise<Response>
     try {
         const c_codigousuario = req.params.c_codigousuario;
         const body = req.body;
-        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');//AGREGAR UN CAMPO AL BODY
-        if(body.c_codigousuario_m) body.c_ultimousuario = body.c_codigousuario_m;
-        if(body.c_clave != undefined){
-            body.c_clave = bcrypt.hashSync(body.c_clave, 10)
+        if (body.c_ultimousuario) {
+            body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');//AGREGAR UN CAMPO AL BODY
+            if(body.c_clave != undefined){
+                body.c_clave = bcrypt.hashSync(body.c_clave, 10)
+            }
+            const user: User = body;
+            const conn = await connect();
+            await conn.query('UPDATE MA_USUARIOS SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
+            await conn.end();
+            return res.status(200).json({ success: true, data: {...user, message: "Se actualizó el usuario con éxito." }});
         }
-        const user: User = body;
-        const conn = await connect();
-        await conn.query('UPDATE MA_USUARIOS SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
-        await conn.end();
-        return res.status(200).json({ success: true, data: {...user, message: "Se actualizó el usuario con éxito." }});
+        return res.status(500).json({ message: "No se está enviando el usuario que realiza la actualización."  });
     } catch (error) {
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
