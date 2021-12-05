@@ -1,4 +1,6 @@
 export interface Distrito {
+    c_paiscodigo: string,
+    c_departamentocodigo: string,
     c_provinciacodigo: string,
     c_distritocodigo: string,
     c_descripcion: string,

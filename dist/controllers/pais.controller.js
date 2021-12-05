@@ -9,9 +9,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerPais = exports.getPaises = void 0;
+exports.registerPais = exports.getPaisesAdmin = exports.getPaises = void 0;
 const database_1 = require("../database");
 function getPaises(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const conn = yield (0, database_1.connect)();
+            const [rows, fields] = yield conn.query('SELECT c_paiscodigo, c_descripcion FROM MA_PAIS where c_estado="A"');
+            yield conn.end();
+            const paisesRes = rows;
+            if (!paisesRes) {
+                return res.status(200).json({ data: [], message: "No se encontró paises" });
+            }
+            return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getPaises = getPaises;
+function getPaisesAdmin(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const conn = yield (0, database_1.connect)();
@@ -29,7 +48,7 @@ function getPaises(req, res) {
         }
     });
 }
-exports.getPaises = getPaises;
+exports.getPaisesAdmin = getPaisesAdmin;
 function registerPais(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

@@ -8,24 +8,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDepartamentoByNPerfil = exports.updateDepartamento = exports.registerDepartamento = exports.getDepartamentos = void 0;
+exports.getDepartamentosAdmin = exports.getDepartamentos = void 0;
 const database_1 = require("../database");
-const moment_1 = __importDefault(require("moment"));
 function getDepartamentos(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('SELECT * FROM MA_DEPARTAMENTO');
-            yield conn.end();
-            const departamentosRes = data[0];
-            if (!departamentosRes[0]) {
-                return res.status(200).json({ success: false, data: [], message: "No se encontró departamentos" });
+            const body = req.body;
+            const departamento = body;
+            if (departamento.c_paiscodigo) {
+                const conn = yield (0, database_1.connect)();
+                const [rows, fields] = yield conn.query('SELECT * FROM MA_DEPARTAMENTO where c_estado="A" AND c_paiscodigo=?', [departamento.c_paiscodigo]);
+                yield conn.end();
+                const departamentosRes = rows;
+                if (!departamentosRes) {
+                    return res.status(200).json({ data: [], message: "No se encontró departamentos" });
+                }
+                return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
             }
-            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo registros" });
+            return res.status(200).json({ message: "Se debe enviar el pais para listar los departamentos" });
         }
         catch (error) {
             console.error(error);
@@ -34,72 +35,17 @@ function getDepartamentos(req, res) {
     });
 }
 exports.getDepartamentos = getDepartamentos;
-function registerDepartamento(req, res) {
+function getDepartamentosAdmin(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const body = req.body;
-            body.d_fecharegistro = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
-            if (body.c_codigousuario)
-                body.c_usuarioregistro = body.c_codigousuario;
-            body.c_estado = "A";
-            const departamento = body;
             const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('INSERT INTO MA_DEPARTAMENTO SET ?', [departamento]);
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_DEPARTAMENTO');
             yield conn.end();
-            const parsedRes = data[0];
-            return res.status(200).json({ success: true, data: departamento, message: "Se registró el departamento con éxito" });
-        }
-        catch (error) {
-            console.error(error);
-            const errorAux = JSON.parse(JSON.stringify(error));
-            let message = "";
-            if (errorAux.errno === 1062)
-                message = "Existe un departamento con esos datos";
-            return res.status(500).send({ error: error, message: message });
-        }
-    });
-}
-exports.registerDepartamento = registerDepartamento;
-function updateDepartamento(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            //Obtener datos
-            const body = req.body;
-            const c_paiscodigo = body.c_paiscodigo;
-            const c_departamentocodigo = body.c_departamentocodigo;
-            body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
-            if (body.c_codigousuario)
-                body.c_ultimousuario = body.c_codigousuario;
-            const departamento = req.body;
-            const conn = yield (0, database_1.connect)();
-            yield conn.query('UPDATE MA_DEPARTAMENTO SET ? WHERE c_paiscodigo = ? AND c_departamentocodigo', [departamento, c_paiscodigo, c_departamentocodigo]);
-            yield conn.end();
-            return res.status(200).json({ success: true, data: Object.assign({}, departamento), message: "Se actualizó el departamento con éxito" });
-        }
-        catch (error) {
-            console.error(error);
-            const errorAux = JSON.parse(JSON.stringify(error));
-            let message = "Hubo un error.";
-            if (errorAux.errno === 1062)
-                message = "Existe un departamento con esos datos";
-            return res.status(500).send({ error: error, message: message });
-        }
-    });
-}
-exports.updateDepartamento = updateDepartamento;
-function getDepartamentoByNPerfil(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const c_paiscodigo = req.query.c_paiscodigo;
-            const c_departamentocodigo = req.query.c_departamentocodigo;
-            const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('SELECT * FROM MA_DEPARTAMENTO WHERE c_paiscodigo = ? AND c_departamentocodigo', [c_paiscodigo, c_departamentocodigo]);
-            yield conn.end();
-            const departamentoRes = data[0];
-            if (!departamentoRes[0]) {
-                return res.status(200).json({ success: false, data: {}, message: "No se encontró el departamento" });
+            const departamentosRes = rows;
+            if (!departamentosRes) {
+                return res.status(200).json({ data: [], message: "No se encontró departamentos" });
             }
-            return res.status(200).json({ success: true, data: departamentoRes[0], message: "Se obtuvo el departamento con éxito" });
+            return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
         }
         catch (error) {
             console.error(error);
@@ -107,5 +53,66 @@ function getDepartamentoByNPerfil(req, res) {
         }
     });
 }
-exports.getDepartamentoByNPerfil = getDepartamentoByNPerfil;
+exports.getDepartamentosAdmin = getDepartamentosAdmin;
+/*
+export async function registerDepartamento(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.d_fecharegistro = moment().format('YYYY-MM-DD HH:MM:ss');
+        if(body.c_codigousuario) body.c_usuarioregistro = body.c_codigousuario;
+        body.c_estado = "A";
+        const departamento: Departamento = body;
+        const conn = await connect();
+        const data = await conn.query('INSERT INTO MA_DEPARTAMENTO SET ?', [departamento]);
+        await conn.end();
+        const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
+        return res.status(200).json({ success:true, data: departamento, message: "Se registró el departamento con éxito" });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "";
+        if(errorAux.errno === 1062) message = "Existe un departamento con esos datos";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function updateDepartamento(req: Request, res: Response): Promise<Response> {
+    try {
+        //Obtener datos
+        const body = req.body;
+        const c_paiscodigo = body.c_paiscodigo;
+        const c_departamentocodigo = body.c_departamentocodigo;
+        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        if(body.c_codigousuario) body.c_ultimousuario = body.c_codigousuario;
+        const departamento: Departamento = req.body;
+        const conn = await connect();
+        await conn.query('UPDATE MA_DEPARTAMENTO SET ? WHERE c_paiscodigo = ? AND c_departamentocodigo', [departamento, c_paiscodigo, c_departamentocodigo]);
+        await conn.end();
+        return res.status(200).json({ success:true, data: {...departamento}, message: "Se actualizó el departamento con éxito"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1062) message = "Existe un departamento con esos datos";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function getDepartamentoByNPerfil(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_paiscodigo = req.query.c_paiscodigo;
+        const c_departamentocodigo = req.query.c_departamentocodigo;
+        const conn = await connect();
+        const data = await conn.query('SELECT * FROM MA_DEPARTAMENTO WHERE c_paiscodigo = ? AND c_departamentocodigo', [c_paiscodigo, c_departamentocodigo]);
+        await conn.end();
+        const departamentoRes = data[0] as [Departamento];
+        if(!departamentoRes[0]) {
+            return res.status(200).json({ success:false, data:{}, message: "No se encontró el departamento" });
+        }
+        return res.status(200).json({ success:true, data: departamentoRes[0], message: "Se obtuvo el departamento con éxito" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send(error);
+    }
+}*/ 
 //# sourceMappingURL=departamento.controller.js.map

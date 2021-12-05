@@ -6,20 +6,41 @@ import moment from 'moment'
 
 export async function getDepartamentos(req: Request, res: Response): Promise<Response> {
     try {
-        const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_DEPARTAMENTO')
-        await conn.end();
-        const departamentosRes = data[0] as [Departamento];
-        if(!departamentosRes[0]) {
-            return res.status(200).json({ success:false, data:[], message: "No se encontró departamentos" });
-        }
-        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+        const body = req.body;
+        const departamento: Departamento = body;
+        if(departamento.c_paiscodigo) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM MA_DEPARTAMENTO where c_estado="A" AND c_paiscodigo=?',[departamento.c_paiscodigo])
+            await conn.end();
+            const departamentosRes =rows as [Departamento];
+            if(!departamentosRes) {
+                return res.status(200).json({ data:[], message: "No se encontró departamentos" });
+            }
+            return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el pais para listar los departamentos" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
     }
 }
 
+export async function getDepartamentosAdmin(req: Request, res: Response): Promise<Response> {
+    try {
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM MA_DEPARTAMENTO')
+        await conn.end();
+        const departamentosRes =rows as [Departamento];
+        if(!departamentosRes) {
+            return res.status(200).json({ data:[], message: "No se encontró departamentos" });
+        }
+        return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+/*
 export async function registerDepartamento(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
@@ -79,4 +100,4 @@ export async function getDepartamentoByNPerfil(req: Request, res: Response): Pro
         console.error(error);
         return res.status(500).send(error);
     }
-}
+}*/

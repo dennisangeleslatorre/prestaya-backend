@@ -24,7 +24,9 @@ const compania_routes_1 = __importDefault(require("./routes/compania.routes"));
 const pais_routes_1 = __importDefault(require("./routes/pais.routes"));
 const departamento_routes_1 = __importDefault(require("./routes/departamento.routes"));
 const provincia_routes_1 = __importDefault(require("./routes/provincia.routes"));
+const distrito_routes_1 = __importDefault(require("./routes/distrito.routes"));
 const tipoDocumento_routes_1 = __importDefault(require("./routes/tipoDocumento.routes"));
+const tipoProducto_routes_1 = __importDefault(require("./routes/tipoProducto.routes"));
 const unidadMedida_routes_1 = __importDefault(require("./routes/unidadMedida.routes"));
 class App {
     //Quiere decir qye lo que recibes puede ser tipo numero o string
@@ -53,7 +55,9 @@ class App {
         this.app.use('/pais', pais_routes_1.default);
         this.app.use('/departamento', departamento_routes_1.default);
         this.app.use('/provincia', provincia_routes_1.default);
+        this.app.use('/distrito', distrito_routes_1.default);
         this.app.use('/tipodocumento', tipoDocumento_routes_1.default);
+        this.app.use('/tipoproducto', tipoProducto_routes_1.default);
         this.app.use('/unidadmedida', unidadMedida_routes_1.default);
     }
     listen() {

@@ -1,37 +1,37 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import { Provincia } from 'interfaces/provincia.interface'
+import { Distrito} from 'interfaces/distrito.interface'
 import { ResultSetHeader } from "../interfaces/result"
 import moment from 'moment'
 
-export async function getProvincias(req: Request, res: Response): Promise<Response> {
+export async function getDistritos(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        const  provincia: Provincia = body;
-        if(provincia.c_paiscodigo && provincia.c_departamentocodigo ) {
+        const  distrito: Distrito = body;
+        if(distrito.c_paiscodigo && distrito.c_departamentocodigo && distrito.c_provinciacodigo ) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_descripcion FROM MA_PROVINCIA where c_estado="A" AND c_paiscodigo=? AND c_departamentocodigo=?',[provincia.c_paiscodigo,provincia.c_departamentocodigo])
+            const [rows, fields] = await conn.query('SELECT c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo,c_descripcion FROM MA_DISTRITO where c_estado="A" AND c_paiscodigo=? AND c_departamentocodigo=? AND c_provinciacodigo=?',[distrito.c_paiscodigo,distrito.c_departamentocodigo,distrito.c_provinciacodigo])
             await conn.end();
-            const ProvinciasRes = rows as [Provincia];
-            if(!ProvinciasRes) {
-                return res.status(200).json({ data:[], message: "No se encontró Provincias" });
+            const DistritoRes = rows as [Distrito];
+            if(!DistritoRes) {
+                return res.status(200).json({ data:[], message: "No se encontró distrito" });
             }
             return res.status(200).json({ rows, message: "Se obtuvo registros" });
-        }return res.status(200).json({ message: "Se debe enviar el pais y departamento para listar las provincias" });
+        }return res.status(200).json({ message: "Se debe enviar el pais, departamento y provincia para listar las distritos" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
     }
 }
 
-export async function getProvinciasAdmin(req: Request, res: Response): Promise<Response> {
+export async function getDistritosAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PROVINCIA')
+        const [rows, fields] = await conn.query('SELECT * FROM MA_DISTRITO')
         await conn.end();
-        const provinciaRes =rows as [Provincia];
-        if(!provinciaRes) {
-            return res.status(200).json({ data:[], message: "No se encontró provincia" });
+        const distritoRes =rows as [Distrito];
+        if(!distritoRes) {
+            return res.status(200).json({ data:[], message: "No se encontró distrito" });
         }
         return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
     } catch (error) {

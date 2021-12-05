@@ -1,45 +1,59 @@
-import { Request, Response } from 'express'
-import { connect } from '../database'
-import { Provincia } from 'interfaces/provincia.interface'
-import { ResultSetHeader } from "../interfaces/result"
-import moment from 'moment'
-
-export async function getProvincias(req: Request, res: Response): Promise<Response> {
-    try {
-        const body = req.body;
-        const  provincia: Provincia = body;
-        if(provincia.c_paiscodigo && provincia.c_departamentocodigo ) {
-            const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_descripcion FROM MA_PROVINCIA where c_estado="A" AND c_paiscodigo=? AND c_departamentocodigo=?',[provincia.c_paiscodigo,provincia.c_departamentocodigo])
-            await conn.end();
-            const ProvinciasRes = rows as [Provincia];
-            if(!ProvinciasRes) {
-                return res.status(200).json({ data:[], message: "No se encontró Provincias" });
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getDistritosAdmin = exports.getDistritos = void 0;
+const database_1 = require("../database");
+function getDistritos(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = req.body;
+            const distrito = body;
+            if (distrito.c_paiscodigo && distrito.c_departamentocodigo && distrito.c_provinciacodigo) {
+                const conn = yield (0, database_1.connect)();
+                const [rows, fields] = yield conn.query('SELECT c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo,c_descripcion FROM MA_DISTRITO where c_estado="A" AND c_paiscodigo=? AND c_departamentocodigo=? AND c_provinciacodigo=?', [distrito.c_paiscodigo, distrito.c_departamentocodigo, distrito.c_provinciacodigo]);
+                yield conn.end();
+                const DistritoRes = rows;
+                if (!DistritoRes) {
+                    return res.status(200).json({ data: [], message: "No se encontró distrito" });
+                }
+                return res.status(200).json({ rows, message: "Se obtuvo registros" });
             }
-            return res.status(200).json({ rows, message: "Se obtuvo registros" });
-        }return res.status(200).json({ message: "Se debe enviar el pais y departamento para listar las provincias" });
-    } catch (error) {
-        console.error(error)
-        return res.status(500).send(error)
-    }
-}
-
-export async function getProvinciasAdmin(req: Request, res: Response): Promise<Response> {
-    try {
-        const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PROVINCIA')
-        await conn.end();
-        const provinciaRes =rows as [Provincia];
-        if(!provinciaRes) {
-            return res.status(200).json({ data:[], message: "No se encontró provincia" });
+            return res.status(200).json({ message: "Se debe enviar el pais, departamento y provincia para listar las distritos" });
         }
-        return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
-    } catch (error) {
-        console.error(error)
-        return res.status(500).send(error)
-    }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
 }
-
+exports.getDistritos = getDistritos;
+function getDistritosAdmin(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const conn = yield (0, database_1.connect)();
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_DISTRITO');
+            yield conn.end();
+            const distritoRes = rows;
+            if (!distritoRes) {
+                return res.status(200).json({ data: [], message: "No se encontró distrito" });
+            }
+            return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getDistritosAdmin = getDistritosAdmin;
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {
@@ -102,4 +116,5 @@ export async function getProvinciaByNPerfil(req: Request, res: Response): Promis
         console.error(error);
         return res.status(500).send(error);
     }
-}*/
+}*/ 
+//# sourceMappingURL=distrito.controller.js.map

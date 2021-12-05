@@ -10,7 +10,9 @@ import CompaniaRoute from './routes/compania.routes'
 import PaisRoute from './routes/pais.routes'
 import DepartamentoRoute from './routes/departamento.routes'
 import ProvinciaRoute from './routes/provincia.routes'
+import DistritoRoute from './routes/distrito.routes'
 import TipoDocumentoRoute from './routes/tipoDocumento.routes'
+import TipoProductoRoute from './routes/tipoProducto.routes'
 import UnidadMedidaRoute from './routes/unidadMedida.routes'
 
 
@@ -45,7 +47,9 @@ export class App {
         this.app.use('/pais', PaisRoute);
         this.app.use('/departamento', DepartamentoRoute);
         this.app.use('/provincia', ProvinciaRoute);
+        this.app.use('/distrito', DistritoRoute);
         this.app.use('/tipodocumento', TipoDocumentoRoute);
+        this.app.use('/tipoproducto', TipoProductoRoute);
         this.app.use('/unidadmedida', UnidadMedidaRoute);
     }
 
