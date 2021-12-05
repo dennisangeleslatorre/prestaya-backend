@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import { connect } from '../database'
 import { Pais } from 'interfaces/pais.interface'
 import { ResultSetHeader } from "../interfaces/result"
-import moment from 'moment'
 
 export async function getPaises(req: Request, res: Response): Promise<Response> {
     try {
@@ -23,24 +22,27 @@ export async function getPaises(req: Request, res: Response): Promise<Response> 
 export async function registerPais(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        body.d_fecharegistro = moment().format('YYYY-MM-DD HH:MM:ss');
-        if(body.c_codigousuario) body.c_usuarioregistro = body.c_codigousuario;
-        body.c_estado = "A";
-        const pais: Pais = body;
-        const conn = await connect();
-        const data = await conn.query('INSERT INTO MA_PAIS SET ?', [pais]);
-        await conn.end();
-        const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
-        return res.status(200).json({ success:true, data: pais, message: "Se registró el pais con éxito" });
+       if(body.c_usuarioregistro) {
+            body.c_ultimousuario = body.c_usuarioregistro
+            if(body.c_paiscodigo && body.c_descripcion ) {
+                const pais: Pais = body;
+                const conn = await connect();
+                const data = await conn.query('INSERT INTO MA_PAIS SET ?', [pais]);
+                await conn.end();
+                const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
+                return res.status(200).json({ data: pais, message: "Se registró el pais con éxito." });
+            }return res.status(200).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+       }return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
     } catch (error) {
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
-        let message = "";
+        let message = "Hubo un error";
         if(errorAux.errno === 1062) message = "Existe un pais con esos datos";
         return res.status(500).send({error: error, message: message});
     }
 }
 
+/*
 export async function updatePais(req: Request, res: Response): Promise<Response> {
     try {
         //Obtener datos
@@ -77,4 +79,4 @@ export async function getPaisByPaisCodigo(req: Request, res: Response): Promise<
         console.error(error);
         return res.status(500).send(error);
     }
-}
+}*/

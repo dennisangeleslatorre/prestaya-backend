@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import { connect } from '../database'
 import { Agencia } from '../interfaces/agencia.interface'
 import { ResultSetHeader, Result } from "../interfaces/result"
-import moment from 'moment'
 import * as bcrypt from 'bcrypt'
 
 export async function getAgencia(req: Request, res: Response) {
@@ -34,8 +33,8 @@ export async function registerAgencia(req: Request, res: Response): Promise<Resp
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ success: true, data: agencia, message: "Se registró la agencia con éxito." });
-            } return res.status(503).json({message: "Completar los datos obligatorios." });
-        } return res.status(503).json({message: "No estas enviando el usuario que realiza el registro" });
+            } return res.status(503).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+        } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
     } catch (error) {
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
