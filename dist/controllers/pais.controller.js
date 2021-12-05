@@ -15,13 +15,13 @@ function getPaises(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('SELECT * FROM MA_PAIS');
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_PAIS');
             yield conn.end();
-            const paisesRes = data[0];
-            if (!paisesRes[0]) {
+            const paisesRes = rows;
+            if (!paisesRes) {
                 return res.status(200).json({ data: [], message: "No se encontró paises" });
             }
-            return res.status(200).json({ data: data[0], message: "Se obtuvo registros" });
+            return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
         }
         catch (error) {
             console.error(error);
@@ -46,7 +46,7 @@ function registerPais(req, res) {
                 }
                 return res.status(200).json({ message: "Parámetros incompletos. Favor de completar los campos requeridos." });
             }
-            return res.status(503).json({ message: "No estas enviando el usuario que realiza el registro." });
+            return res.status(503).json({ message: "No se está enviando el usuario que realiza el registro." });
         }
         catch (error) {
             console.error(error);

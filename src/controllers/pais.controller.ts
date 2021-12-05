@@ -6,13 +6,13 @@ import { ResultSetHeader } from "../interfaces/result"
 export async function getPaises(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_PAIS')
+        const [rows, fields] = await conn.query('SELECT * FROM MA_PAIS')
         await conn.end();
-        const paisesRes = data[0] as [Pais];
-        if(!paisesRes[0]) {
+        const paisesRes = rows as [Pais];
+        if(!paisesRes) {
             return res.status(200).json({data:[], message: "No se encontró paises" });
         }
-        return res.status(200).json({data:data[0], message: "Se obtuvo registros" });
+        return res.status(200).json({data:rows, message: "Se obtuvo registros" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
