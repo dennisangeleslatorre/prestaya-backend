@@ -1,12 +1,11 @@
 import { Router } from "express"
-import { getDistritos,getDistritosAdmin} from '../controllers/distrito.controller'
+import { getDistritos,getDistritosAdmin,registerDistrito} from '../controllers/distrito.controller'
 
 const router = Router();
 
 router.get('/list',getDistritos);
-router.get('/listAdmin',getDistritosAdmin);
-/*
-router.post('/register', );
-router.put('/update/:n_perfil', );
-*/
+router.get('/listAll',getDistritosAdmin);
+router.post('/register',registerDistrito );
+//router.put('/update/:n_perfil', );
+
 export default router;

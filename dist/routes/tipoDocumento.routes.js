@@ -5,7 +5,7 @@ const tipoDocumento_controller_1 = require("../controllers/tipoDocumento.control
 const router = (0, express_1.Router)();
 router.get('/list', tipoDocumento_controller_1.getTiposDocumento);
 router.get('/listAll', tipoDocumento_controller_1.getTiposDocumentoAdmin);
-router.post('/register');
+router.post('/register', tipoDocumento_controller_1.registerTipoDocumento);
 router.put('/update/:n_perfil');
 exports.default = router;
 //# sourceMappingURL=tipoDocumento.routes.js.map

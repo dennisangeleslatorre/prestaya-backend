@@ -13,7 +13,7 @@ export async function getProvincias(req: Request, res: Response): Promise<Respon
             const [rows, fields] = await conn.query('SELECT c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_descripcion FROM MA_PROVINCIA where c_estado="A" AND c_paiscodigo=? AND c_departamentocodigo=?',[provincia.c_paiscodigo,provincia.c_departamentocodigo])
             await conn.end();
             const ProvinciasRes = rows as [Provincia];
-            if(!ProvinciasRes) {
+            if(!ProvinciasRes[0]) {
                 return res.status(200).json({ data:[], message: "No se encontró Provincias" });
             }
             return res.status(200).json({ rows, message: "Se obtuvo registros" });
@@ -30,13 +30,36 @@ export async function getProvinciasAdmin(req: Request, res: Response): Promise<R
         const [rows, fields] = await conn.query('SELECT * FROM MA_PROVINCIA')
         await conn.end();
         const provinciaRes =rows as [Provincia];
-        if(!provinciaRes) {
+        if(!provinciaRes[0]) {
             return res.status(200).json({ data:[], message: "No se encontró provincia" });
         }
         return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
+    }
+}
+
+export async function registerProvincia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_usuarioregistro) {
+            body.c_ultimousuario = body.c_usuarioregistro
+            if(body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_descripcion){
+                const provincia: Provincia = body;
+                const conn = await connect();
+                const data = await conn.query('INSERT INTO MA_PROVINCIA SET ?', [provincia]);
+                await conn.end();
+                const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
+                return res.status(200).json({ success:true, data: provincia, message: "Se registró el provincia con éxito" });
+            }return res.status(200).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+        }return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error";
+        if(errorAux.errno === 1062) message = "Existe un provincia con esos datos";
+        return res.status(500).send({error: error, message: message});
     }
 }
 

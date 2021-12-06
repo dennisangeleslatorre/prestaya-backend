@@ -9,7 +9,7 @@ export async function getPaises(req: Request, res: Response): Promise<Response> 
         const [rows, fields] = await conn.query('SELECT c_paiscodigo, c_descripcion FROM MA_PAIS where c_estado="A"')
         await conn.end();
         const paisesRes = rows as [Pais];
-        if(!paisesRes) {
+        if(!paisesRes[0]) {
             return res.status(200).json({data:[], message: "No se encontró paises" });
         }
         return res.status(200).json({data:rows, message: "Se obtuvo registros" });
@@ -25,7 +25,7 @@ export async function getPaisesAdmin(req: Request, res: Response): Promise<Respo
         const [rows, fields] = await conn.query('SELECT * FROM MA_PAIS')
         await conn.end();
         const paisesRes = rows as [Pais];
-        if(!paisesRes) {
+        if(!paisesRes[0]) {
             return res.status(200).json({data:[], message: "No se encontró paises" });
         }
         return res.status(200).json({data:rows, message: "Se obtuvo registros" });

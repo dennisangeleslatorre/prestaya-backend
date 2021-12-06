@@ -4,22 +4,41 @@ import { Compania } from 'interfaces/compania.interface'
 import { ResultSetHeader } from "../interfaces/result"
 import moment from 'moment'
 
-export async function getCompanias(req: Request, res: Response): Promise<Response> {
+
+export async function getCompania(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_COMPANIA')
+        const [rows, fields] = await conn.query('SELECT c_compania,c_descricpion,c_ruc,c_direccion,c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo FROM  MA_COMPANIA where c_estado="A"')
         await conn.end();
-        const companiasRes = data[0] as [Compania];
-        if(!companiasRes[0]) {
-            return res.status(200).json({ success:false, data:[], message: "No se encontró datos" });
+        const tipoCompaniaRes = rows as [Compania];
+        if(!tipoCompaniaRes[0]) {
+            return res.status(200).json({data:[], message: "No se encontró compañía" });
         }
-        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+        return res.status(200).json({data:rows, message: "Se obtuvo registros" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
     }
 }
 
+export async function getCompaniaAdmin(req: Request, res: Response): Promise<Response> {
+    try {
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM MA_COMPANIA')
+        await conn.end();
+        const TipoCompaniaRes = rows as [Compania];
+        if(!TipoCompaniaRes[0]) {
+            return res.status(200).json({data:[], message: "No se encontró compañía" });
+        }
+        return res.status(200).json({data:rows, message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+
+/*
 export async function registerCompania(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
@@ -77,4 +96,4 @@ export async function getCompaniaByCCompania(req: Request, res: Response): Promi
         console.error(error);
         return res.status(500).send(error);
     }
-}
+}*/

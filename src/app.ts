@@ -7,6 +7,7 @@ var cors = require('cors')
 import UserRoute from './routes/user.routes'
 import RoleRoute from './routes/role.routes'
 import CompaniaRoute from './routes/compania.routes'
+import AgenciaRoute from './routes/agencia.routes'
 import PaisRoute from './routes/pais.routes'
 import DepartamentoRoute from './routes/departamento.routes'
 import ProvinciaRoute from './routes/provincia.routes'
@@ -44,6 +45,7 @@ export class App {
         this.app.use('/user', UserRoute);
         this.app.use('/role', RoleRoute);
         this.app.use('/compania', CompaniaRoute);
+        this.app.use('/agencia', AgenciaRoute);
         this.app.use('/pais', PaisRoute);
         this.app.use('/departamento', DepartamentoRoute);
         this.app.use('/provincia', ProvinciaRoute);

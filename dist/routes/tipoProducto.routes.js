@@ -5,8 +5,8 @@ const tipoProducto_controller_1 = require("../controllers/tipoProducto.controlle
 const router = (0, express_1.Router)();
 router.get('/list', tipoProducto_controller_1.getTipoProducto);
 router.get('/listAll', tipoProducto_controller_1.getTipoProductoAdmin);
+router.post('/register', tipoProducto_controller_1.registerTipoProducto);
 /*
-router.post('/register', );
 router.put('/update/:n_perfil', );
 */
 exports.default = router;

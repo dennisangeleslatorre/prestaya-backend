@@ -7,13 +7,13 @@ import moment from 'moment'
 export async function getUnidadesMedidaAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_UNIDADMEDIDA')
+        const [rows, fields] = await conn.query('SELECT * FROM MA_UNIDADMEDIDA')
         await conn.end();
-        const unidadesMedidaRes = data[0] as [UnidadMedida];
+        const unidadesMedidaRes = rows as [UnidadMedida];
         if(!unidadesMedidaRes[0]) {
             return res.status(200).json({ success:false, data:[], message: "No se encontró unidades de medida" });
         }
-        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+        return res.status(200).json({ success:true, data:rows, message: "Se obtuvo registros" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -23,19 +23,21 @@ export async function getUnidadesMedidaAdmin(req: Request, res: Response): Promi
 export async function getUnidadesMedida(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_UNIDADMEDIDA WHERE c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT * FROM MA_UNIDADMEDIDA WHERE c_estado="A"')
         await conn.end();
-        const unidadesMedidaRes = data[0] as [UnidadMedida];
+        const unidadesMedidaRes = rows as [UnidadMedida];
         if(!unidadesMedidaRes[0]) {
             return res.status(200).json({ success:false, data:[], message: "No se encontró unidades de medida" });
         }
-        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+        return res.status(200).json({ success:true, data:rows, message: "Se obtuvo registros" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
     }
 }
 
+
+/*
 export async function registerUnidadMedida(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
@@ -93,4 +95,4 @@ export async function getUnidadMedidaByNPerfil(req: Request, res: Response): Pro
         console.error(error);
         return res.status(500).send(error);
     }
-}
+}*/

@@ -13,7 +13,7 @@ export async function getDistritos(req: Request, res: Response): Promise<Respons
             const [rows, fields] = await conn.query('SELECT c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo,c_descripcion FROM MA_DISTRITO where c_estado="A" AND c_paiscodigo=? AND c_departamentocodigo=? AND c_provinciacodigo=?',[distrito.c_paiscodigo,distrito.c_departamentocodigo,distrito.c_provinciacodigo])
             await conn.end();
             const DistritoRes = rows as [Distrito];
-            if(!DistritoRes) {
+            if(!DistritoRes[0]) {
                 return res.status(200).json({ data:[], message: "No se encontró distrito" });
             }
             return res.status(200).json({ rows, message: "Se obtuvo registros" });
@@ -30,7 +30,7 @@ export async function getDistritosAdmin(req: Request, res: Response): Promise<Re
         const [rows, fields] = await conn.query('SELECT * FROM MA_DISTRITO')
         await conn.end();
         const distritoRes =rows as [Distrito];
-        if(!distritoRes) {
+        if(!distritoRes[0]) {
             return res.status(200).json({ data:[], message: "No se encontró distrito" });
         }
         return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
@@ -40,6 +40,28 @@ export async function getDistritosAdmin(req: Request, res: Response): Promise<Re
     }
 }
 
+export async function registerDistrito(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_usuarioregistro) {
+            body.c_ultimousuario = body.c_usuarioregistro
+            if(body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo && body.c_descripcion){
+                const distrito: Distrito = body;
+                const conn = await connect();
+                const data = await conn.query('INSERT INTO MA_DISTRITO SET ?', [distrito]);
+                await conn.end();
+                const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
+                return res.status(200).json({ success:true, data: distrito, message: "Se registró el distrito con éxito" });
+            }return res.status(200).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+        }return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error";
+        if(errorAux.errno === 1062) message = "Existe un distrito con esos datos";
+        return res.status(500).send({error: error, message: message});
+    }
+}
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {

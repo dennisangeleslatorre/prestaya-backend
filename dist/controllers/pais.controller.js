@@ -18,7 +18,7 @@ function getPaises(req, res) {
             const [rows, fields] = yield conn.query('SELECT c_paiscodigo, c_descripcion FROM MA_PAIS where c_estado="A"');
             yield conn.end();
             const paisesRes = rows;
-            if (!paisesRes) {
+            if (!paisesRes[0]) {
                 return res.status(200).json({ data: [], message: "No se encontró paises" });
             }
             return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
@@ -37,7 +37,7 @@ function getPaisesAdmin(req, res) {
             const [rows, fields] = yield conn.query('SELECT * FROM MA_PAIS');
             yield conn.end();
             const paisesRes = rows;
-            if (!paisesRes) {
+            if (!paisesRes[0]) {
                 return res.status(200).json({ data: [], message: "No se encontró paises" });
             }
             return res.status(200).json({ data: rows, message: "Se obtuvo registros" });

@@ -9,19 +9,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerAgencia = exports.getAgencia = void 0;
+exports.registerAgencia = exports.getAgenciaAdmin = exports.getAgencia = void 0;
 const database_1 = require("../database");
 function getAgencia(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('SELECT * FROM MA_AGENCIA WHERE ?');
-            yield conn.end();
-            const agenciaRes = data[0];
-            if (!agenciaRes[0]) {
-                return res.status(200).json({ success: false, data: [], message: "No se encontró agencias." });
+            const body = req.body;
+            const agencia = body;
+            if (agencia.c_compania) {
+                const conn = yield (0, database_1.connect)();
+                const [rows, fields] = yield conn.query('SELECT * FROM MA_AGENCIA where c_estado="A" AND c_compania=?', [agencia.c_compania]);
+                yield conn.end();
+                const agenciaRes = rows;
+                if (!agenciaRes[0]) {
+                    return res.status(200).json({ data: [], message: "No se encontró agencias" });
+                }
+                return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
             }
-            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo agencias." });
+            return res.status(200).json({ message: "Se debe enviar la compañía para listar los agencias" });
         }
         catch (error) {
             console.error(error);
@@ -30,6 +35,25 @@ function getAgencia(req, res) {
     });
 }
 exports.getAgencia = getAgencia;
+function getAgenciaAdmin(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const conn = yield (0, database_1.connect)();
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_AGENCIA');
+            yield conn.end();
+            const agenciaRes = rows;
+            if (!agenciaRes[0]) {
+                return res.status(200).json({ success: false, data: [], message: "No se encontró agencias." });
+            }
+            return res.status(200).json({ success: true, data: rows, message: "Se obtuvo agencias." });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getAgenciaAdmin = getAgenciaAdmin;
 /* ARREGLAR DE ACA */
 function registerAgencia(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
