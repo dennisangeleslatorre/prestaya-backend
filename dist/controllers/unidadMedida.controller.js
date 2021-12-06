@@ -12,14 +12,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUnidadMedidaByNPerfil = exports.updateUnidadMedida = exports.registerUnidadMedida = exports.getUnidadesMedida = void 0;
+exports.getUnidadMedidaByNPerfil = exports.updateUnidadMedida = exports.registerUnidadMedida = exports.getUnidadesMedida = exports.getUnidadesMedidaAdmin = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
-function getUnidadesMedida(req, res) {
+function getUnidadesMedidaAdmin(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const conn = yield (0, database_1.connect)();
             const data = yield conn.query('SELECT * FROM MA_UNIDADMEDIDA');
+            yield conn.end();
+            const unidadesMedidaRes = data[0];
+            if (!unidadesMedidaRes[0]) {
+                return res.status(200).json({ success: false, data: [], message: "No se encontró unidades de medida" });
+            }
+            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo registros" });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getUnidadesMedidaAdmin = getUnidadesMedidaAdmin;
+function getUnidadesMedida(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const conn = yield (0, database_1.connect)();
+            const data = yield conn.query('SELECT * FROM MA_UNIDADMEDIDA WHERE c_estado="A"');
             yield conn.end();
             const unidadesMedidaRes = data[0];
             if (!unidadesMedidaRes[0]) {

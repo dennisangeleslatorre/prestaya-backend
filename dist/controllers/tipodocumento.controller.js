@@ -12,10 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTipoDocumentoByNPerfil = exports.updateTipoDocumento = exports.registerTipoDocumento = exports.getTIposDocumento = void 0;
+exports.getTipoDocumentoByNPerfil = exports.updateTipoDocumento = exports.registerTipoDocumento = exports.getTiposDocumento = exports.getTiposDocumentoAdmin = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
-function getTIposDocumento(req, res) {
+function getTiposDocumentoAdmin(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const conn = yield (0, database_1.connect)();
@@ -33,7 +33,26 @@ function getTIposDocumento(req, res) {
         }
     });
 }
-exports.getTIposDocumento = getTIposDocumento;
+exports.getTiposDocumentoAdmin = getTiposDocumentoAdmin;
+function getTiposDocumento(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const conn = yield (0, database_1.connect)();
+            const data = yield conn.query('SELECT * FROM MA_TIPODOCUMENTO WHERE c_estado="A"');
+            yield conn.end();
+            const tIposDocumentoRes = data[0];
+            if (!tIposDocumentoRes[0]) {
+                return res.status(200).json({ success: false, data: [], message: "No se encontró tipos de documento" });
+            }
+            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo registros" });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getTiposDocumento = getTiposDocumento;
 function registerTipoDocumento(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -106,4 +125,4 @@ function getTipoDocumentoByNPerfil(req, res) {
     });
 }
 exports.getTipoDocumentoByNPerfil = getTipoDocumentoByNPerfil;
-//# sourceMappingURL=tipodocumento.controller.js.map
+//# sourceMappingURL=tipoDocumento.controller.js.map

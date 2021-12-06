@@ -4,10 +4,26 @@ import { TipoDocumento } from 'interfaces/tipoDocumento.interface'
 import { ResultSetHeader } from "../interfaces/result"
 import moment from 'moment'
 
-export async function getTIposDocumento(req: Request, res: Response): Promise<Response> {
+export async function getTiposDocumentoAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
         const data = await conn.query('SELECT * FROM MA_TIPODOCUMENTO')
+        await conn.end();
+        const tIposDocumentoRes = data[0] as [TipoDocumento];
+        if(!tIposDocumentoRes[0]) {
+            return res.status(200).json({ success:false, data:[], message: "No se encontró tipos de documento" });
+        }
+        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function getTiposDocumento(req: Request, res: Response): Promise<Response> {
+    try {
+        const conn = await connect();
+        const data = await conn.query('SELECT * FROM MA_TIPODOCUMENTO WHERE c_estado="A"')
         await conn.end();
         const tIposDocumentoRes = data[0] as [TipoDocumento];
         if(!tIposDocumentoRes[0]) {

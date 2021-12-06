@@ -4,7 +4,7 @@ import { getTipoProducto,getTipoProductoAdmin} from '../controllers/tipoProducto
 const router = Router();
 
 router.get('/list', getTipoProducto);
-router.get('/listAdmin', getTipoProductoAdmin);
+router.get('/listAll', getTipoProductoAdmin);
 /*
 router.post('/register', );
 router.put('/update/:n_perfil', );
