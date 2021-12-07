@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCompaniaAdmin = exports.getCompania = void 0;
+exports.registerCompania = exports.getCompaniaAdmin = exports.getCompania = void 0;
 const database_1 = require("../database");
 function getCompania(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -49,6 +49,35 @@ function getCompaniaAdmin(req, res) {
     });
 }
 exports.getCompaniaAdmin = getCompaniaAdmin;
+function registerCompania(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = req.body;
+            if (body.c_usuarioregistro) {
+                body.c_ultimousuario = body.c_usuarioregistro;
+                if (body.c_compania && body.c_agencia && body.c_ruc && body.c_direccion && body.c_paiscodigo && body.c_despartamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
+                    const compania = body;
+                    const conn = yield (0, database_1.connect)();
+                    const data = yield conn.query('INSERT INTO MA_COMPANIA SET ?', [compania]);
+                    yield conn.end();
+                    const parsedRes = data[0];
+                    return res.status(200).json({ success: true, data: compania, message: "Se registró la compañía con éxito." });
+                }
+                return res.status(503).json({ message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+            }
+            return res.status(503).json({ message: "No se está enviando el usuario que realiza el registro." });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error";
+            if (errorAux.errno === 1062)
+                message = "Existe una compañía con esos datos.";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.registerCompania = registerCompania;
 /*
 export async function registerCompania(req: Request, res: Response): Promise<Response> {
     try {

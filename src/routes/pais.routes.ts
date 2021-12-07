@@ -7,6 +7,6 @@ router.get('/list', getPaises);
 router.get('/listAll', getPaisesAdmin);
 router.post('/register', registerPais);
 router.put('/update/:n_perfil', );
-router.get('/:c_codigousuario/getPaisByCodigoPais', getPaisByCodigoPais);
+router.get('/:c_codigopais/getPaisByCodigoPais', getPaisByCodigoPais);
 
 export default router;

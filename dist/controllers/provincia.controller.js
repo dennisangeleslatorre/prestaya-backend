@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerProvincia = exports.getProvinciasAdmin = exports.getProvincias = void 0;
+exports.getProvinciaByCodigoProvincia = exports.registerProvincia = exports.getProvinciasAdmin = exports.getProvincias = void 0;
 const database_1 = require("../database");
 function getProvincias(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -83,6 +83,30 @@ function registerProvincia(req, res) {
     });
 }
 exports.registerProvincia = registerProvincia;
+function getProvinciaByCodigoProvincia(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = req.body;
+            const provincia = body;
+            if (provincia.c_paiscodigo && provincia.c_departamentocodigo && provincia.c_provinciacodigo) {
+                const conn = yield (0, database_1.connect)();
+                const [rows, fields] = yield conn.query('SELECT * FROM MA_PROVINCIA where c_paiscodigo=? AND c_departamentocodigo=? AND c_provinciacodigo=?', [provincia.c_paiscodigo, provincia.c_departamentocodigo, provincia.c_provinciacodigo]);
+                yield conn.end();
+                const ProvinciasRes = rows;
+                if (!ProvinciasRes[0]) {
+                    return res.status(200).json({ data: [], message: "No se encontró Provincia" });
+                }
+                return res.status(200).json({ rows, message: "Se obtuvo registros" });
+            }
+            return res.status(200).json({ message: "Se debe enviar el código de pais, departamento y provincia para obtener los datos de la provincia" });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getProvinciaByCodigoProvincia = getProvinciaByCodigoProvincia;
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {

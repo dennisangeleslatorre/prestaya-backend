@@ -7,5 +7,6 @@ router.get('/list', distrito_controller_1.getDistritos);
 router.get('/listAll', distrito_controller_1.getDistritosAdmin);
 router.post('/register', distrito_controller_1.registerDistrito);
 //router.put('/update/:n_perfil', );
+router.post('/getDistritoByCodigoDistrito', distrito_controller_1.getDistritoByCodigoDistrito);
 exports.default = router;
 //# sourceMappingURL=distrito.routes.js.map

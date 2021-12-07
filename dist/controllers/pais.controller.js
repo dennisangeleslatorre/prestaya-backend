@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerPais = exports.getPaisesAdmin = exports.getPaises = void 0;
+exports.getPaisByCodigoPais = exports.registerPais = exports.getPaisesAdmin = exports.getPaises = void 0;
 const database_1 = require("../database");
 function getPaises(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -78,6 +78,26 @@ function registerPais(req, res) {
     });
 }
 exports.registerPais = registerPais;
+function getPaisByCodigoPais(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_codigopais = req.params.c_codigopais;
+            const conn = yield (0, database_1.connect)();
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_codigopais]);
+            yield conn.end();
+            const paisRes = rows;
+            if (!paisRes[0]) {
+                return res.status(200).json({ success: false, data: {}, message: "No se encontró el país." });
+            }
+            return res.status(200).json({ success: true, data: rows, message: "Se obtuvo el país con éxito." });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getPaisByCodigoPais = getPaisByCodigoPais;
 /*
 export async function updatePais(req: Request, res: Response): Promise<Response> {
     try {

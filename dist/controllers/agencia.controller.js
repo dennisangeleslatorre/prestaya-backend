@@ -61,7 +61,7 @@ function registerAgencia(req, res) {
             const body = req.body;
             if (body.c_codigousuario_r) {
                 body.c_usuarioregistro = body.c_codigousuario_r;
-                if (body.c_codigousuario_r && body.c_compania && body.c_agencia) {
+                if (body.c_compania && body.c_agencia && body.c_descripcion) {
                     const agencia = body;
                     const conn = yield (0, database_1.connect)();
                     const data = yield conn.query('INSERT INTO MA_AGENCIA SET ?', [agencia]);

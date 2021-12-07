@@ -6,8 +6,7 @@ const router = (0, express_1.Router)();
 router.get('/list', tipoProducto_controller_1.getTipoProducto);
 router.get('/listAll', tipoProducto_controller_1.getTipoProductoAdmin);
 router.post('/register', tipoProducto_controller_1.registerTipoProducto);
-/*
-router.put('/update/:n_perfil', );
-*/
+//router.put('/update/:n_perfil', );
+router.post('/:c_tipoproducto/getTipoProductoByCodigoTipoProducto', tipoProducto_controller_1.getTipoProductoByCodigoTipoProducto);
 exports.default = router;
 //# sourceMappingURL=tipoProducto.routes.js.map

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerTipoProducto = exports.getTipoProductoAdmin = exports.getTipoProducto = void 0;
+exports.getTipoProductoByCodigoTipoProducto = exports.registerTipoProducto = exports.getTipoProductoAdmin = exports.getTipoProducto = void 0;
 const database_1 = require("../database");
 function getTipoProducto(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -78,4 +78,24 @@ function registerTipoProducto(req, res) {
     });
 }
 exports.registerTipoProducto = registerTipoProducto;
+function getTipoProductoByCodigoTipoProducto(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_tipoproducto = req.params.c_tipoproducto;
+            const conn = yield (0, database_1.connect)();
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_TIPOPRODUCTO WHERE c_tipoproducto = ?', [c_tipoproducto]);
+            yield conn.end();
+            const tipoProductoRes = rows;
+            if (!tipoProductoRes[0]) {
+                return res.status(200).json({ success: false, data: {}, message: "No se encontró el tipo de producto." });
+            }
+            return res.status(200).json({ success: true, data: rows, message: "Se obtuvo el tipo de producto con éxito." });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getTipoProductoByCodigoTipoProducto = getTipoProductoByCodigoTipoProducto;
 //# sourceMappingURL=tipoProducto.controller.js.map

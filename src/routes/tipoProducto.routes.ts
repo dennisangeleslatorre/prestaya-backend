@@ -7,5 +7,5 @@ router.get('/list', getTipoProducto);
 router.get('/listAll', getTipoProductoAdmin);
 router.post('/register', registerTipoProducto);
 //router.put('/update/:n_perfil', );
-router.post('/getTipoProductoByCodigoTipoProducto', getTipoProductoByCodigoTipoProducto);
+router.post('/:c_tipoproducto/getTipoProductoByCodigoTipoProducto', getTipoProductoByCodigoTipoProducto);
 export default router;

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerTipoDocumento = exports.getTiposDocumento = exports.getTiposDocumentoAdmin = void 0;
+exports.getTipoDocumentoByCodigoTipoDocumento = exports.registerTipoDocumento = exports.getTiposDocumento = exports.getTiposDocumentoAdmin = void 0;
 const database_1 = require("../database");
 function getTiposDocumentoAdmin(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -78,6 +78,26 @@ function registerTipoDocumento(req, res) {
     });
 }
 exports.registerTipoDocumento = registerTipoDocumento;
+function getTipoDocumentoByCodigoTipoDocumento(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_tipodocumento = req.params.c_tipodocumento;
+            const conn = yield (0, database_1.connect)();
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_TIPODOCUMENTO WHERE c_tipodocumento = ?', [c_tipodocumento]);
+            yield conn.end();
+            const tipoDocumentoRes = rows;
+            if (!tipoDocumentoRes[0]) {
+                return res.status(200).json({ success: false, data: {}, message: "No se encontró el tipo de documento." });
+            }
+            return res.status(200).json({ success: true, data: rows, message: "Se obtuvo el tipo de documento con éxito." });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getTipoDocumentoByCodigoTipoDocumento = getTipoDocumentoByCodigoTipoDocumento;
 /*
 export async function updateTipoDocumento(req: Request, res: Response): Promise<Response> {
     try {

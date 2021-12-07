@@ -7,5 +7,6 @@ router.get('/list', tipoDocumento_controller_1.getTiposDocumento);
 router.get('/listAll', tipoDocumento_controller_1.getTiposDocumentoAdmin);
 router.post('/register', tipoDocumento_controller_1.registerTipoDocumento);
 router.put('/update/:n_perfil');
+router.post('/:c_tipodocumento/getTipoDocumentoByCodigoTipoDocumento', tipoDocumento_controller_1.getTipoDocumentoByCodigoTipoDocumento);
 exports.default = router;
 //# sourceMappingURL=tipoDocumento.routes.js.map

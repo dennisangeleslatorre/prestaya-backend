@@ -6,6 +6,6 @@ router.get('/list', getTiposDocumento);
 router.get('/listAll', getTiposDocumentoAdmin);
 router.post('/register',registerTipoDocumento);
 router.put('/update/:n_perfil', );
-router.post('/getTipoDocumentoByCodigoTipoDocumento',getTipoDocumentoByCodigoTipoDocumento);
+router.post('/:c_tipodocumento/getTipoDocumentoByCodigoTipoDocumento',getTipoDocumentoByCodigoTipoDocumento);
 
 export default router;

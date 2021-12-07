@@ -6,6 +6,6 @@ router.get('/list', getUnidadesMedida);
 router.get('/listAll', getUnidadesMedidaAdmin);
 router.post('/register', registerUnidadMedida);
 router.put('/update/:n_perfil', );
-router.post('/getUnidadMedidaByCodigoUnidadMedida', getUnidadMedidaByCodigoUnidadMedida);
+router.post('/:c_unidadmedida/getUnidadMedidaByCodigoUnidadMedida', getUnidadMedidaByCodigoUnidadMedida);
 
 export default router;

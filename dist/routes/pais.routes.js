@@ -7,5 +7,6 @@ router.get('/list', pais_controller_1.getPaises);
 router.get('/listAll', pais_controller_1.getPaisesAdmin);
 router.post('/register', pais_controller_1.registerPais);
 router.put('/update/:n_perfil');
+router.get('/:c_codigopais/getPaisByCodigoPais', pais_controller_1.getPaisByCodigoPais);
 exports.default = router;
 //# sourceMappingURL=pais.routes.js.map
