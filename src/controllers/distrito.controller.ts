@@ -62,6 +62,26 @@ export async function registerDistrito(req: Request, res: Response): Promise<Res
         return res.status(500).send({error: error, message: message});
     }
 }
+
+export async function getDistritoByCodigoDistrito(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const  distrito: Distrito = body;
+        if(distrito.c_paiscodigo && distrito.c_departamentocodigo && distrito.c_provinciacodigo && distrito.c_distritocodigo) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM MA_DISTRITO where c_paiscodigo=? AND c_departamentocodigo=? AND c_provinciacodigo=? AND c_distritocodigo=?',[distrito.c_paiscodigo,distrito.c_departamentocodigo,distrito.c_provinciacodigo,distrito.c_distritocodigo])
+            await conn.end();
+            const DistritoRes = rows as [Distrito];
+            if(!DistritoRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró distrito" });
+            }
+            return res.status(200).json({ rows, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de pais, departamento, provincia y distrito para listar obtener los datos de distritos" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {

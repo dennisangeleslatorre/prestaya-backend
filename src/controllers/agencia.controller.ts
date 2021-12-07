@@ -45,8 +45,8 @@ export async function registerAgencia(req: Request, res: Response): Promise<Resp
     try {
         const body = req.body;
         if(body.c_codigousuario_r) {
-            body.c_usuarioregistro = body.c_codigousuario_r;
-            if(body.c_codigousuario_r && body.c_compania && body.c_agencia) {
+            body.c_usuarioregistro = body.c_codigousuario_r
+            if(body.c_compania && body.c_agencia && body.c_descripcion) {
                 const agencia: Agencia = body;
                 const conn = await connect();
                 const data = await conn.query('INSERT INTO MA_AGENCIA SET ?', [agencia]);

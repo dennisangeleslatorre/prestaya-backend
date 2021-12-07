@@ -1,10 +1,11 @@
 import { Router } from "express"
-import { getUnidadesMedida, getUnidadesMedidaAdmin } from '../controllers/unidadMedida.controller'
+import { getUnidadesMedida, getUnidadesMedidaAdmin,registerUnidadMedida,getUnidadMedidaByCodigoUnidadMedida} from '../controllers/unidadMedida.controller'
 const router = Router();
 
 router.get('/list', getUnidadesMedida);
 router.get('/listAll', getUnidadesMedidaAdmin);
-router.post('/register', );
+router.post('/register', registerUnidadMedida);
 router.put('/update/:n_perfil', );
+router.post('/getUnidadMedidaByCodigoUnidadMedida', getUnidadMedidaByCodigoUnidadMedida);
 
 export default router;

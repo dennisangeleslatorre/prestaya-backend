@@ -37,7 +37,28 @@ export async function getCompaniaAdmin(req: Request, res: Response): Promise<Res
     }
 }
 
-
+export async function registerCompania(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_usuarioregistro) {
+            body.c_ultimousuario = body.c_usuarioregistro
+            if(body.c_compania && body.c_agencia && body.c_ruc && body.c_direccion && body.c_paiscodigo && body.c_despartamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
+                const compania: Compania = body;
+                const conn = await connect();
+                const data = await conn.query('INSERT INTO MA_COMPANIA SET ?', [compania]);
+                await conn.end();
+                const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
+                return res.status(200).json({ success: true, data: compania, message: "Se registró la compañía con éxito." });
+            } return res.status(503).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+        } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error";
+        if(errorAux.errno === 1062) message = "Existe una compañía con esos datos.";
+        return res.status(500).send({error: error, message: message});
+    }
+}
 /*
 export async function registerCompania(req: Request, res: Response): Promise<Response> {
     try {

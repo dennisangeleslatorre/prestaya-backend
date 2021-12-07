@@ -63,6 +63,26 @@ export async function registerProvincia(req: Request, res: Response): Promise<Re
     }
 }
 
+export async function getProvinciaByCodigoProvincia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const  provincia: Provincia = body;
+        if(provincia.c_paiscodigo && provincia.c_departamentocodigo && provincia.c_provinciacodigo) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM MA_PROVINCIA where c_paiscodigo=? AND c_departamentocodigo=? AND c_provinciacodigo=?',[provincia.c_paiscodigo,provincia.c_departamentocodigo,provincia.c_provinciacodigo])
+            await conn.end();
+            const ProvinciasRes = rows as [Provincia];
+            if(!ProvinciasRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró Provincia" });
+            }
+            return res.status(200).json({ rows, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de pais, departamento y provincia para obtener los datos de la provincia" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {

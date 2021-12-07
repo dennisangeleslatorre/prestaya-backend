@@ -7,7 +7,7 @@ export interface Compania {
     c_despartamentocodigo: string,
     c_provinciacodigo: string,
     c_distritocodigo: string,
-    c_estado: string,
+    c_estado?: string,
     c_usuarioregistro?: string,
     d_fecharegistro?: Date,
     c_ultimousuario?: string,

@@ -58,3 +58,20 @@ export async function registerTipoProducto(req: Request, res: Response): Promise
         return res.status(500).send({error: error, message: message});
     }
 }
+
+export async function getTipoProductoByCodigoTipoProducto(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_tipoproducto = req.params.c_tipoproducto;
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM MA_TIPOPRODUCTO WHERE c_tipoproducto = ?', [c_tipoproducto]);
+        await conn.end();
+        const tipoProductoRes = rows as [TipoProducto];
+        if(!tipoProductoRes[0]) {
+            return res.status(200).json({ success: false, data:{}, message: "No se encontró el tipo de producto." });
+        }
+        return res.status(200).json({ success: true, data: rows, message: "Se obtuvo el tipo de producto con éxito." });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send(error);
+    }
+}

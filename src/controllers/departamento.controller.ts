@@ -64,6 +64,28 @@ export async function registerDepartamento(req: Request, res: Response): Promise
     }
 }
 
+
+export async function getDepartamentoByCodigoDepartamento(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const departamento: Departamento = body;
+        if(departamento.c_paiscodigo && departamento.c_departamentocodigo) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM MA_DEPARTAMENTO WHERE c_paiscodigo=? AND c_departamentocodigo=?',[departamento.c_paiscodigo,departamento.c_departamentocodigo])
+            await conn.end();
+            const departamentosRes =rows as [Departamento];
+            if(!departamentosRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró departamento" });
+            }
+            return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código pais y el código departamento para obtener los datos de departamento" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+
 /*
 export async function updateDepartamento(req: Request, res: Response): Promise<Response> {
     try {

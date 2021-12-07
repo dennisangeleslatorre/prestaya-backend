@@ -59,7 +59,22 @@ export async function registerTipoDocumento(req: Request, res: Response): Promis
     }
 }
 
-
+export async function getTipoDocumentoByCodigoTipoDocumento(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_tipodocumento = req.params.c_tipodocumento;
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM MA_TIPODOCUMENTO WHERE c_tipodocumento = ?', [c_tipodocumento]);
+        await conn.end();
+        const tipoDocumentoRes = rows as [TipoDocumento];
+        if(!tipoDocumentoRes[0]) {
+            return res.status(200).json({ success: false, data:{}, message: "No se encontró el tipo de documento." });
+        }
+        return res.status(200).json({ success: true, data: rows, message: "Se obtuvo el tipo de documento con éxito." });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send(error);
+    }
+}
 
 /*
 export async function updateTipoDocumento(req: Request, res: Response): Promise<Response> {
