@@ -11,9 +11,9 @@ export async function getUnidadesMedidaAdmin(req: Request, res: Response): Promi
         await conn.end();
         const unidadesMedidaRes = data[0] as [UnidadMedida];
         if(!unidadesMedidaRes[0]) {
-            return res.status(200).json({ success:false, data:[], message: "No se encontró unidades de medida" });
+            return res.status(200).json({ data:[], message: "No se encontró unidades de medida" });
         }
-        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+        return res.status(200).json({ data:data[0], message: "Se obtuvo registros" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -27,9 +27,9 @@ export async function getUnidadesMedida(req: Request, res: Response): Promise<Re
         await conn.end();
         const unidadesMedidaRes = data[0] as [UnidadMedida];
         if(!unidadesMedidaRes[0]) {
-            return res.status(200).json({ success:false, data:[], message: "No se encontró unidades de medida" });
+            return res.status(200).json({ data:[], message: "No se encontró unidades de medida" });
         }
-        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+        return res.status(200).json({ data:data[0], message: "Se obtuvo registros" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -47,7 +47,7 @@ export async function registerUnidadMedida(req: Request, res: Response): Promise
         const data = await conn.query('INSERT INTO MA_UNIDADMEDIDA SET ?', [unidadMedida]);
         await conn.end();
         const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
-        return res.status(200).json({ success:true, data: unidadMedida, message: "Se registró la unidad de medida con éxito" });
+        return res.status(200).json({ data: unidadMedida, message: "Se registró la unidad de medida con éxito" });
     } catch (error) {
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
@@ -68,7 +68,7 @@ export async function updateUnidadMedida(req: Request, res: Response): Promise<R
         const conn = await connect();
         await conn.query('UPDATE MA_UNIDADMEDIDA SET ? WHERE c_unidadmedida = ?', [unidadMedida, c_unidadmedida]);
         await conn.end();
-        return res.status(200).json({ success:true, data: {...unidadMedida}, message: "Se actualizó la unidad de medida con éxito"  });
+        return res.status(200).json({ data: {...unidadMedida}, message: "Se actualizó la unidad de medida con éxito"  });
     } catch (error) {
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
@@ -86,9 +86,9 @@ export async function getUnidadMedidaByNPerfil(req: Request, res: Response): Pro
         await conn.end();
         const unidadMedidaRes = data[0] as [UnidadMedida];
         if(!unidadMedidaRes[0]) {
-            return res.status(200).json({ success:false, data:{}, message: "No se encontró la unidad de medida" });
+            return res.status(200).json({ data:{}, message: "No se encontró la unidad de medida" });
         }
-        return res.status(200).json({ success:true, data: unidadMedidaRes[0], message: "Se obtuvo la unidad de medida con éxito" });
+        return res.status(200).json({ data: unidadMedidaRes[0], message: "Se obtuvo la unidad de medida con éxito" });
     } catch (error) {
         console.error(error);
         return res.status(500).send(error);

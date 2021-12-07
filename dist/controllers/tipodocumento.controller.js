@@ -23,9 +23,9 @@ function getTiposDocumentoAdmin(req, res) {
             yield conn.end();
             const tIposDocumentoRes = data[0];
             if (!tIposDocumentoRes[0]) {
-                return res.status(200).json({ success: false, data: [], message: "No se encontró tipos de documento" });
+                return res.status(200).json({ data: [], message: "No se encontró tipos de documento" });
             }
-            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo registros" });
+            return res.status(200).json({ data: data[0], message: "Se obtuvo registros" });
         }
         catch (error) {
             console.error(error);
@@ -42,9 +42,9 @@ function getTiposDocumento(req, res) {
             yield conn.end();
             const tIposDocumentoRes = data[0];
             if (!tIposDocumentoRes[0]) {
-                return res.status(200).json({ success: false, data: [], message: "No se encontró tipos de documento" });
+                return res.status(200).json({ data: [], message: "No se encontró tipos de documento" });
             }
-            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo registros" });
+            return res.status(200).json({ data: data[0], message: "Se obtuvo registros" });
         }
         catch (error) {
             console.error(error);
@@ -66,7 +66,7 @@ function registerTipoDocumento(req, res) {
             const data = yield conn.query('INSERT INTO MA_TIPODOCUMENTO SET ?', [tIpoDocumento]);
             yield conn.end();
             const parsedRes = data[0];
-            return res.status(200).json({ success: true, data: tIpoDocumento, message: "Se registró el tipo de documento con éxito" });
+            return res.status(200).json({ data: tIpoDocumento, message: "Se registró el tipo de documento con éxito" });
         }
         catch (error) {
             console.error(error);
@@ -92,7 +92,7 @@ function updateTipoDocumento(req, res) {
             const conn = yield (0, database_1.connect)();
             yield conn.query('UPDATE MA_TIPODOCUMENTO SET ? WHERE c_tipodocumento = ?', [tIpoDocumento, c_tipodocumento]);
             yield conn.end();
-            return res.status(200).json({ success: true, data: Object.assign({}, tIpoDocumento), message: "Se actualizó el tipo de documento con éxito" });
+            return res.status(200).json({ data: Object.assign({}, tIpoDocumento), message: "Se actualizó el tipo de documento con éxito" });
         }
         catch (error) {
             console.error(error);
@@ -114,9 +114,9 @@ function getTipoDocumentoByNPerfil(req, res) {
             yield conn.end();
             const tIpoDocumentoRes = data[0];
             if (!tIpoDocumentoRes[0]) {
-                return res.status(200).json({ success: false, data: {}, message: "No se encontró el tipo de documento" });
+                return res.status(200).json({ data: {}, message: "No se encontró el tipo de documento" });
             }
-            return res.status(200).json({ success: true, data: tIpoDocumentoRes[0], message: "Se obtuvo el tipo de documento con éxito" });
+            return res.status(200).json({ data: tIpoDocumentoRes[0], message: "Se obtuvo el tipo de documento con éxito" });
         }
         catch (error) {
             console.error(error);

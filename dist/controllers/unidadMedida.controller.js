@@ -23,9 +23,9 @@ function getUnidadesMedidaAdmin(req, res) {
             yield conn.end();
             const unidadesMedidaRes = data[0];
             if (!unidadesMedidaRes[0]) {
-                return res.status(200).json({ success: false, data: [], message: "No se encontró unidades de medida" });
+                return res.status(200).json({ data: [], message: "No se encontró unidades de medida" });
             }
-            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo registros" });
+            return res.status(200).json({ data: data[0], message: "Se obtuvo registros" });
         }
         catch (error) {
             console.error(error);
@@ -42,9 +42,9 @@ function getUnidadesMedida(req, res) {
             yield conn.end();
             const unidadesMedidaRes = data[0];
             if (!unidadesMedidaRes[0]) {
-                return res.status(200).json({ success: false, data: [], message: "No se encontró unidades de medida" });
+                return res.status(200).json({ data: [], message: "No se encontró unidades de medida" });
             }
-            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo registros" });
+            return res.status(200).json({ data: data[0], message: "Se obtuvo registros" });
         }
         catch (error) {
             console.error(error);
@@ -66,7 +66,7 @@ function registerUnidadMedida(req, res) {
             const data = yield conn.query('INSERT INTO MA_UNIDADMEDIDA SET ?', [unidadMedida]);
             yield conn.end();
             const parsedRes = data[0];
-            return res.status(200).json({ success: true, data: unidadMedida, message: "Se registró la unidad de medida con éxito" });
+            return res.status(200).json({ data: unidadMedida, message: "Se registró la unidad de medida con éxito" });
         }
         catch (error) {
             console.error(error);
@@ -92,7 +92,7 @@ function updateUnidadMedida(req, res) {
             const conn = yield (0, database_1.connect)();
             yield conn.query('UPDATE MA_UNIDADMEDIDA SET ? WHERE c_unidadmedida = ?', [unidadMedida, c_unidadmedida]);
             yield conn.end();
-            return res.status(200).json({ success: true, data: Object.assign({}, unidadMedida), message: "Se actualizó la unidad de medida con éxito" });
+            return res.status(200).json({ data: Object.assign({}, unidadMedida), message: "Se actualizó la unidad de medida con éxito" });
         }
         catch (error) {
             console.error(error);
@@ -114,9 +114,9 @@ function getUnidadMedidaByNPerfil(req, res) {
             yield conn.end();
             const unidadMedidaRes = data[0];
             if (!unidadMedidaRes[0]) {
-                return res.status(200).json({ success: false, data: {}, message: "No se encontró la unidad de medida" });
+                return res.status(200).json({ data: {}, message: "No se encontró la unidad de medida" });
             }
-            return res.status(200).json({ success: true, data: unidadMedidaRes[0], message: "Se obtuvo la unidad de medida con éxito" });
+            return res.status(200).json({ data: unidadMedidaRes[0], message: "Se obtuvo la unidad de medida con éxito" });
         }
         catch (error) {
             console.error(error);
