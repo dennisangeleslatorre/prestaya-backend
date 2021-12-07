@@ -21,6 +21,7 @@ var cors = require('cors');
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
 const role_routes_1 = __importDefault(require("./routes/role.routes"));
 const compania_routes_1 = __importDefault(require("./routes/compania.routes"));
+const agencia_routes_1 = __importDefault(require("./routes/agencia.routes"));
 const pais_routes_1 = __importDefault(require("./routes/pais.routes"));
 const departamento_routes_1 = __importDefault(require("./routes/departamento.routes"));
 const provincia_routes_1 = __importDefault(require("./routes/provincia.routes"));
@@ -52,6 +53,7 @@ class App {
         this.app.use('/user', user_routes_1.default);
         this.app.use('/role', role_routes_1.default);
         this.app.use('/compania', compania_routes_1.default);
+        this.app.use('/agencia', agencia_routes_1.default);
         this.app.use('/pais', pais_routes_1.default);
         this.app.use('/departamento', departamento_routes_1.default);
         this.app.use('/provincia', provincia_routes_1.default);

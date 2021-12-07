@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { connect } from '../database'
 import { Pais } from 'interfaces/pais.interface'
 import { ResultSetHeader } from "../interfaces/result"
+import moment from 'moment'
 
 export async function getPaises(req: Request, res: Response): Promise<Response> {
     try {
@@ -9,7 +10,7 @@ export async function getPaises(req: Request, res: Response): Promise<Response> 
         const [rows, fields] = await conn.query('SELECT c_paiscodigo, c_descripcion FROM MA_PAIS where c_estado="A"')
         await conn.end();
         const paisesRes = rows as [Pais];
-        if(!paisesRes) {
+        if(!paisesRes[0]) {
             return res.status(200).json({data:[], message: "No se encontró paises" });
         }
         return res.status(200).json({data:rows, message: "Se obtuvo registros" });
@@ -25,7 +26,7 @@ export async function getPaisesAdmin(req: Request, res: Response): Promise<Respo
         const [rows, fields] = await conn.query('SELECT * FROM MA_PAIS')
         await conn.end();
         const paisesRes = rows as [Pais];
-        if(!paisesRes) {
+        if(!paisesRes[0]) {
             return res.status(200).json({data:[], message: "No se encontró paises" });
         }
         return res.status(200).json({data:rows, message: "Se obtuvo registros" });
@@ -58,19 +59,38 @@ export async function registerPais(req: Request, res: Response): Promise<Respons
     }
 }
 
-/*
+export async function getPaisByCodigoPais(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_codigopais = req.params.c_codigopais;
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_codigopais]);
+        await conn.end();
+        const paisRes = rows as [Pais];
+        if(!paisRes[0]) {
+            return res.status(200).json({ data:{}, message: "No se encontró el país." });
+        }
+        return res.status(200).json({ data: paisRes[0], message: "Se obtuvo el país con éxito." });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send(error);
+    }
+}
+
 export async function updatePais(req: Request, res: Response): Promise<Response> {
     try {
         //Obtener datos
         const c_paiscodigo = req.params.c_paiscodigo;
-        const body = req.body
-        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
-        if(body.c_codigousuario) body.c_ultimousuario = body.c_codigousuario;
-        const pais: Pais = req.body;
-        const conn = await connect();
-        await conn.query('UPDATE MA_PAIS SET ? WHERE c_paiscodigo = ?', [pais, c_paiscodigo]);
-        await conn.end();
-        return res.status(200).json({ success:true, data: {...pais}, message: "Se actualizó el pais con éxito"  });
+        const body = req.body;
+        if(body.c_ultimousuario) {
+            body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+            body.c_ultimousuario = body.c_usuarioregistro;
+            const pais: Pais = req.body;
+            const conn = await connect();
+            await conn.query('UPDATE MA_PAIS SET ? WHERE c_paiscodigo = ?', [pais, c_paiscodigo]);
+            await conn.end();
+            return res.status(200).json({ data: {...pais}, message: "Se actualizó el pais con éxito"  });
+        }
+        return res.status(500).json({ message: "No se está enviando el usuario que realiza la actualización."  });
     } catch (error) {
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
@@ -80,6 +100,7 @@ export async function updatePais(req: Request, res: Response): Promise<Response>
     }
 }
 
+/*
 export async function getPaisByPaisCodigo(req: Request, res: Response): Promise<Response> {
     try {
         const c_paiscodigo = req.params.c_paiscodigo;

@@ -1,12 +1,11 @@
 import { Router } from "express"
-import { getProvincias,getProvinciasAdmin} from '../controllers/provincia.controller'
+import { getProvincias,getProvinciasAdmin,registerProvincia,getProvinciaByCodigoProvincia} from '../controllers/provincia.controller'
 
 const router = Router();
 
 router.get('/list',getProvincias );
-router.get('/listAdmin',getProvinciasAdmin );
-/*
-router.post('/register', );
-router.put('/update/:n_perfil', );
-*/
+router.get('/listAll',getProvinciasAdmin );
+router.post('/register', registerProvincia);
+//router.put('/update/:n_perfil', );
+router.get('/getProvinciaByCodigoProvincia',getProvinciaByCodigoProvincia );
 export default router;

@@ -4,16 +4,36 @@ import { Agencia } from '../interfaces/agencia.interface'
 import { ResultSetHeader, Result } from "../interfaces/result"
 import * as bcrypt from 'bcrypt'
 
-export async function getAgencia(req: Request, res: Response) {
+export async function getAgencia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const agencia: Agencia = body;
+        if(agencia.c_compania) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM MA_AGENCIA where c_estado="A" AND c_compania=?',[agencia.c_compania])
+            await conn.end();
+            const agenciaRes =rows as [Agencia];
+            if(!agenciaRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró agencias" });
+            }
+            return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar la compañía para listar los agencias" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function getAgenciaAdmin(req: Request, res: Response) {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_AGENCIA WHERE ?');
+        const [rows, fields] = await conn.query('SELECT * FROM MA_AGENCIA');
         await conn.end();
-        const agenciaRes = data[0] as [Agencia];
+        const agenciaRes = rows as [Agencia];
         if(!agenciaRes[0]) {
             return res.status(200).json({ success: false, data:[], message: "No se encontró agencias." });
         }
-        return res.status(200).json({ success: true, data:data[0], message: "Se obtuvo agencias." });
+        return res.status(200).json({ success: true, data:rows, message: "Se obtuvo agencias." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -25,8 +45,8 @@ export async function registerAgencia(req: Request, res: Response): Promise<Resp
     try {
         const body = req.body;
         if(body.c_codigousuario_r) {
-            body.c_usuarioregistro = body.c_codigousuario_r;
-            if(body.c_codigousuario_r && body.c_compania && body.c_agencia) {
+            body.c_usuarioregistro = body.c_codigousuario_r
+            if(body.c_compania && body.c_agencia && body.c_descripcion) {
                 const agencia: Agencia = body;
                 const conn = await connect();
                 const data = await conn.query('INSERT INTO MA_AGENCIA SET ?', [agencia]);

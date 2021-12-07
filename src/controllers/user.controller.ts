@@ -24,7 +24,6 @@ export async function getUsers(req: Request, res: Response) {
 export async function registerUser(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        console.log("Body", body)
         if(body.c_usuarioregistro) {
             body.d_fecharegistro = moment().format('YYYY-MM-DD HH:MM:ss');
             body.c_clave = bcrypt.hashSync(body.c_clave, 10);
@@ -113,6 +112,22 @@ export async function  login(req: Request, res: Response): Promise<Response> {
         } else {
             return res.status(200).json({ success: false, message: "Usuario y/o contraseña incorrectos." });
         }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: error, message: "Hubo un error." });
+    }
+}
+
+export async function deleteUser(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_codigousuario = req.params.c_codigousuario;
+        if(c_codigousuario) {
+            const conn = await connect();
+            await conn.query('DELETE FROM MA_USUARIOS WHERE c_codigousuario = ?', [c_codigousuario]);
+            await conn.end();
+            return res.status(200).json({ message: "Se actualizó el usuario con éxito." });
+        }
+        return res.status(500).json({ message: "No se está enviando el código para la eliminación."  });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: error, message: "Hubo un error." });

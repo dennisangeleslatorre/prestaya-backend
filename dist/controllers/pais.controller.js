@@ -8,9 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerPais = exports.getPaisesAdmin = exports.getPaises = void 0;
+exports.updatePais = exports.getPaisByCodigoPais = exports.registerPais = exports.getPaisesAdmin = exports.getPaises = void 0;
 const database_1 = require("../database");
+const moment_1 = __importDefault(require("moment"));
 function getPaises(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -18,7 +22,7 @@ function getPaises(req, res) {
             const [rows, fields] = yield conn.query('SELECT c_paiscodigo, c_descripcion FROM MA_PAIS where c_estado="A"');
             yield conn.end();
             const paisesRes = rows;
-            if (!paisesRes) {
+            if (!paisesRes[0]) {
                 return res.status(200).json({ data: [], message: "No se encontró paises" });
             }
             return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
@@ -37,7 +41,7 @@ function getPaisesAdmin(req, res) {
             const [rows, fields] = yield conn.query('SELECT * FROM MA_PAIS');
             yield conn.end();
             const paisesRes = rows;
-            if (!paisesRes) {
+            if (!paisesRes[0]) {
                 return res.status(200).json({ data: [], message: "No se encontró paises" });
             }
             return res.status(200).json({ data: rows, message: "Se obtuvo registros" });
@@ -78,28 +82,55 @@ function registerPais(req, res) {
     });
 }
 exports.registerPais = registerPais;
-/*
-export async function updatePais(req: Request, res: Response): Promise<Response> {
-    try {
-        //Obtener datos
-        const c_paiscodigo = req.params.c_paiscodigo;
-        const body = req.body
-        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
-        if(body.c_codigousuario) body.c_ultimousuario = body.c_codigousuario;
-        const pais: Pais = req.body;
-        const conn = await connect();
-        await conn.query('UPDATE MA_PAIS SET ? WHERE c_paiscodigo = ?', [pais, c_paiscodigo]);
-        await conn.end();
-        return res.status(200).json({ success:true, data: {...pais}, message: "Se actualizó el pais con éxito"  });
-    } catch (error) {
-        console.error(error);
-        const errorAux = JSON.parse(JSON.stringify(error));
-        let message = "Hubo un error.";
-        if(errorAux.errno === 1062) message = "Existe un pais con esos datos";
-        return res.status(500).send({error: error, message: message});
-    }
+function getPaisByCodigoPais(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_codigopais = req.params.c_codigopais;
+            const conn = yield (0, database_1.connect)();
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_codigopais]);
+            yield conn.end();
+            const paisRes = rows;
+            if (!paisRes[0]) {
+                return res.status(200).json({ data: {}, message: "No se encontró el país." });
+            }
+            return res.status(200).json({ data: paisRes[0], message: "Se obtuvo el país con éxito." });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
 }
-
+exports.getPaisByCodigoPais = getPaisByCodigoPais;
+function updatePais(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            //Obtener datos
+            const c_paiscodigo = req.params.c_paiscodigo;
+            const body = req.body;
+            if (body.c_ultimousuario) {
+                body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+                body.c_ultimousuario = body.c_usuarioregistro;
+                const pais = req.body;
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('UPDATE MA_PAIS SET ? WHERE c_paiscodigo = ?', [pais, c_paiscodigo]);
+                yield conn.end();
+                return res.status(200).json({ data: Object.assign({}, pais), message: "Se actualizó el pais con éxito" });
+            }
+            return res.status(500).json({ message: "No se está enviando el usuario que realiza la actualización." });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1062)
+                message = "Existe un pais con esos datos";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.updatePais = updatePais;
+/*
 export async function getPaisByPaisCodigo(req: Request, res: Response): Promise<Response> {
     try {
         const c_paiscodigo = req.params.c_paiscodigo;

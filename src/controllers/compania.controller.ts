@@ -4,22 +4,62 @@ import { Compania } from 'interfaces/compania.interface'
 import { ResultSetHeader } from "../interfaces/result"
 import moment from 'moment'
 
-export async function getCompanias(req: Request, res: Response): Promise<Response> {
+
+export async function getCompania(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_COMPANIA')
+        const [rows, fields] = await conn.query('SELECT c_compania,c_descricpion,c_ruc,c_direccion,c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo FROM  MA_COMPANIA where c_estado="A"')
         await conn.end();
-        const companiasRes = data[0] as [Compania];
-        if(!companiasRes[0]) {
-            return res.status(200).json({ success:false, data:[], message: "No se encontró datos" });
+        const tipoCompaniaRes = rows as [Compania];
+        if(!tipoCompaniaRes[0]) {
+            return res.status(200).json({data:[], message: "No se encontró compañía" });
         }
-        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+        return res.status(200).json({data:rows, message: "Se obtuvo registros" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
     }
 }
 
+export async function getCompaniaAdmin(req: Request, res: Response): Promise<Response> {
+    try {
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM MA_COMPANIA')
+        await conn.end();
+        const TipoCompaniaRes = rows as [Compania];
+        if(!TipoCompaniaRes[0]) {
+            return res.status(200).json({data:[], message: "No se encontró compañía" });
+        }
+        return res.status(200).json({data:rows, message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function registerCompania(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_usuarioregistro) {
+            body.c_ultimousuario = body.c_usuarioregistro
+            if(body.c_compania && body.c_agencia && body.c_ruc && body.c_direccion && body.c_paiscodigo && body.c_despartamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
+                const compania: Compania = body;
+                const conn = await connect();
+                const data = await conn.query('INSERT INTO MA_COMPANIA SET ?', [compania]);
+                await conn.end();
+                const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
+                return res.status(200).json({ success: true, data: compania, message: "Se registró la compañía con éxito." });
+            } return res.status(503).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+        } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error";
+        if(errorAux.errno === 1062) message = "Existe una compañía con esos datos.";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+/*
 export async function registerCompania(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
@@ -77,4 +117,4 @@ export async function getCompaniaByCCompania(req: Request, res: Response): Promi
         console.error(error);
         return res.status(500).send(error);
     }
-}
+}*/
