@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.getByUsername = exports.getUserByCodigoUsuario = exports.updateUser = exports.registerUser = exports.getUsers = void 0;
+exports.deleteUser = exports.login = exports.getByUsername = exports.getUserByCodigoUsuario = exports.updateUser = exports.registerUser = exports.getUsers = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 const bcrypt = __importStar(require("bcrypt"));
@@ -58,7 +58,6 @@ function registerUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = req.body;
-            console.log("Body", body);
             if (body.c_usuarioregistro) {
                 body.d_fecharegistro = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
                 body.c_clave = bcrypt.hashSync(body.c_clave, 10);
@@ -172,4 +171,23 @@ function login(req, res) {
     });
 }
 exports.login = login;
+function deleteUser(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_codigousuario = req.params.c_codigousuario;
+            if (c_codigousuario) {
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('DELETE FROM MA_USUARIOS WHERE c_codigousuario = ?', [c_codigousuario]);
+                yield conn.end();
+                return res.status(200).json({ message: "Se actualizó el usuario con éxito." });
+            }
+            return res.status(500).json({ message: "No se está enviando el código para la eliminación." });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: error, message: "Hubo un error." });
+        }
+    });
+}
+exports.deleteUser = deleteUser;
 //# sourceMappingURL=user.controller.js.map
