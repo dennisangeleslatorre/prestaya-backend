@@ -4,6 +4,7 @@ import { User } from '../interfaces/user.interface'
 import { ResultSetHeader, Result } from "../interfaces/result"
 import moment from 'moment'
 import * as bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 export async function getUsers(req: Request, res: Response) {
     try {
@@ -98,7 +99,9 @@ export async function getByUsername(c_codigousuario:string): Promise<Result> {
     }
 }
 
+
 export async function  login(req: Request, res: Response): Promise<Response> {
+    const secret = "PrestaYA"
     try {
         const { c_codigousuario, c_clave } = req.body;
         const userRes = await getByUsername(c_codigousuario);
@@ -108,7 +111,13 @@ export async function  login(req: Request, res: Response): Promise<Response> {
         if (user[0] != undefined && user[0].c_clave && bcrypt.compareSync(c_clave, user[0].c_clave)) {
             delete user[0].c_clave;
             user[0].a_paginas = user[0].c_paginas.split(",");
-            return res.status(200).json({ success: true, data:user[0], message: "Login con éxito" });
+
+            const payload = {
+                sub: user[0].c_codigousuario
+          };
+          const token = jwt.sign(payload, secret);
+
+            return res.status(200).json({ success: true, data:user[0], message: "Login con éxito", token:token });
         } else {
             return res.status(200).json({ success: false, message: "Usuario y/o contraseña incorrectos." });
         }

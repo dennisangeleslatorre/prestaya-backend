@@ -16,6 +16,8 @@ exports.App = void 0;
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = require("dotenv");
 const morgan_1 = __importDefault(require("morgan"));
+const passport_1 = __importDefault(require("passport"));
+const jwt_strategy_1 = __importDefault(require("./utils/strategies/jwt.strategy"));
 var cors = require('cors');
 // Routes
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
@@ -48,6 +50,8 @@ class App {
     middlewares() {
         this.app.use((0, morgan_1.default)('dev'));
         this.app.use(express_1.default.json());
+        this.app.use(passport_1.default.initialize());
+        passport_1.default.use(jwt_strategy_1.default);
     }
     routes() {
         this.app.use('/user', user_routes_1.default);

@@ -8,5 +8,6 @@ router.post('/register', user_controller_1.registerUser);
 router.post('/login', user_controller_1.login);
 router.put('/:c_codigousuario/update', user_controller_1.updateUser);
 router.get('/:c_codigousuario/getUserByCodigoUsuario', user_controller_1.getUserByCodigoUsuario);
+router.delete('/:c_codigousuario/delete', user_controller_1.deleteUser);
 exports.default = router;
 //# sourceMappingURL=user.routes.js.map
