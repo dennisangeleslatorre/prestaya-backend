@@ -8,6 +8,6 @@ router.get('/list',passport.authenticate('jwt', { session: false }),getDistritos
 router.get('/listAll',passport.authenticate('jwt', { session: false }),getDistritosAdmin);
 router.post('/register',passport.authenticate('jwt', { session: false }),registerDistrito );
 //router.put('/update/:n_perfil', );
-router.get('/getDistritoByCodigoDistrito',passport.authenticate('jwt', { session: false }),getDistritoByCodigoDistrito);
+router.post('/getDistritoByCodigoDistrito',passport.authenticate('jwt', { session: false }),getDistritoByCodigoDistrito);
 
 export default router;

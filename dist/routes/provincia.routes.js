@@ -11,6 +11,6 @@ router.get('/list', passport_1.default.authenticate('jwt', { session: false }), 
 router.get('/listAll', passport_1.default.authenticate('jwt', { session: false }), provincia_controller_1.getProvinciasAdmin);
 router.post('/register', passport_1.default.authenticate('jwt', { session: false }), provincia_controller_1.registerProvincia);
 //router.put('/update/:n_perfil', );
-router.get('/getProvinciaByCodigoProvincia', passport_1.default.authenticate('jwt', { session: false }), provincia_controller_1.getProvinciaByCodigoProvincia);
+router.post('/getProvinciaByCodigoProvincia', passport_1.default.authenticate('jwt', { session: false }), provincia_controller_1.getProvinciaByCodigoProvincia);
 exports.default = router;
 //# sourceMappingURL=provincia.routes.js.map

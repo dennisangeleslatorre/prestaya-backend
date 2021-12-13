@@ -8,6 +8,6 @@ router.get('/list',passport.authenticate('jwt', { session: false }),getDepartame
 router.get('/listAll',passport.authenticate('jwt', { session: false }),getDepartamentosAdmin );
 router.post('/register',passport.authenticate('jwt', { session: false }),registerDepartamento );
 //router.put('/update/:n_perfil', );
-router.get('/:c_codigousuario/getDepartamentoByCodigoDepartamento',passport.authenticate('jwt', { session: false }), getDepartamentoByCodigoDepartamento);
+router.post('/getDepartamentoByCodigoDepartamento',passport.authenticate('jwt', { session: false }), getDepartamentoByCodigoDepartamento);
 
 export default router;

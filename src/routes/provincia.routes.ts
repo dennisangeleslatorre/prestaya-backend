@@ -8,5 +8,5 @@ router.get('/list',passport.authenticate('jwt', { session: false }),getProvincia
 router.get('/listAll',passport.authenticate('jwt', { session: false }),getProvinciasAdmin );
 router.post('/register',passport.authenticate('jwt', { session: false }), registerProvincia);
 //router.put('/update/:n_perfil', );
-router.get('/getProvinciaByCodigoProvincia',passport.authenticate('jwt', { session: false }),getProvinciaByCodigoProvincia );
+router.post('/getProvinciaByCodigoProvincia',passport.authenticate('jwt', { session: false }),getProvinciaByCodigoProvincia );
 export default router;
