@@ -20,6 +20,8 @@ import DistritoRoute from './routes/distrito.routes'
 import TipoDocumentoRoute from './routes/tipoDocumento.routes'
 import TipoProductoRoute from './routes/tipoProducto.routes'
 import UnidadMedidaRoute from './routes/unidadMedida.routes'
+import Parametros from './routes/parametros.routes'
+import Cliente from './routes/cliente.routes'
 
 
 export class App {
@@ -60,6 +62,8 @@ export class App {
         this.app.use('/tipodocumento', TipoDocumentoRoute);
         this.app.use('/tipoproducto', TipoProductoRoute);
         this.app.use('/unidadmedida', UnidadMedidaRoute);
+        this.app.use('/parametros', Parametros);
+        this.app.use('/cliente', Cliente);
     }
 
   
