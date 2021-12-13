@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerCompania = exports.getCompaniaAdmin = exports.getCompania = void 0;
+exports.getCompaniaByCodigoCompania = exports.registerCompania = exports.getCompaniaAdmin = exports.getCompania = void 0;
 const database_1 = require("../database");
 function getCompania(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -78,6 +78,26 @@ function registerCompania(req, res) {
     });
 }
 exports.registerCompania = registerCompania;
+function getCompaniaByCodigoCompania(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_compania = req.params.c_codigocompania;
+            const conn = yield (0, database_1.connect)();
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_COMPANIA WHERE c_compania = ?', [c_compania]);
+            yield conn.end();
+            const companiaRes = rows;
+            if (!companiaRes[0]) {
+                return res.status(200).json({ data: {}, message: "No se encontró la compañía." });
+            }
+            return res.status(200).json({ data: companiaRes[0], message: "Se obtuvo la compañia." });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getCompaniaByCodigoCompania = getCompaniaByCodigoCompania;
 /*
 export async function registerCompania(req: Request, res: Response): Promise<Response> {
     try {

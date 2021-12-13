@@ -59,6 +59,24 @@ export async function registerCompania(req: Request, res: Response): Promise<Res
         return res.status(500).send({error: error, message: message});
     }
 }
+
+export async function getCompaniaByCodigoCompania(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_compania = req.params.c_codigocompania;
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM MA_COMPANIA WHERE c_compania = ?', [c_compania]);
+        await conn.end();
+        const companiaRes = rows as [Compania];
+        if(!companiaRes[0]) {
+            return res.status(200).json({ data:{}, message: "No se encontró la compañía." });
+        }
+        return res.status(200).json({ data: companiaRes[0], message: "Se obtuvo la compañia." });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send(error);
+    }
+}
+
 /*
 export async function registerCompania(req: Request, res: Response): Promise<Response> {
     try {

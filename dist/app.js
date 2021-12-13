@@ -31,6 +31,8 @@ const distrito_routes_1 = __importDefault(require("./routes/distrito.routes"));
 const tipoDocumento_routes_1 = __importDefault(require("./routes/tipoDocumento.routes"));
 const tipoProducto_routes_1 = __importDefault(require("./routes/tipoProducto.routes"));
 const unidadMedida_routes_1 = __importDefault(require("./routes/unidadMedida.routes"));
+const parametros_routes_1 = __importDefault(require("./routes/parametros.routes"));
+const cliente_routes_1 = __importDefault(require("./routes/cliente.routes"));
 class App {
     //Quiere decir qye lo que recibes puede ser tipo numero o string
     //El signo de pregunta dice que puede o no puede llegar una propiedad
@@ -65,6 +67,8 @@ class App {
         this.app.use('/tipodocumento', tipoDocumento_routes_1.default);
         this.app.use('/tipoproducto', tipoProducto_routes_1.default);
         this.app.use('/unidadmedida', unidadMedida_routes_1.default);
+        this.app.use('/parametros', parametros_routes_1.default);
+        this.app.use('/cliente', cliente_routes_1.default);
     }
     listen() {
         return __awaiter(this, void 0, void 0, function* () {

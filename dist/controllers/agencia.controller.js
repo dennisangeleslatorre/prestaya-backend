@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerAgencia = exports.getAgenciaAdmin = exports.getAgencia = void 0;
+exports.getAgenciaByCodigoAgencia = exports.registerAgencia = exports.getAgenciaAdmin = exports.getAgencia = void 0;
 const database_1 = require("../database");
 function getAgencia(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -84,6 +84,30 @@ function registerAgencia(req, res) {
     });
 }
 exports.registerAgencia = registerAgencia;
+function getAgenciaByCodigoAgencia(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = req.body;
+            const agencia = body;
+            if (agencia.c_compania && agencia.c_agencia) {
+                const conn = yield (0, database_1.connect)();
+                const [rows, fields] = yield conn.query('SELECT * FROM MA_AGENCIA where c_estado="A" AND c_compania=? AND c_agencia=?', [agencia.c_compania, agencia.c_agencia]);
+                yield conn.end();
+                const agenciaRes = rows;
+                if (!agenciaRes[0]) {
+                    return res.status(200).json({ data: [], message: "No se encontró agencias" });
+                }
+                return res.status(200).json({ data: agenciaRes[0], message: "Se obtuvo registros" });
+            }
+            return res.status(200).json({ message: "Se debe enviar el código de compañía y agencia para listar la información de agencia" });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getAgenciaByCodigoAgencia = getAgenciaByCodigoAgencia;
 /*
 export async function updateAgencia(req: Request, res: Response): Promise<Response> {
     try {

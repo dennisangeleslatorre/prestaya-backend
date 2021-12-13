@@ -64,6 +64,26 @@ export async function registerAgencia(req: Request, res: Response): Promise<Resp
     }
 }
 
+
+export async function getAgenciaByCodigoAgencia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const agencia: Agencia = body;
+        if(agencia.c_compania && agencia.c_agencia) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM MA_AGENCIA where c_estado="A" AND c_compania=? AND c_agencia=?',[agencia.c_compania,agencia.c_agencia])
+            await conn.end();
+            const agenciaRes =rows as [Agencia];
+            if(!agenciaRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró agencias" });
+            }
+            return res.status(200).json({ data:agenciaRes[0], message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía y agencia para listar la información de agencia" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
 /*
 export async function updateAgencia(req: Request, res: Response): Promise<Response> {
     try {
