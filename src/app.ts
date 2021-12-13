@@ -1,7 +1,12 @@
 import express, { Application } from 'express'
 import {config as envConfig} from 'dotenv'
 import morgan from 'morgan'
+import passport from 'passport'
+import JWTStrategy from './utils/strategies/jwt.strategy'
 var cors = require('cors')
+
+
+
 
 // Routes
 import UserRoute from './routes/user.routes'
@@ -39,6 +44,8 @@ export class App {
     middlewares() {
         this.app.use(morgan('dev'));
         this.app.use(express.json());
+        this.app.use(passport.initialize());
+        passport.use(JWTStrategy);
     }
 
     routes() {
@@ -54,6 +61,8 @@ export class App {
         this.app.use('/tipoproducto', TipoProductoRoute);
         this.app.use('/unidadmedida', UnidadMedidaRoute);
     }
+
+  
 
     async listen() {
         await this.app.listen(this.app.get('port'))

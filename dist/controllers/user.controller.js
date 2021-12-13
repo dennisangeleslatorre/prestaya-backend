@@ -35,6 +35,7 @@ exports.deleteUser = exports.login = exports.getByUsername = exports.getUserByCo
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 const bcrypt = __importStar(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 function getUsers(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -147,6 +148,7 @@ function getByUsername(c_codigousuario) {
 exports.getByUsername = getByUsername;
 function login(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        const secret = "PrestaYA";
         try {
             const { c_codigousuario, c_clave } = req.body;
             const userRes = yield getByUsername(c_codigousuario);
@@ -158,7 +160,11 @@ function login(req, res) {
             if (user[0] != undefined && user[0].c_clave && bcrypt.compareSync(c_clave, user[0].c_clave)) {
                 delete user[0].c_clave;
                 user[0].a_paginas = user[0].c_paginas.split(",");
-                return res.status(200).json({ success: true, data: user[0], message: "Login con éxito" });
+                const payload = {
+                    sub: user[0].c_codigousuario
+                };
+                const token = jsonwebtoken_1.default.sign(payload, secret);
+                return res.status(200).json({ success: true, data: user[0], message: "Login con éxito", token: token });
             }
             else {
                 return res.status(200).json({ success: false, message: "Usuario y/o contraseña incorrectos." });

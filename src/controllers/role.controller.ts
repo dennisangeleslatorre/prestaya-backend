@@ -20,6 +20,23 @@ export async function getRoles(req: Request, res: Response): Promise<Response> {
     }
 }
 
+
+export async function getRolesActivos(req: Request, res: Response): Promise<Response> {
+    try {
+        const conn = await connect();
+        const data = await conn.query('SELECT * FROM MA_PERFIL WHERE C_ESTADO="A"')
+        await conn.end();
+        const rolesRes = data[0] as [Role];
+        if(!rolesRes[0]) {
+            return res.status(200).json({ success:false, data:[], message: "No se encontró roles" });
+        }
+        return res.status(200).json({ success:true, data:data[0], message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
 export async function registerRole(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;

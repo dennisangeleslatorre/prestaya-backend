@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRoleByNPerfil = exports.updateRole = exports.registerRole = exports.getRoles = void 0;
+exports.getRoleByNPerfil = exports.updateRole = exports.registerRole = exports.getRolesActivos = exports.getRoles = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getRoles(req, res) {
@@ -34,6 +34,25 @@ function getRoles(req, res) {
     });
 }
 exports.getRoles = getRoles;
+function getRolesActivos(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const conn = yield (0, database_1.connect)();
+            const data = yield conn.query('SELECT * FROM MA_PERFIL WHERE C_ESTADO="A"');
+            yield conn.end();
+            const rolesRes = data[0];
+            if (!rolesRes[0]) {
+                return res.status(200).json({ success: false, data: [], message: "No se encontró roles" });
+            }
+            return res.status(200).json({ success: true, data: data[0], message: "Se obtuvo registros" });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).send(error);
+        }
+    });
+}
+exports.getRolesActivos = getRolesActivos;
 function registerRole(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
