@@ -63,6 +63,29 @@ export async function registerDistrito(req: Request, res: Response): Promise<Res
     }
 }
 
+export async function updateDistrito(req: Request, res: Response): Promise<Response> {
+    try {
+        //Obtener datos
+        const body = req.body;
+        const c_paiscodigo = body.c_paiscodigo;
+        const c_departamentocodigo = body.c_departamentocodigo;
+        const c_provinciacodigo = body.c_provinciacodigo;
+        const c_distritocodigo = body.c_distritocodigo;
+        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        const distrito: Distrito = req.body;
+        const conn = await connect();
+        await conn.query('UPDATE MA_DISTRITO SET ? WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ? AND c_distritocodigo = ?', [distrito, c_paiscodigo, c_departamentocodigo, c_provinciacodigo, c_distritocodigo]);
+        await conn.end();
+        return res.status(200).json({ data: {...distrito}, message: "Se actualizó el distrito con éxito"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1062) message = "Existe un distrito con esos datos";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
 export async function getDistritoByCodigoDistrito(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
@@ -75,7 +98,7 @@ export async function getDistritoByCodigoDistrito(req: Request, res: Response): 
             if(!DistritoRes[0]) {
                 return res.status(200).json({ data:[], message: "No se encontró distrito" });
             }
-            return res.status(200).json({ rows, message: "Se obtuvo registros" });
+            return res.status(200).json({ data:DistritoRes[0], message: "Se obtuvo registros" });
         }return res.status(200).json({ message: "Se debe enviar el código de pais, departamento, provincia y distrito para listar obtener los datos de distritos" });
     } catch (error) {
         console.error(error)

@@ -8,9 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDistritoByCodigoDistrito = exports.registerDistrito = exports.getDistritosAdmin = exports.getDistritos = void 0;
+exports.getDistritoByCodigoDistrito = exports.updateDistrito = exports.registerDistrito = exports.getDistritosAdmin = exports.getDistritos = void 0;
 const database_1 = require("../database");
+const moment_1 = __importDefault(require("moment"));
 function getDistritos(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -83,6 +87,33 @@ function registerDistrito(req, res) {
     });
 }
 exports.registerDistrito = registerDistrito;
+function updateDistrito(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            //Obtener datos
+            const body = req.body;
+            const c_paiscodigo = body.c_paiscodigo;
+            const c_departamentocodigo = body.c_departamentocodigo;
+            const c_provinciacodigo = body.c_provinciacodigo;
+            const c_distritocodigo = body.c_distritocodigo;
+            body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+            const distrito = req.body;
+            const conn = yield (0, database_1.connect)();
+            yield conn.query('UPDATE MA_DISTRITO SET ? WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ? AND c_distritocodigo = ?', [distrito, c_paiscodigo, c_departamentocodigo, c_provinciacodigo, c_distritocodigo]);
+            yield conn.end();
+            return res.status(200).json({ data: Object.assign({}, distrito), message: "Se actualizó el distrito con éxito" });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1062)
+                message = "Existe un distrito con esos datos";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.updateDistrito = updateDistrito;
 function getDistritoByCodigoDistrito(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -96,7 +127,7 @@ function getDistritoByCodigoDistrito(req, res) {
                 if (!DistritoRes[0]) {
                     return res.status(200).json({ data: [], message: "No se encontró distrito" });
                 }
-                return res.status(200).json({ rows, message: "Se obtuvo registros" });
+                return res.status(200).json({ data: DistritoRes[0], message: "Se obtuvo registros" });
             }
             return res.status(200).json({ message: "Se debe enviar el código de pais, departamento, provincia y distrito para listar obtener los datos de distritos" });
         }
