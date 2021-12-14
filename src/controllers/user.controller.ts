@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken'
 export async function getUsers(req: Request, res: Response) {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT c_codigousuario,c_nombres,c_correo,c_telefono,A.c_estado as c_estado_usuario,B.n_perfil,c_codigoperfil,c_paginas,c_botones,B.c_estado AS c_estado_perfil FROM MA_USUARIOS A JOIN MA_PERFIL B ON A.n_perfil=B.n_perfil');
+        const data = await conn.query('SELECT A.*, B.c_codigoperfil FROM MA_USUARIOS A JOIN MA_PERFIL B ON A.n_perfil=B.n_perfil');
         await conn.end();
         const userRes = data[0] as [User];
         if(!userRes[0]) {

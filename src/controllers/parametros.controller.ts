@@ -13,7 +13,7 @@ export async function getParametros(req: Request, res: Response): Promise<Respon
         await conn.end();
         const parametrosRes = rows as [Parametros];
         if(!parametrosRes[0]) {
-            return res.status(200).json({data:[], message: "No se encontró compañía" });
+            return res.status(200).json({data:[], message: "No se encontró parámetros" });
         }
         return res.status(200).json({data:rows, message: "Se obtuvo registros" });
     } catch (error) {

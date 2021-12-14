@@ -21,6 +21,7 @@ import TipoDocumentoRoute from './routes/tipoDocumento.routes'
 import TipoProductoRoute from './routes/tipoProducto.routes'
 import UnidadMedidaRoute from './routes/unidadMedida.routes'
 import Parametros from './routes/parametros.routes'
+import Periodos from './routes/periodos.routes'
 import Cliente from './routes/cliente.routes'
 
 
@@ -63,6 +64,7 @@ export class App {
         this.app.use('/tipoproducto', TipoProductoRoute);
         this.app.use('/unidadmedida', UnidadMedidaRoute);
         this.app.use('/parametros', Parametros);
+        this.app.use('/periodos', Periodos);
         this.app.use('/cliente', Cliente);
     }
 
