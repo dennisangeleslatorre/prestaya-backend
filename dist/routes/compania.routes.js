@@ -11,6 +11,6 @@ router.get('/list', passport_1.default.authenticate('jwt', { session: false }), 
 router.get('/listAll', passport_1.default.authenticate('jwt', { session: false }), compania_controller_1.getCompaniaAdmin);
 router.post('/register', passport_1.default.authenticate('jwt', { session: false }), compania_controller_1.registerCompania);
 router.get('/:c_codigocompania/getCompaniaByCodigoCompania', passport_1.default.authenticate('jwt', { session: false }), compania_controller_1.getCompaniaByCodigoCompania);
-router.put('/update/:n_perfil');
+router.put('/update', passport_1.default.authenticate('jwt', { session: false }), compania_controller_1.updateCompania);
 exports.default = router;
 //# sourceMappingURL=compania.routes.js.map

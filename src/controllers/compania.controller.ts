@@ -41,8 +41,9 @@ export async function registerCompania(req: Request, res: Response): Promise<Res
     try {
         const body = req.body;
         if(body.c_usuarioregistro) {
-            body.c_ultimousuario = body.c_usuarioregistro
-            if(body.c_compania && body.c_agencia && body.c_ruc && body.c_direccion && body.c_paiscodigo && body.c_despartamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
+            body.c_ultimousuario = body.c_usuarioregistro;
+            console.log("Cuerpo", body);
+            if(body.c_compania && body.c_ruc && body.c_direccion && body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
                 const compania: Compania = body;
                 const conn = await connect();
                 const data = await conn.query('INSERT INTO MA_COMPANIA SET ?', [compania]);
@@ -77,6 +78,26 @@ export async function getCompaniaByCodigoCompania(req: Request, res: Response): 
     }
 }
 
+export async function updateCompania(req: Request, res: Response): Promise<Response> {
+    try {
+        //Obtener datos
+        const body = req.body;
+        const c_compania = body.c_compania;
+        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        const compania: Compania = req.body;
+        const conn = await connect();
+        await conn.query('UPDATE MA_COMPANIA SET ? WHERE c_compania = ?', [compania, c_compania]);
+        await conn.end();
+        return res.status(200).json({ data: {...compania}, message: "Se actualizó la compañía con éxito"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1062) message = "Existe una compañía con esos datos";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
 /*
 export async function registerCompania(req: Request, res: Response): Promise<Response> {
     try {
@@ -95,27 +116,6 @@ export async function registerCompania(req: Request, res: Response): Promise<Res
         const errorAux = JSON.parse(JSON.stringify(error));
         let message = "";
         if(errorAux.errno === 1062) message = "Existe un rol con esos datos";
-        return res.status(500).send({error: error, message: message});
-    }
-}
-
-export async function updateCompania(req: Request, res: Response): Promise<Response> {
-    try {
-        //Obtener datos
-        const c_compania = req.params.c_compania;
-        const body = req.body
-        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
-        if(body.c_codigousuario) body.c_ultimousuario = body.c_codigousuario;
-        const compania: Compania = req.body;
-        const conn = await connect();
-        await conn.query('UPDATE MA_COMPANIA SET ? WHERE c_compania = ?', [compania, c_compania]);
-        await conn.end();
-        return res.status(200).json({ success:true, data: {...compania}, message: "Se actualizó la compañía con éxito"  });
-    } catch (error) {
-        console.error(error);
-        const errorAux = JSON.parse(JSON.stringify(error));
-        let message = "Hubo un error.";
-        if(errorAux.errno === 1062) message = "Existe una compañía con esos datos";
         return res.status(500).send({error: error, message: message});
     }
 }

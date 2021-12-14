@@ -93,7 +93,7 @@ function getPaisByCodigoPais(req, res) {
             if (!paisRes[0]) {
                 return res.status(200).json({ data: {}, message: "No se encontró el país." });
             }
-            return res.status(200).json({ data: rows, message: "Se obtuvo el país con éxito." });
+            return res.status(200).json({ data: paisRes[0], message: "Se obtuvo el país con éxito." });
         }
         catch (error) {
             console.error(error);
