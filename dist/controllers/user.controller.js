@@ -40,7 +40,7 @@ function getUsers(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const conn = yield (0, database_1.connect)();
-            const data = yield conn.query('SELECT * FROM MA_USUARIOS');
+            const data = yield conn.query('SELECT c_codigousuario,c_nombres,c_correo,c_telefono,A.c_estado as c_estado_usuario,B.n_perfil,c_codigoperfil,c_paginas,c_botones,B.c_estado AS c_estado_perfil FROM MA_USUARIOS A JOIN MA_PERFIL B ON A.n_perfil=B.n_perfil');
             yield conn.end();
             const userRes = data[0];
             if (!userRes[0]) {
