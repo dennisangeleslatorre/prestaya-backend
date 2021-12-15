@@ -32,6 +32,7 @@ const tipoDocumento_routes_1 = __importDefault(require("./routes/tipoDocumento.r
 const tipoProducto_routes_1 = __importDefault(require("./routes/tipoProducto.routes"));
 const unidadMedida_routes_1 = __importDefault(require("./routes/unidadMedida.routes"));
 const parametros_routes_1 = __importDefault(require("./routes/parametros.routes"));
+const periodos_routes_1 = __importDefault(require("./routes/periodos.routes"));
 const cliente_routes_1 = __importDefault(require("./routes/cliente.routes"));
 class App {
     //Quiere decir qye lo que recibes puede ser tipo numero o string
@@ -68,6 +69,7 @@ class App {
         this.app.use('/tipoproducto', tipoProducto_routes_1.default);
         this.app.use('/unidadmedida', unidadMedida_routes_1.default);
         this.app.use('/parametros', parametros_routes_1.default);
+        this.app.use('/periodos', periodos_routes_1.default);
         this.app.use('/cliente', cliente_routes_1.default);
     }
     listen() {

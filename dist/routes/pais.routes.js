@@ -11,6 +11,7 @@ router.get('/list', passport_1.default.authenticate('jwt', { session: false }), 
 router.get('/listAll', passport_1.default.authenticate('jwt', { session: false }), pais_controller_1.getPaisesAdmin);
 router.post('/register', passport_1.default.authenticate('jwt', { session: false }), pais_controller_1.registerPais);
 router.put('/:c_paiscodigo/update', passport_1.default.authenticate('jwt', { session: false }), pais_controller_1.updatePais);
-router.get('/:c_codigopais/getPaisByCodigoPais', passport_1.default.authenticate('jwt', { session: false }), pais_controller_1.getPaisByCodigoPais);
+router.post('/:c_paiscodigo/delete', passport_1.default.authenticate('jwt', { session: false }), pais_controller_1.deletePais);
+router.get('/:c_paiscodigo/getPaisByCodigoPais', passport_1.default.authenticate('jwt', { session: false }), pais_controller_1.getPaisByCodigoPais);
 exports.default = router;
 //# sourceMappingURL=pais.routes.js.map

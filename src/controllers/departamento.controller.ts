@@ -104,6 +104,26 @@ export async function updateDepartamento(req: Request, res: Response): Promise<R
     }
 }
 
+export async function deleteDepartamento(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const departamento: Departamento = body;
+        if(departamento.c_paiscodigo && departamento.c_departamentocodigo) {
+            const conn = await connect();
+            await conn.query('DELETE FROM MA_PAIS WHERE c_paiscodigo = ?', [departamento.c_paiscodigo,departamento.c_departamentocodigo]);
+            await conn.end();
+            return res.status(200).json({ message: "Se eliminó el departamento con éxito"  });
+        }return res.status(200).json({ message: "Se debe enviar el código del país y departamento"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar el país debido a que tiene departamentos asociados";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
+
 /*
 export async function getDepartamentoByNPerfil(req: Request, res: Response): Promise<Response> {
     try {

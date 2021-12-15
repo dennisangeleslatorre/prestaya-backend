@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateDepartamento = exports.getDepartamentoByCodigoDepartamento = exports.registerDepartamento = exports.getDepartamentosAdmin = exports.getDepartamentos = void 0;
+exports.deleteDepartamento = exports.updateDepartamento = exports.getDepartamentoByCodigoDepartamento = exports.registerDepartamento = exports.getDepartamentosAdmin = exports.getDepartamentos = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getDepartamentos(req, res) {
@@ -133,6 +133,30 @@ function updateDepartamento(req, res) {
     });
 }
 exports.updateDepartamento = updateDepartamento;
+function deleteDepartamento(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = req.body;
+            const departamento = body;
+            if (departamento.c_paiscodigo && departamento.c_departamentocodigo) {
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('DELETE FROM MA_PAIS WHERE c_paiscodigo = ?', [departamento.c_paiscodigo, departamento.c_departamentocodigo]);
+                yield conn.end();
+                return res.status(200).json({ message: "Se eliminó el departamento con éxito" });
+            }
+            return res.status(200).json({ message: "Se debe enviar el código del país y departamento" });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar el país debido a que tiene departamentos asociados";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.deleteDepartamento = deleteDepartamento;
 /*
 export async function getDepartamentoByNPerfil(req: Request, res: Response): Promise<Response> {
     try {

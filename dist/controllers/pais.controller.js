@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePais = exports.getPaisByCodigoPais = exports.registerPais = exports.getPaisesAdmin = exports.getPaises = void 0;
+exports.deletePais = exports.updatePais = exports.getPaisByCodigoPais = exports.registerPais = exports.getPaisesAdmin = exports.getPaises = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getPaises(req, res) {
@@ -85,9 +85,9 @@ exports.registerPais = registerPais;
 function getPaisByCodigoPais(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const c_codigopais = req.params.c_codigopais;
+            const c_paiscodigo = req.params.c_paiscodigo;
             const conn = yield (0, database_1.connect)();
-            const [rows, fields] = yield conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_codigopais]);
+            const [rows, fields] = yield conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_paiscodigo]);
             yield conn.end();
             const paisRes = rows;
             if (!paisRes[0]) {
@@ -130,6 +130,26 @@ function updatePais(req, res) {
     });
 }
 exports.updatePais = updatePais;
+function deletePais(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_paiscodigo = req.params.c_paiscodigo;
+            const conn = yield (0, database_1.connect)();
+            yield conn.query('DELETE FROM MA_PAIS WHERE c_paiscodigo = ?', [c_paiscodigo]);
+            yield conn.end();
+            return res.status(200).json({ message: "Se eliminó el pais con éxito" });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar el país debido a que tiene departamentos asociados";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.deletePais = deletePais;
 /*
 export async function getPaisByPaisCodigo(req: Request, res: Response): Promise<Response> {
     try {

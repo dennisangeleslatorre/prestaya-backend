@@ -61,9 +61,9 @@ export async function registerPais(req: Request, res: Response): Promise<Respons
 
 export async function getPaisByCodigoPais(req: Request, res: Response): Promise<Response> {
     try {
-        const c_codigopais = req.params.c_codigopais;
+        const c_paiscodigo = req.params.c_paiscodigo;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_codigopais]);
+        const [rows, fields] = await conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_paiscodigo]);
         await conn.end();
         const paisRes = rows as [Pais];
         if(!paisRes[0]) {
@@ -102,14 +102,17 @@ export async function updatePais(req: Request, res: Response): Promise<Response>
 
 export async function deletePais(req: Request, res: Response): Promise<Response> {
     try {
-        const c_codigopais = req.params.c_codigopais;
+        const c_paiscodigo = req.params.c_paiscodigo;
         const conn = await connect();
-        const [rows, fields] = await conn.query('DELETE FROM MA_PAIS WHERE c_paiscodigo = ?', [c_codigopais]);
+        await conn.query('DELETE FROM MA_PAIS WHERE c_paiscodigo = ?', [c_paiscodigo]);
         await conn.end();
-            return res.status(200).json({ message: "Se eliminó el pais con éxito"  });
+        return res.status(200).json({ message: "Se eliminó el pais con éxito"  });
     } catch (error) {
         console.error(error);
-        return res.status(500).send(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar el país debido a que tiene departamentos asociados";
+        return res.status(500).send({error: error, message: message});
     }
 }
 
