@@ -100,6 +100,19 @@ export async function updatePais(req: Request, res: Response): Promise<Response>
     }
 }
 
+export async function deletePais(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_codigopais = req.params.c_codigopais;
+        const conn = await connect();
+        const [rows, fields] = await conn.query('DELETE FROM MA_PAIS WHERE c_paiscodigo = ?', [c_codigopais]);
+        await conn.end();
+            return res.status(200).json({ message: "Se eliminó el pais con éxito"  });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send(error);
+    }
+}
+
 /*
 export async function getPaisByPaisCodigo(req: Request, res: Response): Promise<Response> {
     try {
