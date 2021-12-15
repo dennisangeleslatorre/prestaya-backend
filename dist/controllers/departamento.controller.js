@@ -140,7 +140,7 @@ function deleteDepartamento(req, res) {
             const departamento = body;
             if (departamento.c_paiscodigo && departamento.c_departamentocodigo) {
                 const conn = yield (0, database_1.connect)();
-                yield conn.query('DELETE FROM MA_PAIS WHERE c_paiscodigo = ?', [departamento.c_paiscodigo, departamento.c_departamentocodigo]);
+                yield conn.query('DELETE FROM MA_DEPARTAMENTO WHERE c_paiscodigo = ? AND c_departamentocodigo = ?', [departamento.c_paiscodigo, departamento.c_departamentocodigo]);
                 yield conn.end();
                 return res.status(200).json({ message: "Se eliminó el departamento con éxito" });
             }
@@ -151,7 +151,7 @@ function deleteDepartamento(req, res) {
             const errorAux = JSON.parse(JSON.stringify(error));
             let message = "Hubo un error.";
             if (errorAux.errno === 1217)
-                message = "No se puede eliminar el país debido a que tiene departamentos asociados";
+                message = "No se puede eliminar el departamento debido a que tiene provincias asociadas";
             return res.status(500).send({ error: error, message: message });
         }
     });
