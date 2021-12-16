@@ -100,3 +100,19 @@ export async function getTipoProductoByCodigoTipoProducto(req: Request, res: Res
         return res.status(500).send(error);
     }
 }
+
+export async function deleteTipoProducto(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_tipoproducto = req.params.c_tipoproducto;
+        const conn = await connect();
+        await conn.query('DELETE FROM MA_TIPOPRODUCTO WHERE c_tipoproducto = ?', [c_tipoproducto]);
+        await conn.end();
+        return res.status(200).json({ message: "Se eliminó el tipo de producto con éxito"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar el tipo de producto debido a que tiene datos asociados";
+        return res.status(500).send({error: error, message: message});
+    }
+}
