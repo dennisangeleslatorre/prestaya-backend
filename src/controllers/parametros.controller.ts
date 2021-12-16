@@ -56,7 +56,28 @@ export async function registerParametros(req: Request, res: Response): Promise<R
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
         let message = "Hubo un error";
-        if(errorAux.errno === 1062) message = "Existe una compañía con esos datos.";
+        if(errorAux.errno === 1062) message = "Existe un registro con estos datos.";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function updateParametro(req: Request, res: Response): Promise<Response> {
+    try {
+        //Obtener datos
+        const body = req.body;
+        const c_compania = body.c_compania;
+        const c_parametrocodigo = body.c_parametrocodigo;
+        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        const parametros: Parametros = req.body;
+        const conn = await connect();
+        await conn.query('UPDATE MA_PARAMETROS SET ? WHERE c_compania = ? AND c_parametrocodigo = ?', [parametros, c_compania, c_parametrocodigo]);
+        await conn.end();
+        return res.status(200).json({ data: {...parametros}, message: "Se actualizó el parámetro con éxito"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1062) message = "Existe un parámetro con esos datos";
         return res.status(500).send({error: error, message: message});
     }
 }
@@ -78,5 +99,24 @@ export async function getParametrosByCodigoParametros(req: Request, res: Respons
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
+    }
+}
+
+export async function deleteParametro(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const parametros: Parametros = body;
+        if(parametros.c_compania && parametros.c_parametrocodigo ) {
+            const conn = await connect();
+            await conn.query('DELETE FROM MA_PARAMETROS WHERE c_compania = ? AND c_parametrocodigo = ?', [parametros.c_compania,parametros.c_parametrocodigo ]);
+            await conn.end();
+            return res.status(200).json({ message: "Se eliminó el parámetro con éxito"  });
+        }return res.status(200).json({ message: "Se debe enviar el código de la compañía y el parámetro"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar eliminar el parámetro debido a que tiene datos asociados";
+        return res.status(500).send({error: error, message: message});
     }
 }

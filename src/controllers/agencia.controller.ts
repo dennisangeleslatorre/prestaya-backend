@@ -121,7 +121,7 @@ export async function deleteAgencia(req: Request, res: Response): Promise<Respon
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
         let message = "Hubo un error.";
-        if(errorAux.errno === 1217) message = "No se puede eliminar la agencia debido a que tiene datos asociadas";
+        if(errorAux.errno === 1217) message = "No se puede eliminar la agencia debido a que tiene datos asociados";
         return res.status(500).send({error: error, message: message});
     }
 }
