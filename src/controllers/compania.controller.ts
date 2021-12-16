@@ -8,7 +8,7 @@ import moment from 'moment'
 export async function getCompania(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT c_compania,c_descricpion,c_ruc,c_direccion,c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo FROM  MA_COMPANIA where c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT c_compania,c_descripcion,c_ruc,c_direccion,c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo FROM  MA_COMPANIA where c_estado="A"')
         await conn.end();
         const tipoCompaniaRes = rows as [Compania];
         if(!tipoCompaniaRes[0]) {

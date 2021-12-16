@@ -44,8 +44,8 @@ export async function getAgenciaAdmin(req: Request, res: Response) {
 export async function registerAgencia(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        if(body.c_codigousuario_r) {
-            body.c_usuarioregistro = body.c_codigousuario_r
+        if(body.c_usuarioregistro) {
+            body.c_ultimousuario = body.c_usuarioregistro;
             if(body.c_compania && body.c_agencia && body.c_descripcion) {
                 const agencia: Agencia = body;
                 const conn = await connect();

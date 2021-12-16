@@ -59,8 +59,8 @@ function registerAgencia(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = req.body;
-            if (body.c_codigousuario_r) {
-                body.c_usuarioregistro = body.c_codigousuario_r;
+            if (body.c_usuarioregistro) {
+                body.c_ultimousuario = body.c_usuarioregistro;
                 if (body.c_compania && body.c_agencia && body.c_descripcion) {
                     const agencia = body;
                     const conn = yield (0, database_1.connect)();

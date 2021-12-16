@@ -19,7 +19,7 @@ function getCompania(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const conn = yield (0, database_1.connect)();
-            const [rows, fields] = yield conn.query('SELECT c_compania,c_descricpion,c_ruc,c_direccion,c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo FROM  MA_COMPANIA where c_estado="A"');
+            const [rows, fields] = yield conn.query('SELECT c_compania,c_descripcion,c_ruc,c_direccion,c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo FROM  MA_COMPANIA where c_estado="A"');
             yield conn.end();
             const tipoCompaniaRes = rows;
             if (!tipoCompaniaRes[0]) {
