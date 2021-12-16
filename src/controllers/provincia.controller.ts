@@ -103,6 +103,25 @@ export async function updateProvincia(req: Request, res: Response): Promise<Resp
     }
 }
 
+export async function deleteProvincia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const provincia: Provincia = body;
+        if(provincia.c_paiscodigo && provincia.c_departamentocodigo && provincia.c_provinciacodigo) {
+            const conn = await connect();
+            await conn.query('DELETE FROM MA_PROVINCIA WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ?', [provincia.c_paiscodigo,provincia.c_departamentocodigo,provincia.c_provinciacodigo]);
+            await conn.end();
+            return res.status(200).json({ message: "Se eliminó la provincia con éxito"  });
+        }return res.status(200).json({ message: "Se debe enviar el código del país, departamento y provincia"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar la provincia debido a que tiene distritos asociados";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProvincia = exports.getProvinciaByCodigoProvincia = exports.registerProvincia = exports.getProvinciasAdmin = exports.getProvincias = void 0;
+exports.deleteProvincia = exports.updateProvincia = exports.getProvinciaByCodigoProvincia = exports.registerProvincia = exports.getProvinciasAdmin = exports.getProvincias = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getProvincias(req, res) {
@@ -134,6 +134,30 @@ function updateProvincia(req, res) {
     });
 }
 exports.updateProvincia = updateProvincia;
+function deleteProvincia(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = req.body;
+            const provincia = body;
+            if (provincia.c_paiscodigo && provincia.c_departamentocodigo && provincia.c_provinciacodigo) {
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('DELETE FROM MA_PROVINCIA WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ?', [provincia.c_paiscodigo, provincia.c_departamentocodigo, provincia.c_provinciacodigo]);
+                yield conn.end();
+                return res.status(200).json({ message: "Se eliminó la provincia con éxito" });
+            }
+            return res.status(200).json({ message: "Se debe enviar el código del país, departamento y provincia" });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar la provincia debido a que tiene distritos asociados";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.deleteProvincia = deleteProvincia;
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {

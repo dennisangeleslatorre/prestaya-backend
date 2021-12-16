@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDistritoByCodigoDistrito = exports.updateDistrito = exports.registerDistrito = exports.getDistritosAdmin = exports.getDistritos = void 0;
+exports.deleteDistrito = exports.getDistritoByCodigoDistrito = exports.updateDistrito = exports.registerDistrito = exports.getDistritosAdmin = exports.getDistritos = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getDistritos(req, res) {
@@ -135,6 +135,30 @@ function getDistritoByCodigoDistrito(req, res) {
     });
 }
 exports.getDistritoByCodigoDistrito = getDistritoByCodigoDistrito;
+function deleteDistrito(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = req.body;
+            const distrito = body;
+            if (distrito.c_paiscodigo && distrito.c_departamentocodigo && distrito.c_provinciacodigo && distrito.c_distritocodigo) {
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('DELETE FROM MA_PROVINCIA WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ? AND c_distritocodigo = ?', [distrito.c_paiscodigo, distrito.c_departamentocodigo, distrito.c_provinciacodigo, distrito.c_distritocodigo]);
+                yield conn.end();
+                return res.status(200).json({ message: "Se eliminó la distrito con éxito" });
+            }
+            return res.status(200).json({ message: "Se debe enviar el código del país, departamento, provincia y distrito" });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar el distrito debido a que contiene datos asociados a otras tablas";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.deleteDistrito = deleteDistrito;
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {
