@@ -8,9 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAgenciaByCodigoAgencia = exports.registerAgencia = exports.getAgenciaAdmin = exports.getAgencia = void 0;
+exports.deleteAgencia = exports.updateAgencia = exports.getAgenciaByCodigoAgencia = exports.registerAgencia = exports.getAgenciaAdmin = exports.getAgencia = void 0;
 const database_1 = require("../database");
+const moment_1 = __importDefault(require("moment"));
 function getAgencia(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -108,44 +112,53 @@ function getAgenciaByCodigoAgencia(req, res) {
     });
 }
 exports.getAgenciaByCodigoAgencia = getAgenciaByCodigoAgencia;
-/*
-export async function updateAgencia(req: Request, res: Response): Promise<Response> {
-    try {
-        const body = req.body;
-        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');//AGREGAR UN CAMPO AL BODY
-        if(body.c_codigousuario_m) body.c_ultimousuario = body.c_codigousuario_m;
-        if(body.c_clave != undefined){
-            body.c_clave = bcrypt.hashSync(body.c_clave, 10)
+function updateAgencia(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            //Obtener datos
+            const body = req.body;
+            const c_compania = body.c_compania;
+            const c_agencia = body.c_agencia;
+            body.d_ultimafechamodificacion = (0, moment_1.default)().format('YYYY-MM-DD HH:MM:ss');
+            const agencia = req.body;
+            const conn = yield (0, database_1.connect)();
+            yield conn.query('UPDATE MA_AGENCIA SET ? WHERE c_compania = ? AND c_agencia = ?', [agencia, c_compania, c_agencia]);
+            yield conn.end();
+            return res.status(200).json({ data: Object.assign({}, agencia), message: "Se actualizó la agencia con éxito" });
         }
-        const user: User = body;
-        const conn = await connect();
-        await conn.query('UPDATE MA_USUARIOS SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
-        await conn.end();
-        return res.status(200).json({ success: true, data: {...user, message: "Se actualizó el usuario con éxito." }});
-    } catch (error) {
-        console.error(error);
-        const errorAux = JSON.parse(JSON.stringify(error));
-        let message = "";
-        if(errorAux.errno === 1062) message = "Existe un usuario con esos datos.";
-        return res.status(500).send({error: error, message: message});
-    }
-}
-
-export async function getAgenciaByCodigoAgencia(req: Request, res: Response): Promise<Response> {
-    try {
-        const c_codigousuario = req.params.c_codigousuario;
-        const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_USUARIOS WHERE c_codigousuario = ?', [c_codigousuario]);
-        await conn.end();
-        const userRes = data[0] as [Agencia];
-        if(!userRes[0]) {
-            return res.status(200).json({ success: false, data:{}, message: "No se encontró el usuario." });
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1062)
+                message = "Existe una agencia con esos datos";
+            return res.status(500).send({ error: error, message: message });
         }
-        return res.status(200).json({ success: true, data: userRes[0], message: "Se obtuvo el usuario con éxito." });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send(error);
-    }
+    });
 }
-*/ 
+exports.updateAgencia = updateAgencia;
+function deleteAgencia(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = req.body;
+            const agencia = body;
+            if (agencia.c_compania && agencia.c_agencia) {
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('DELETE FROM MA_AGENCIA WHERE c_compania = ? AND c_agencia = ?', [agencia.c_compania, agencia.c_agencia]);
+                yield conn.end();
+                return res.status(200).json({ message: "Se eliminó la agencia con éxito" });
+            }
+            return res.status(200).json({ message: "Se debe enviar el código de la compañía y agencia" });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar la agencia debido a que tiene datos asociados";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.deleteAgencia = deleteAgencia;
 //# sourceMappingURL=agencia.controller.js.map

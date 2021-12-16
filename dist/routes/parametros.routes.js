@@ -10,7 +10,8 @@ const router = (0, express_1.Router)();
 router.get('/:c_codigocompania/list', passport_1.default.authenticate('jwt', { session: false }), parametros_controller_1.getParametros);
 router.get('/listAll', passport_1.default.authenticate('jwt', { session: false }), parametros_controller_1.getParametrosAdmin);
 router.post('/register', passport_1.default.authenticate('jwt', { session: false }), parametros_controller_1.registerParametros);
-router.put('/update/:n_perfil');
+router.put('/update', passport_1.default.authenticate('jwt', { session: false }), parametros_controller_1.updateParametro);
+router.post('/delete', passport_1.default.authenticate('jwt', { session: false }), parametros_controller_1.deleteParametro);
 router.post('/getParametrosByCodigoParametros', passport_1.default.authenticate('jwt', { session: false }), parametros_controller_1.getParametrosByCodigoParametros);
 exports.default = router;
 //# sourceMappingURL=parametros.routes.js.map

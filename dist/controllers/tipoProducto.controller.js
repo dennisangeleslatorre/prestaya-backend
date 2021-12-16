@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTipoProductoByCodigoTipoProducto = exports.updateTipoProducto = exports.registerTipoProducto = exports.getTipoProductoAdmin = exports.getTipoProducto = void 0;
+exports.deleteTipoProducto = exports.getTipoProductoByCodigoTipoProducto = exports.updateTipoProducto = exports.registerTipoProducto = exports.getTipoProductoAdmin = exports.getTipoProducto = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getTipoProducto(req, res) {
@@ -131,4 +131,24 @@ function getTipoProductoByCodigoTipoProducto(req, res) {
     });
 }
 exports.getTipoProductoByCodigoTipoProducto = getTipoProductoByCodigoTipoProducto;
+function deleteTipoProducto(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_tipoproducto = req.params.c_tipoproducto;
+            const conn = yield (0, database_1.connect)();
+            yield conn.query('DELETE FROM MA_TIPOPRODUCTO WHERE c_tipoproducto = ?', [c_tipoproducto]);
+            yield conn.end();
+            return res.status(200).json({ message: "Se eliminó el tipo de producto con éxito" });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar el tipo de producto debido a que tiene datos asociados";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.deleteTipoProducto = deleteTipoProducto;
 //# sourceMappingURL=tipoProducto.controller.js.map

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUnidadMedida = exports.getUnidadMedidaByCodigoUnidadMedida = exports.registerUnidadMedida = exports.getUnidadesMedida = exports.getUnidadesMedidaAdmin = void 0;
+exports.deleteUnidadMedida = exports.updateUnidadMedida = exports.getUnidadMedidaByCodigoUnidadMedida = exports.registerUnidadMedida = exports.getUnidadesMedida = exports.getUnidadesMedidaAdmin = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getUnidadesMedidaAdmin(req, res) {
@@ -130,21 +130,24 @@ function updateUnidadMedida(req, res) {
     });
 }
 exports.updateUnidadMedida = updateUnidadMedida;
-/*
-export async function getUnidadMedidaByNPerfil(req: Request, res: Response): Promise<Response> {
-    try {
-        const c_unidadmedida = req.params.c_unidadmedida;
-        const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_UNIDADMEDIDA WHERE c_unidadmedida = ?', [c_unidadmedida]);
-        await conn.end();
-        const unidadMedidaRes = data[0] as [UnidadMedida];
-        if(!unidadMedidaRes[0]) {
-            return res.status(200).json({ data:{}, message: "No se encontró la unidad de medida" });
+function deleteUnidadMedida(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_unidadmedida = req.params.c_unidadmedida;
+            const conn = yield (0, database_1.connect)();
+            yield conn.query('DELETE FROM MA_UNIDADMEDIDA WHERE c_unidadmedida = ?', [c_unidadmedida]);
+            yield conn.end();
+            return res.status(200).json({ message: "Se eliminó la undiad de medida con éxito" });
         }
-        return res.status(200).json({ data: unidadMedidaRes[0], message: "Se obtuvo la unidad de medida con éxito" });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send(error);
-    }
-}*/ 
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar la unidad de medida debido a que tiene datos asociados";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.deleteUnidadMedida = deleteUnidadMedida;
 //# sourceMappingURL=unidadMedida.controller.js.map

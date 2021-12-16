@@ -80,3 +80,43 @@ export async function getPeriodosByCodigoPeriodos(req: Request, res: Response): 
         return res.status(500).send(error)
     }
 }
+
+export async function updatePeriodo(req: Request, res: Response): Promise<Response> {
+    try {
+        //Obtener datos
+        const body = req.body;
+        const c_compania = body.c_compania;
+        const c_tipoperiodo = body.c_tipoperiodo;
+        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        const periodo: Periodos = req.body;
+        const conn = await connect();
+        await conn.query('UPDATE MA_PERIODOS SET ? WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo, c_compania, c_tipoperiodo]);
+        await conn.end();
+        return res.status(200).json({ data: {...periodo}, message: "Se actualizó el periodo con éxito"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1062) message = "Existe un periodo con estos datos";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function deletePeriodo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const periodo: Periodos = body;
+        if(periodo.c_compania && periodo.c_tipoperiodo ) {
+            const conn = await connect();
+            await conn.query('DELETE FROM MA_PERIODOS WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo.c_compania,periodo.c_tipoperiodo]);
+            await conn.end();
+            return res.status(200).json({ message: "Se eliminó el periodo con éxito"  });
+        }return res.status(200).json({ message: "Se debe enviar el código de la compañía y el periodo"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar eliminar el periodo debido a que tiene datos asociados";
+        return res.status(500).send({error: error, message: message});
+    }
+}

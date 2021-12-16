@@ -11,6 +11,7 @@ router.get('/list', passport_1.default.authenticate('jwt', { session: false }), 
 router.get('/listAll', passport_1.default.authenticate('jwt', { session: false }), tipoProducto_controller_1.getTipoProductoAdmin);
 router.post('/register', passport_1.default.authenticate('jwt', { session: false }), tipoProducto_controller_1.registerTipoProducto);
 router.put('/:c_tipoproducto/update', passport_1.default.authenticate('jwt', { session: false }), tipoProducto_controller_1.updateTipoProducto);
+router.post('/:c_tipoproducto/delete', passport_1.default.authenticate('jwt', { session: false }), tipoProducto_controller_1.deleteTipoProducto);
 router.get('/:c_tipoproducto/getTipoProductoByCodigoTipoProducto', passport_1.default.authenticate('jwt', { session: false }), tipoProducto_controller_1.getTipoProductoByCodigoTipoProducto);
 exports.default = router;
 //# sourceMappingURL=tipoProducto.routes.js.map

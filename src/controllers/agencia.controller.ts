@@ -3,6 +3,7 @@ import { connect } from '../database'
 import { Agencia } from '../interfaces/agencia.interface'
 import { ResultSetHeader, Result } from "../interfaces/result"
 import * as bcrypt from 'bcrypt'
+import moment from 'moment'
 
 export async function getAgencia(req: Request, res: Response): Promise<Response> {
     try {
@@ -84,43 +85,43 @@ export async function getAgenciaByCodigoAgencia(req: Request, res: Response): Pr
         return res.status(500).send(error)
     }
 }
-/*
+
 export async function updateAgencia(req: Request, res: Response): Promise<Response> {
     try {
+        //Obtener datos
         const body = req.body;
-        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');//AGREGAR UN CAMPO AL BODY
-        if(body.c_codigousuario_m) body.c_ultimousuario = body.c_codigousuario_m;
-        if(body.c_clave != undefined){
-            body.c_clave = bcrypt.hashSync(body.c_clave, 10)
-        }
-        const user: User = body;
+        const c_compania = body.c_compania;
+        const c_agencia = body.c_agencia;
+        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        const agencia: Agencia = req.body;
         const conn = await connect();
-        await conn.query('UPDATE MA_USUARIOS SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
+        await conn.query('UPDATE MA_AGENCIA SET ? WHERE c_compania = ? AND c_agencia = ?', [agencia, c_compania, c_agencia]);
         await conn.end();
-        return res.status(200).json({ success: true, data: {...user, message: "Se actualizó el usuario con éxito." }});
+        return res.status(200).json({ data: {...agencia}, message: "Se actualizó la agencia con éxito"  });
     } catch (error) {
         console.error(error);
         const errorAux = JSON.parse(JSON.stringify(error));
-        let message = "";
-        if(errorAux.errno === 1062) message = "Existe un usuario con esos datos.";
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1062) message = "Existe una agencia con esos datos";
         return res.status(500).send({error: error, message: message});
     }
 }
 
-export async function getAgenciaByCodigoAgencia(req: Request, res: Response): Promise<Response> {
+export async function deleteAgencia(req: Request, res: Response): Promise<Response> {
     try {
-        const c_codigousuario = req.params.c_codigousuario;
-        const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_USUARIOS WHERE c_codigousuario = ?', [c_codigousuario]);
-        await conn.end();
-        const userRes = data[0] as [Agencia];
-        if(!userRes[0]) {
-            return res.status(200).json({ success: false, data:{}, message: "No se encontró el usuario." });
-        }
-        return res.status(200).json({ success: true, data: userRes[0], message: "Se obtuvo el usuario con éxito." });
+        const body = req.body;
+        const agencia: Agencia = body;
+        if(agencia.c_compania && agencia.c_agencia ) {
+            const conn = await connect();
+            await conn.query('DELETE FROM MA_AGENCIA WHERE c_compania = ? AND c_agencia = ?', [agencia.c_compania,agencia.c_agencia ]);
+            await conn.end();
+            return res.status(200).json({ message: "Se eliminó la agencia con éxito"  });
+        }return res.status(200).json({ message: "Se debe enviar el código de la compañía y agencia"  });
     } catch (error) {
         console.error(error);
-        return res.status(500).send(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar la agencia debido a que tiene datos asociados";
+        return res.status(500).send({error: error, message: message});
     }
 }
-*/

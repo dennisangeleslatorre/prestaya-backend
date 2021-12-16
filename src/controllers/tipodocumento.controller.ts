@@ -101,19 +101,18 @@ export async function updateTipoDocumento(req: Request, res: Response): Promise<
     }
 }
 
-/*export async function getTipoDocumentoByNPerfil(req: Request, res: Response): Promise<Response> {
+export async function deleteTipoDocumento(req: Request, res: Response): Promise<Response> {
     try {
         const c_tipodocumento = req.params.c_tipodocumento;
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_TIPODOCUMENTO WHERE c_tipodocumento = ?', [c_tipodocumento]);
+        await conn.query('DELETE FROM MA_TIPODOCUMENTO WHERE c_tipodocumento = ?', [c_tipodocumento]);
         await conn.end();
-        const tIpoDocumentoRes = data[0] as [TipoDocumento];
-        if(!tIpoDocumentoRes[0]) {
-            return res.status(200).json({ data:{}, message: "No se encontró el tipo de documento" });
-        }
-        return res.status(200).json({ data: tIpoDocumentoRes[0], message: "Se obtuvo el tipo de documento con éxito" });
+        return res.status(200).json({ message: "Se eliminó el tipo de documento con éxito"  });
     } catch (error) {
         console.error(error);
-        return res.status(500).send(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar el tipo de documento debido a que tiene datos asociados";
+        return res.status(500).send({error: error, message: message});
     }
-}*/
+}

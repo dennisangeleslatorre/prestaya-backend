@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTipoDocumento = exports.getTipoDocumentoByCodigoTipoDocumento = exports.registerTipoDocumento = exports.getTiposDocumento = exports.getTiposDocumentoAdmin = void 0;
+exports.deleteTipoDocumento = exports.updateTipoDocumento = exports.getTipoDocumentoByCodigoTipoDocumento = exports.registerTipoDocumento = exports.getTiposDocumento = exports.getTiposDocumentoAdmin = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getTiposDocumentoAdmin(req, res) {
@@ -131,20 +131,24 @@ function updateTipoDocumento(req, res) {
     });
 }
 exports.updateTipoDocumento = updateTipoDocumento;
-/*export async function getTipoDocumentoByNPerfil(req: Request, res: Response): Promise<Response> {
-    try {
-        const c_tipodocumento = req.params.c_tipodocumento;
-        const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_TIPODOCUMENTO WHERE c_tipodocumento = ?', [c_tipodocumento]);
-        await conn.end();
-        const tIpoDocumentoRes = data[0] as [TipoDocumento];
-        if(!tIpoDocumentoRes[0]) {
-            return res.status(200).json({ data:{}, message: "No se encontró el tipo de documento" });
+function deleteTipoDocumento(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const c_tipodocumento = req.params.c_tipodocumento;
+            const conn = yield (0, database_1.connect)();
+            yield conn.query('DELETE FROM MA_TIPODOCUMENTO WHERE c_tipodocumento = ?', [c_tipodocumento]);
+            yield conn.end();
+            return res.status(200).json({ message: "Se eliminó el tipo de documento con éxito" });
         }
-        return res.status(200).json({ data: tIpoDocumentoRes[0], message: "Se obtuvo el tipo de documento con éxito" });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send(error);
-    }
-}*/ 
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar el tipo de documento debido a que tiene datos asociados";
+            return res.status(500).send({ error: error, message: message });
+        }
+    });
+}
+exports.deleteTipoDocumento = deleteTipoDocumento;
 //# sourceMappingURL=tipoDocumento.controller.js.map

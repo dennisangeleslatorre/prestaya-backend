@@ -11,6 +11,7 @@ router.get('/list', passport_1.default.authenticate('jwt', { session: false }), 
 router.get('/listAll', passport_1.default.authenticate('jwt', { session: false }), distrito_controller_1.getDistritosAdmin);
 router.post('/register', passport_1.default.authenticate('jwt', { session: false }), distrito_controller_1.registerDistrito);
 router.put('/update', passport_1.default.authenticate('jwt', { session: false }), distrito_controller_1.updateDistrito);
+router.post('/delete', passport_1.default.authenticate('jwt', { session: false }), distrito_controller_1.deleteDistrito);
 router.post('/getDistritoByCodigoDistrito', passport_1.default.authenticate('jwt', { session: false }), distrito_controller_1.getDistritoByCodigoDistrito);
 exports.default = router;
 //# sourceMappingURL=distrito.routes.js.map

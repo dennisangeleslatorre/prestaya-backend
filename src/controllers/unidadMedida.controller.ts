@@ -100,20 +100,18 @@ export async function updateUnidadMedida(req: Request, res: Response): Promise<R
     }
 }
 
-/*
-export async function getUnidadMedidaByNPerfil(req: Request, res: Response): Promise<Response> {
+export async function deleteUnidadMedida(req: Request, res: Response): Promise<Response> {
     try {
         const c_unidadmedida = req.params.c_unidadmedida;
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_UNIDADMEDIDA WHERE c_unidadmedida = ?', [c_unidadmedida]);
+        await conn.query('DELETE FROM MA_UNIDADMEDIDA WHERE c_unidadmedida = ?', [c_unidadmedida]);
         await conn.end();
-        const unidadMedidaRes = data[0] as [UnidadMedida];
-        if(!unidadMedidaRes[0]) {
-            return res.status(200).json({ data:{}, message: "No se encontró la unidad de medida" });
-        }
-        return res.status(200).json({ data: unidadMedidaRes[0], message: "Se obtuvo la unidad de medida con éxito" });
+        return res.status(200).json({ message: "Se eliminó la undiad de medida con éxito"  });
     } catch (error) {
         console.error(error);
-        return res.status(500).send(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar la unidad de medida debido a que tiene datos asociados";
+        return res.status(500).send({error: error, message: message});
     }
-}*/
+}

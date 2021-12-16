@@ -103,6 +103,26 @@ export async function getDistritoByCodigoDistrito(req: Request, res: Response): 
         return res.status(500).send(error)
     }
 }
+
+export async function deleteDistrito(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const distrito: Distrito = body;
+        if(distrito.c_paiscodigo && distrito.c_departamentocodigo && distrito.c_provinciacodigo && distrito.c_distritocodigo) {
+            const conn = await connect();
+            await conn.query('DELETE FROM MA_PROVINCIA WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ? AND c_distritocodigo = ?', [distrito.c_paiscodigo,distrito.c_departamentocodigo,distrito.c_provinciacodigo,distrito.c_distritocodigo]);
+            await conn.end();
+            return res.status(200).json({ message: "Se eliminó la distrito con éxito"  });
+        }return res.status(200).json({ message: "Se debe enviar el código del país, departamento, provincia y distrito"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar el distrito debido a que contiene datos asociados a otras tablas";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
 /*
 export async function registerProvincia(req: Request, res: Response): Promise<Response> {
     try {

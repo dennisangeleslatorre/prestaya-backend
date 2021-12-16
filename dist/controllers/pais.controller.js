@@ -150,21 +150,4 @@ function deletePais(req, res) {
     });
 }
 exports.deletePais = deletePais;
-/*
-export async function getPaisByPaisCodigo(req: Request, res: Response): Promise<Response> {
-    try {
-        const c_paiscodigo = req.params.c_paiscodigo;
-        const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_paiscodigo]);
-        await conn.end();
-        const paisRes = data[0] as [Pais];
-        if(!paisRes[0]) {
-            return res.status(200).json({ success:false, data:{}, message: "No se encontró el pais" });
-        }
-        return res.status(200).json({ success:true, data: paisRes[0], message: "Se obtuvo el pais con éxito" });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send(error);
-    }
-}*/ 
 //# sourceMappingURL=pais.controller.js.map
