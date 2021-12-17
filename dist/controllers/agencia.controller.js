@@ -95,7 +95,7 @@ function getAgenciaByCodigoAgencia(req, res) {
             const agencia = body;
             if (agencia.c_compania && agencia.c_agencia) {
                 const conn = yield (0, database_1.connect)();
-                const [rows, fields] = yield conn.query('SELECT * FROM MA_AGENCIA where c_estado="A" AND c_compania=? AND c_agencia=?', [agencia.c_compania, agencia.c_agencia]);
+                const [rows, fields] = yield conn.query('SELECT * FROM MA_AGENCIA where c_compania=? AND c_agencia=?', [agencia.c_compania, agencia.c_agencia]);
                 yield conn.end();
                 const agenciaRes = rows;
                 if (!agenciaRes[0]) {

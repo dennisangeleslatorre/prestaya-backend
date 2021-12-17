@@ -44,6 +44,10 @@ export async function registerPeriodos(req: Request, res: Response): Promise<Res
         if(body.c_usuarioregistro) {
             body.c_ultimousuario = body.c_usuarioregistro
             if(body.c_compania && body.c_tipoperiodo && body.c_periodo) {
+                if(body.c_periodo === "C") {
+                    body.c_usuariocierre = body.c_usuarioregistro;
+                    body.d_fechacierre = moment().format('YYYY-MM-DD HH:MM:ss');
+                }
                 const periodos: Periodos = body;
                 const conn = await connect();
                 const data = await conn.query('INSERT INTO MA_PERIODOS SET ?', [periodos]);
@@ -67,7 +71,7 @@ export async function getPeriodosByCodigoPeriodos(req: Request, res: Response): 
         const periodos: Periodos = body;
         if(periodos.c_compania && periodos.c_tipoperiodo) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_PERIODOS where c_estado="A" AND c_compania=? AND c_tipoperiodo=?',[periodos.c_compania,periodos.c_tipoperiodo])
+            const [rows, fields] = await conn.query('SELECT * FROM MA_PERIODOS where c_compania=? AND c_tipoperiodo=?',[periodos.c_compania,periodos.c_tipoperiodo])
             await conn.end();
             const periodosRes =rows as [Periodos];
             if(!periodosRes[0]) {
@@ -88,6 +92,10 @@ export async function updatePeriodo(req: Request, res: Response): Promise<Respon
         const c_compania = body.c_compania;
         const c_tipoperiodo = body.c_tipoperiodo;
         body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        if(body.c_estado === "C") {
+            body.c_usuariocierre = body.c_ultimousuario;
+            body.d_fechacierre = body.d_ultimafechamodificacion;
+        }
         const periodo: Periodos = req.body;
         const conn = await connect();
         await conn.query('UPDATE MA_PERIODOS SET ? WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo, c_compania, c_tipoperiodo]);

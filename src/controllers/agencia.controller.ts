@@ -72,7 +72,7 @@ export async function getAgenciaByCodigoAgencia(req: Request, res: Response): Pr
         const agencia: Agencia = body;
         if(agencia.c_compania && agencia.c_agencia) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_AGENCIA where c_estado="A" AND c_compania=? AND c_agencia=?',[agencia.c_compania,agencia.c_agencia])
+            const [rows, fields] = await conn.query('SELECT * FROM MA_AGENCIA where c_compania=? AND c_agencia=?',[agencia.c_compania,agencia.c_agencia])
             await conn.end();
             const agenciaRes =rows as [Agencia];
             if(!agenciaRes[0]) {

@@ -60,7 +60,7 @@ export async function getClienteByCodigoCliente(req: Request, res: Response): Pr
         const cliente: Cliente = body;
         if(cliente.c_compania && cliente.n_cliente) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_CLIENTES where c_estado="A" AND c_compania=? AND n_cliente=?',[cliente.c_compania,cliente.n_cliente])
+            const [rows, fields] = await conn.query('SELECT * FROM MA_CLIENTES where c_compania=? AND n_cliente=?',[cliente.c_compania,cliente.n_cliente])
             await conn.end();
             const clienteRes =rows as [Cliente];
             if(!clienteRes[0]) {

@@ -88,7 +88,7 @@ export async function getParametrosByCodigoParametros(req: Request, res: Respons
         const parametros: Parametros = body;
         if(parametros.c_compania && parametros.c_parametrocodigo) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_PARAMETROS where c_estado="A" AND c_compania=? AND c_parametrocodigo=?',[parametros.c_compania,parametros.c_parametrocodigo])
+            const [rows, fields] = await conn.query('SELECT * FROM MA_PARAMETROS where c_compania=? AND c_parametrocodigo=?',[parametros.c_compania,parametros.c_parametrocodigo])
             await conn.end();
             const parametrosRes =rows as [Parametros];
             if(!parametrosRes[0]) {
