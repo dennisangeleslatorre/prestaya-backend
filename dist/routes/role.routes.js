@@ -12,5 +12,6 @@ router.get('/listActivateRoles', passport_1.default.authenticate('jwt', { sessio
 router.post('/register', passport_1.default.authenticate('jwt', { session: false }), role_controller_1.registerRole);
 router.put('/:n_perfil/update', passport_1.default.authenticate('jwt', { session: false }), role_controller_1.updateRole);
 router.get('/:n_perfil/getRoleByNPerfil', passport_1.default.authenticate('jwt', { session: false }), role_controller_1.getRoleByNPerfil);
+router.post('/:n_perfil/delete', passport_1.default.authenticate('jwt', { session: false }), role_controller_1.deleteRole);
 exports.default = router;
 //# sourceMappingURL=role.routes.js.map

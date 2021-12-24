@@ -9,6 +9,6 @@ router.post('/register',passport.authenticate('jwt', { session: false }), regist
 router.post('/login', login);
 router.put('/:c_codigousuario/update',passport.authenticate('jwt', { session: false }), updateUser);
 router.get('/:c_codigousuario/getUserByCodigoUsuario',passport.authenticate('jwt', { session: false }), getUserByCodigoUsuario);
-router.delete('/:c_codigousuario/delete',passport.authenticate('jwt', { session: false }), deleteUser);
+router.post('/:c_codigousuario/delete',passport.authenticate('jwt', { session: false }), deleteUser);
 
 export default router;

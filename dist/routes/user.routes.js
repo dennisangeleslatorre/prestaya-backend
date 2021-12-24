@@ -12,6 +12,6 @@ router.post('/register', passport_1.default.authenticate('jwt', { session: false
 router.post('/login', user_controller_1.login);
 router.put('/:c_codigousuario/update', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.updateUser);
 router.get('/:c_codigousuario/getUserByCodigoUsuario', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.getUserByCodigoUsuario);
-router.delete('/:c_codigousuario/delete', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.deleteUser);
+router.post('/:c_codigousuario/delete', passport_1.default.authenticate('jwt', { session: false }), user_controller_1.deleteUser);
 exports.default = router;
 //# sourceMappingURL=user.routes.js.map

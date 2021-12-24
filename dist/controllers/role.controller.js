@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRoleByNPerfil = exports.updateRole = exports.registerRole = exports.getRolesActivos = exports.getRoles = void 0;
+exports.deleteRole = exports.getRoleByNPerfil = exports.updateRole = exports.registerRole = exports.getRolesActivos = exports.getRoles = void 0;
 const database_1 = require("../database");
 const moment_1 = __importDefault(require("moment"));
 function getRoles(req, res) {
@@ -126,4 +126,27 @@ function getRoleByNPerfil(req, res) {
     });
 }
 exports.getRoleByNPerfil = getRoleByNPerfil;
+function deleteRole(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const n_perfil = req.params.n_perfil;
+            if (n_perfil) {
+                const conn = yield (0, database_1.connect)();
+                yield conn.query('DELETE FROM MA_PERFIL WHERE n_perfil = ?', [n_perfil]);
+                yield conn.end();
+                return res.status(200).json({ message: "Se eliminó el perfil con éxito." });
+            }
+            return res.status(500).json({ message: "No se está enviando el código para la eliminación." });
+        }
+        catch (error) {
+            console.error(error);
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar o actualizar un campo principal.";
+            return res.status(500).json({ error: error, message: message });
+        }
+    });
+}
+exports.deleteRole = deleteRole;
 //# sourceMappingURL=role.controller.js.map

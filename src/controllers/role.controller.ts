@@ -98,3 +98,22 @@ export async function getRoleByNPerfil(req: Request, res: Response): Promise<Res
         return res.status(500).send(error);
     }
 }
+
+export async function deleteRole(req: Request, res: Response): Promise<Response> {
+    try {
+        const n_perfil = req.params.n_perfil;
+        if(n_perfil) {
+            const conn = await connect();
+            await conn.query('DELETE FROM MA_PERFIL WHERE n_perfil = ?', [n_perfil]);
+            await conn.end();
+            return res.status(200).json({ message: "Se eliminó el perfil con éxito." });
+        }
+        return res.status(500).json({ message: "No se está enviando el código para la eliminación."  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar o actualizar un campo principal.";
+        return res.status(500).json({ error: error, message: message });
+    }
+}
