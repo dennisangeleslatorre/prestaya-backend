@@ -64,7 +64,7 @@ export async function getClienteByCodigoCliente(req: Request, res: Response): Pr
             await conn.end();
             const clienteRes =rows as [Cliente];
             if(!clienteRes[0]) {
-                return res.status(200).json({ data:[], message: "No se encontró parámetros" });
+                return res.status(200).json({ message: "No se encontró parámetros" });
             }
             return res.status(200).json({ data:clienteRes[0], message: "Se obtuvo registros" });
         }return res.status(200).json({ message: "Se debe enviar el código de compañía y número de cliente para listar la información" });
