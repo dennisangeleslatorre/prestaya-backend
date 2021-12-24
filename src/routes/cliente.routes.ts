@@ -12,7 +12,7 @@ router.get('/getClienteByCodigoCliente',passport.authenticate('jwt', { session: 
 router.put('/update',  passport.authenticate('jwt', { session: false }), updateCliente);
 router.post('/delete', passport.authenticate('jwt', { session: false }), deleteCliente );
 router.post('/register',passport.authenticate('jwt', { session: false }), registerCliente);
-router.get('/getClienteDinamico',getClienteDinamico);
+router.post('/getClienteDinamico',passport.authenticate('jwt', { session: false }),getClienteDinamico);
 
 
 export default router;
