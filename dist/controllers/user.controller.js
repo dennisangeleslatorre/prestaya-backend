@@ -185,13 +185,17 @@ function deleteUser(req, res) {
                 const conn = yield (0, database_1.connect)();
                 yield conn.query('DELETE FROM MA_USUARIOS WHERE c_codigousuario = ?', [c_codigousuario]);
                 yield conn.end();
-                return res.status(200).json({ message: "Se actualizó el usuario con éxito." });
+                return res.status(200).json({ message: "Se eliminó el usuario con éxito." });
             }
             return res.status(500).json({ message: "No se está enviando el código para la eliminación." });
         }
         catch (error) {
             console.error(error);
-            return res.status(500).json({ error: error, message: "Hubo un error." });
+            const errorAux = JSON.parse(JSON.stringify(error));
+            let message = "Hubo un error.";
+            if (errorAux.errno === 1217)
+                message = "No se puede eliminar o actualizar un campo principal.";
+            return res.status(500).json({ error: error, message: message });
         }
     });
 }

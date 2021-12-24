@@ -68,8 +68,6 @@ export class App {
         this.app.use('/cliente', Cliente);
     }
 
-  
-
     async listen() {
         await this.app.listen(this.app.get('port'))
         console.log('App listening port', this.app.get('port'))
