@@ -34,6 +34,7 @@ const unidadMedida_routes_1 = __importDefault(require("./routes/unidadMedida.rou
 const parametros_routes_1 = __importDefault(require("./routes/parametros.routes"));
 const periodos_routes_1 = __importDefault(require("./routes/periodos.routes"));
 const cliente_routes_1 = __importDefault(require("./routes/cliente.routes"));
+const prestamo_routes_1 = __importDefault(require("./routes/prestamo.routes"));
 class App {
     //Quiere decir qye lo que recibes puede ser tipo numero o string
     //El signo de pregunta dice que puede o no puede llegar una propiedad
@@ -71,6 +72,7 @@ class App {
         this.app.use('/parametros', parametros_routes_1.default);
         this.app.use('/periodos', periodos_routes_1.default);
         this.app.use('/cliente', cliente_routes_1.default);
+        this.app.use('/prestamo', prestamo_routes_1.default);
     }
     listen() {
         return __awaiter(this, void 0, void 0, function* () {
