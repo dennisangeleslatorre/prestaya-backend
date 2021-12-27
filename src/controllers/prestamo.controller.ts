@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { connect } from '../database'
 
 
-export async function getClienteDinamico(req: Request, res: Response): Promise<Response> {
+export async function registerPrestamo(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
         if(body.c_usuarioregistro) {
