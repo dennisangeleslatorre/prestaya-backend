@@ -79,10 +79,12 @@ export async function registerCliente(req: Request, res: Response): Promise<Resp
         const body = req.body;
         if(body.c_usuarioregistro) {
             body.c_ultimousuario = body.c_usuarioregistro;
-            if(body.c_compania && body.n_cliente && body.c_apellidospaterno && body.c_apellidosmaterno && body.c_nombres && body.c_nombrescompleto && body.c_tipodocumento && body.c_numerodocumento && body.c_direccion && body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo && body.c_telefono1) {
+            if(body.c_compania && body.n_cliente && body.c_apellidospaterno && body.c_apellidosmaterno && body.c_nombres && 
+                body.c_nombrescompleto && body.c_tipodocumento && body.c_numerodocumento && body.c_direccion && body.c_paiscodigo && 
+                body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo && body.c_telefono1) {
                 const cliente: Cliente = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_CLIENTES SET ?', [cliente]);
+                const data = await conn.query('CALL sp_Registrar_Cliente(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@out_respuesta);', [cliente.c_compania,cliente.c_apellidospaterno,cliente.c_apellidosmaterno,cliente.c_nombres,cliente.c_nombrescompleto,cliente.c_tipodocumento,cliente.c_numerodocumento,cliente.c_direccion,cliente.c_paiscodigo,cliente.c_departamentocodigo,cliente.c_provinciacodigo,cliente.c_distritocodigo,cliente.c_telefono1,cliente.c_telefono2,cliente.c_correo,cliente.c_usuarioregistro,cliente.c_ultimousuario]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ success: true, data: cliente, message: "Se registró el cliente con éxito." });
