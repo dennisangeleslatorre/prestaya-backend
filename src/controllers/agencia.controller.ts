@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import { connect } from '../database'
 import { Agencia } from '../interfaces/agencia.interface'
 import { ResultSetHeader, Result } from "../interfaces/result"
-import * as bcrypt from 'bcrypt'
 import moment from 'moment'
 
 export async function getAgencia(req: Request, res: Response): Promise<Response> {
