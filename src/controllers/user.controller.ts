@@ -145,3 +145,30 @@ export async function deleteUser(req: Request, res: Response): Promise<Response>
         return res.status(500).json({ error: error, message: message });
     }
 }
+
+export async function changePassword(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_codigousuario = req.params.c_codigousuario;
+        const body = req.body;
+        if (body.c_ultimousuario) {
+            body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');//AGREGAR UN CAMPO AL BODY
+            if(body.c_clave != undefined){
+                body.c_clave = bcrypt.hashSync(body.c_clave, 10)
+            } else {
+                return res.status(500).json({ message: "No se está enviando la nueva contraseña." });
+            }
+            const conn = await connect();
+            await conn.query('UPDATE MA_USUARIOS SET c_clave = ?, d_ultimafechamodificacion = ?, c_ultimousuario = ? WHERE c_codigousuario = ?',
+                    [body.c_clave, body.d_ultimafechamodificacion, body.c_ultimousuario, c_codigousuario]);
+            await conn.end();
+            return res.status(200).json({ message: "Se actualizó la contraseña con éxito." });
+        }
+        return res.status(500).json({ message: "No se está enviando el usuario que realiza la actualización."  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "";
+        if(errorAux.errno === 1062) message = "Existe un usuario con esos datos.";
+        return res.status(500).send({error: error, message: message});
+    }
+}

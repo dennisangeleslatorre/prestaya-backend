@@ -79,8 +79,8 @@ export async function registerCliente(req: Request, res: Response): Promise<Resp
         const body = req.body;
         if(body.c_usuarioregistro) {
             body.c_ultimousuario = body.c_usuarioregistro;
-            if(body.c_compania && body.n_cliente && body.c_apellidospaterno && body.c_apellidosmaterno && body.c_nombres && 
-                body.c_nombrescompleto && body.c_tipodocumento && body.c_numerodocumento && body.c_direccion && body.c_paiscodigo && 
+            if(body.c_compania && body.c_apellidospaterno && body.c_apellidosmaterno && body.c_nombres &&
+                body.c_nombrescompleto && body.c_tipodocumento && body.c_numerodocumento && body.c_direccion && body.c_paiscodigo &&
                 body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo && body.c_telefono1) {
                 const cliente: Cliente = body;
                 const conn = await connect();
