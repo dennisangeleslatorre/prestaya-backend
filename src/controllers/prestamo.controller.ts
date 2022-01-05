@@ -42,7 +42,7 @@ export async function validateUnidades(req: Request, res: Response): Promise<Res
 export async function insertProductoGarantia(c_compania:string, c_prestamo:string, c_usuarioregistro:string, productos:string): Promise<Result> {
     try {
         const conn = await connect();
-        const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto(${c_compania},${c_prestamo},${c_usuarioregistro},${c_usuarioregistro},${productos},@out_respuesta)`)
+        const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto('${c_compania}','${c_prestamo}','${c_usuarioregistro}','${c_usuarioregistro}','${productos}',@respuesta)`)
         await conn.end();
         const responseMessage = responseProducts[0][0];
         if(!responseMessage || responseMessage.respuesta === "ERROR") {
@@ -76,13 +76,14 @@ export async function registerPrestamo(req: Request, res: Response): Promise<Res
             body.c_usuarioregpendiente = body.c_usuarioregistro;
             if(body.c_compania && body.n_cliente && body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
                 const conn = await connect();
-                const [response, column] = await conn.query(`CALL sp_Registrar_Prestamo('?','?','?','?', '?', '?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?',@out_respuesta)`,[body.c_compania,body.n_cliente,body.c_nombrecompleto,body.c_tipodocumento,body.c_numerodocumento,body.c_direccioncliente,body.c_paiscodigo,body.c_despartamentocodigo,body.c_provinciacodigo,body.c_distritocodigo,body.c_telefono1,body.c_monedaprestamo,body.n_montoprestamo,body.n_tasainteres,body.n_montointereses,body.n_montototalprestamo,body.d_fechadesembolso,body.n_diasplazo,body.d_fechavencimiento,body.n_montointeresesdiario,body.c_observacionesregistro,body.c_usuarioregistro,body.c_ultimousuario,body.c_usuarioregpendiente]);
+                const [response, column] = await conn.query(`CALL sp_Registrar_Prestamo('${body.c_compania}','${body.n_cliente}','${body.c_nombrecompleto}','${body.c_tipodocumento}','${body.c_numerodocumento}','${body.c_direccioncliente}','${body.c_paiscodigo}','${body.c_departamentocodigo}','${body.c_provinciacodigo}','${body.c_distritocodigo}','${body.c_telefono1}','${body.c_monedaprestamo}','${body.n_montoprestamo}','${body.n_tasainteres}','${body.n_montointereses}','${body.n_montototalprestamo}','${body.d_fechadesembolso}','${body.n_diasplazo}','${body.d_fechavencimiento}','${body.n_montointeresesdiario}','${body.c_observacionesregistro}','${body.c_usuarioregistro}','${body.c_ultimousuario}','${body.c_usuarioregpendiente}',@respuesta)`);
                 await conn.end();
                 const responseMessage = response[0][0];
                 if(!responseMessage || responseMessage.respuesta === "ERROR") {
                     return res.status(503).json({message: "Ocurrio un problema al insertar el préstamo" });
                 } else {
                     if(productos) {
+                        console.log("responseMessage.respuesta", responseMessage.respuesta)
                         const responseProducts = await insertProductoGarantia(body.c_compania, responseMessage.respuesta, body.c_usuarioregistro, productos);
                         if(responseProducts.success) {
                             return res.status(200).json({message: "Se egistró con éxito el préstamo" });
