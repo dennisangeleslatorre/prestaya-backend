@@ -42,7 +42,7 @@ export async function validateUnidades(req: Request, res: Response): Promise<Res
 export async function insertProductoGarantia(c_compania:string, c_prestamo:string, c_usuarioregistro:string, productos:string): Promise<Result> {
     try {
         const conn = await connect();
-        const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto('${c_compania}','${c_prestamo}','${c_usuarioregistro}','${c_usuarioregistro}','${productos}',@respuesta)`)
+        const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto('${c_compania}','${c_prestamo}','${c_usuarioregistro}','${c_usuarioregistro}',"${productos}",@respuesta)`)
         await conn.end();
         const responseMessage = responseProducts[0][0];
         if(!responseMessage || responseMessage.respuesta === "ERROR") {
