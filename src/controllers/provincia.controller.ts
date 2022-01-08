@@ -9,7 +9,7 @@ export async function getProvincias(req: Request, res: Response): Promise<Respon
         const body = req.body;
         const  provincia: Provincia = body;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_descripcion FROM MA_PROVINCIA where c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_descripcion FROM ma_provincia where c_estado="A"')
         await conn.end();
         const ProvinciasRes = rows as [Provincia];
         if(!ProvinciasRes[0]) {
@@ -25,7 +25,7 @@ export async function getProvincias(req: Request, res: Response): Promise<Respon
 export async function getProvinciasAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PROVINCIA')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_provincia')
         await conn.end();
         const provinciaRes =rows as [Provincia];
         if(!provinciaRes[0]) {
@@ -46,7 +46,7 @@ export async function registerProvincia(req: Request, res: Response): Promise<Re
             if(body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_descripcion){
                 const provincia: Provincia = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_PROVINCIA SET ?', [provincia]);
+                const data = await conn.query('INSERT INTO ma_provincia SET ?', [provincia]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ success:true, data: provincia, message: "Se registró el provincia con éxito" });
@@ -67,7 +67,7 @@ export async function getProvinciaByCodigoProvincia(req: Request, res: Response)
         const  provincia: Provincia = body;
         if(provincia.c_paiscodigo && provincia.c_departamentocodigo && provincia.c_provinciacodigo) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_PROVINCIA where c_paiscodigo=? AND c_departamentocodigo=? AND c_provinciacodigo=?',[provincia.c_paiscodigo,provincia.c_departamentocodigo,provincia.c_provinciacodigo])
+            const [rows, fields] = await conn.query('SELECT * FROM ma_provincia where c_paiscodigo=? AND c_departamentocodigo=? AND c_provinciacodigo=?',[provincia.c_paiscodigo,provincia.c_departamentocodigo,provincia.c_provinciacodigo])
             await conn.end();
             const ProvinciasRes = rows as [Provincia];
             if(!ProvinciasRes[0]) {
@@ -91,7 +91,7 @@ export async function updateProvincia(req: Request, res: Response): Promise<Resp
         body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
         const Provincia: Provincia = req.body;
         const conn = await connect();
-        await conn.query('UPDATE MA_PROVINCIA SET ? WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ?', [Provincia, c_paiscodigo, c_departamentocodigo, c_provinciacodigo]);
+        await conn.query('UPDATE ma_provincia SET ? WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ?', [Provincia, c_paiscodigo, c_departamentocodigo, c_provinciacodigo]);
         await conn.end();
         return res.status(200).json({ data: {...Provincia}, message: "Se actualizó la provincia con éxito" });
     } catch (error) {
@@ -109,7 +109,7 @@ export async function deleteProvincia(req: Request, res: Response): Promise<Resp
         const provincia: Provincia = body;
         if(provincia.c_paiscodigo && provincia.c_departamentocodigo && provincia.c_provinciacodigo) {
             const conn = await connect();
-            await conn.query('DELETE FROM MA_PROVINCIA WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ?', [provincia.c_paiscodigo,provincia.c_departamentocodigo,provincia.c_provinciacodigo]);
+            await conn.query('DELETE FROM ma_provincia WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ?', [provincia.c_paiscodigo,provincia.c_departamentocodigo,provincia.c_provinciacodigo]);
             await conn.end();
             return res.status(200).json({ message: "Se eliminó la provincia con éxito"  });
         }return res.status(200).json({ message: "Se debe enviar el código del país, departamento y provincia"  });
@@ -131,7 +131,7 @@ export async function registerProvincia(req: Request, res: Response): Promise<Re
         body.c_estado = "A";
         const Provincia: Provincia = body;
         const conn = await connect();
-        const data = await conn.query('INSERT INTO MA_PROVINCIA SET ?', [Provincia]);
+        const data = await conn.query('INSERT INTO ma_provincia SET ?', [Provincia]);
         await conn.end();
         const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
         return res.status(200).json({ success:true, data: Provincia, message: "Se registró la provincia con éxito" });
@@ -150,7 +150,7 @@ export async function getProvinciaByNPerfil(req: Request, res: Response): Promis
         const c_departamentocodigo = req.query.c_departamentocodigo;
         const c_provinciacodigo = req.query.c_provinciacodigo;
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_PROVINCIA WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ?', [c_paiscodigo, c_departamentocodigo, c_provinciacodigo]);
+        const data = await conn.query('SELECT * FROM ma_provincia WHERE c_paiscodigo = ? AND c_departamentocodigo = ? AND c_provinciacodigo = ?', [c_paiscodigo, c_departamentocodigo, c_provinciacodigo]);
         await conn.end();
         const ProvinciaRes = data[0] as [Provincia];
         if(!ProvinciaRes[0]) {

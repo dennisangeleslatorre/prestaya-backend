@@ -7,7 +7,7 @@ import moment from 'moment'
 export async function getRoles(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_PERFIL')
+        const data = await conn.query('SELECT * FROM ma_perfil')
         await conn.end();
         const rolesRes = data[0] as [Role];
         if(!rolesRes[0]) {
@@ -24,7 +24,7 @@ export async function getRoles(req: Request, res: Response): Promise<Response> {
 export async function getRolesActivos(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_PERFIL WHERE C_ESTADO="A"')
+        const data = await conn.query('SELECT * FROM ma_perfil WHERE C_ESTADO="A"')
         await conn.end();
         const rolesRes = data[0] as [Role];
         if(!rolesRes[0]) {
@@ -45,7 +45,7 @@ export async function registerRole(req: Request, res: Response): Promise<Respons
             body.c_estado = "A";
             const role: Role = body;
             const conn = await connect();
-            const data = await conn.query('INSERT INTO MA_PERFIL SET ?', [role]);
+            const data = await conn.query('INSERT INTO ma_perfil SET ?', [role]);
             await conn.end();
             return res.status(200).json({ data: role, message: "Se registró el rol con éxito" });
         }
@@ -68,7 +68,7 @@ export async function updateRole(req: Request, res: Response): Promise<Response>
             body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
             const role: Role = req.body;
             const conn = await connect();
-            await conn.query('UPDATE MA_PERFIL SET ? WHERE n_perfil = ?', [role, n_perfil]);
+            await conn.query('UPDATE ma_perfil SET ? WHERE n_perfil = ?', [role, n_perfil]);
             await conn.end();
             return res.status(200).json({ message: "Se actualizó el rol con éxito"  });
         }
@@ -86,7 +86,7 @@ export async function getRoleByNPerfil(req: Request, res: Response): Promise<Res
     try {
         const n_perfil = req.params.n_perfil;
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_PERFIL WHERE n_perfil = ?', [n_perfil]);
+        const data = await conn.query('SELECT * FROM ma_perfil WHERE n_perfil = ?', [n_perfil]);
         await conn.end();
         const roleRes = data[0] as [Role];
         if(!roleRes[0]) {
@@ -104,7 +104,7 @@ export async function deleteRole(req: Request, res: Response): Promise<Response>
         const n_perfil = req.params.n_perfil;
         if(n_perfil) {
             const conn = await connect();
-            await conn.query('DELETE FROM MA_PERFIL WHERE n_perfil = ?', [n_perfil]);
+            await conn.query('DELETE FROM ma_perfil WHERE n_perfil = ?', [n_perfil]);
             await conn.end();
             return res.status(200).json({ message: "Se eliminó el perfil con éxito." });
         }

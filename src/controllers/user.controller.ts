@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken'
 export async function getUsers(req: Request, res: Response) {
     try {
         const conn = await connect();
-        const data = await conn.query('SELECT A.*, B.c_codigoperfil FROM MA_USUARIOS A JOIN MA_PERFIL B ON A.n_perfil=B.n_perfil');
+        const data = await conn.query('SELECT A.*, B.c_codigoperfil FROM ma_usuarios A JOIN ma_perfil B ON A.n_perfil=B.n_perfil');
         await conn.end();
         const userRes = data[0] as [User];
         if(!userRes[0]) {
@@ -30,7 +30,7 @@ export async function registerUser(req: Request, res: Response): Promise<Respons
             body.c_clave = bcrypt.hashSync(body.c_clave, 10);
             const user: User = body;
             const conn = await connect();
-            const data = await conn.query('INSERT INTO MA_USUARIOS SET ?', [user]);
+            const data = await conn.query('INSERT INTO ma_usuarios SET ?', [user]);
             await conn.end();
             const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
             return res.status(200).json({ success: true, data: user, message: "Se registró el usuario con éxito." });
@@ -56,7 +56,7 @@ export async function updateUser(req: Request, res: Response): Promise<Response>
             }
             const user: User = body;
             const conn = await connect();
-            await conn.query('UPDATE MA_USUARIOS SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
+            await conn.query('UPDATE ma_usuarios SET ? WHERE c_codigousuario = ?', [user, c_codigousuario]);
             await conn.end();
             return res.status(200).json({ success: true, data: {...user, message: "Se actualizó el usuario con éxito." }});
         }
@@ -74,7 +74,7 @@ export async function getUserByCodigoUsuario(req: Request, res: Response): Promi
     try {
         const c_codigousuario = req.params.c_codigousuario;
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_USUARIOS WHERE c_codigousuario = ?', [c_codigousuario]);
+        const data = await conn.query('SELECT * FROM ma_usuarios WHERE c_codigousuario = ?', [c_codigousuario]);
         await conn.end();
         const userRes = data[0] as [User];
         if(!userRes[0]) {
@@ -90,7 +90,7 @@ export async function getUserByCodigoUsuario(req: Request, res: Response): Promi
 export async function getByUsername(c_codigousuario:string): Promise<Result> {
     try {
         const conn = await connect();
-        const res = await conn.query('SELECT u.c_nombres, u.c_codigousuario, u.c_estado, u.c_clave, r.c_codigoperfil, r.c_paginas, r.c_botones FROM MA_USUARIOS u INNER JOIN MA_PERFIL r on u.n_perfil = r.n_perfil WHERE u.c_codigousuario = ?', c_codigousuario);
+        const res = await conn.query('SELECT u.c_nombres, u.c_codigousuario, u.c_estado, u.c_clave, r.c_codigoperfil, r.c_paginas, r.c_botones FROM ma_usuarios u INNER JOIN ma_perfil r on u.n_perfil = r.n_perfil WHERE u.c_codigousuario = ?', c_codigousuario);
         await conn.end();
         return Promise.resolve({ success: true, data: res[0] });
     } catch (error) {
@@ -132,7 +132,7 @@ export async function deleteUser(req: Request, res: Response): Promise<Response>
         const c_codigousuario = req.params.c_codigousuario;
         if(c_codigousuario) {
             const conn = await connect();
-            await conn.query('DELETE FROM MA_USUARIOS WHERE c_codigousuario = ?', [c_codigousuario]);
+            await conn.query('DELETE FROM ma_usuarios WHERE c_codigousuario = ?', [c_codigousuario]);
             await conn.end();
             return res.status(200).json({ message: "Se eliminó el usuario con éxito." });
         }
@@ -158,7 +158,7 @@ export async function changePassword(req: Request, res: Response): Promise<Respo
                 return res.status(500).json({ message: "No se está enviando la nueva contraseña." });
             }
             const conn = await connect();
-            await conn.query('UPDATE MA_USUARIOS SET c_clave = ?, d_ultimafechamodificacion = ?, c_ultimousuario = ? WHERE c_codigousuario = ?',
+            await conn.query('UPDATE ma_usuarios SET c_clave = ?, d_ultimafechamodificacion = ?, c_ultimousuario = ? WHERE c_codigousuario = ?',
                     [body.c_clave, body.d_ultimafechamodificacion, body.c_ultimousuario, c_codigousuario]);
             await conn.end();
             return res.status(200).json({ message: "Se actualizó la contraseña con éxito." });

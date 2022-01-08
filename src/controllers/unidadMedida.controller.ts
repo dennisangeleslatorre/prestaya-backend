@@ -7,7 +7,7 @@ import moment from 'moment'
 export async function getUnidadesMedidaAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_UNIDADMEDIDA')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_unidadmedida')
         await conn.end();
         const unidadesMedidaRes = rows as [UnidadMedida];
         if(!unidadesMedidaRes[0]) {
@@ -23,7 +23,7 @@ export async function getUnidadesMedidaAdmin(req: Request, res: Response): Promi
 export async function getUnidadesMedida(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_UNIDADMEDIDA WHERE c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_unidadmedida WHERE c_estado="A"')
         await conn.end();
         const unidadesMedidaRes = rows as [UnidadMedida];
         if(!unidadesMedidaRes[0]) {
@@ -45,7 +45,7 @@ export async function registerUnidadMedida(req: Request, res: Response): Promise
             if(body.c_unidadmedida && body.c_descripcion ) {
                 const unidadMedida: UnidadMedida = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_UNIDADMEDIDA SET ?', [unidadMedida]);
+                const data = await conn.query('INSERT INTO ma_unidadmedida SET ?', [unidadMedida]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ data: unidadMedida, message: "Se registró la unidad de medida con éxito." });
@@ -64,7 +64,7 @@ export async function getUnidadMedidaByCodigoUnidadMedida(req: Request, res: Res
     try {
         const c_unidadmedida = req.params.c_unidadmedida;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_UNIDADMEDIDA WHERE c_unidadmedida = ?', [c_unidadmedida]);
+        const [rows, fields] = await conn.query('SELECT * FROM ma_unidadmedida WHERE c_unidadmedida = ?', [c_unidadmedida]);
         await conn.end();
         const unidadMedidaRes = rows as [UnidadMedida];
         if(!unidadMedidaRes[0]) {
@@ -86,7 +86,7 @@ export async function updateUnidadMedida(req: Request, res: Response): Promise<R
             body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
             const unidadMedida: UnidadMedida = req.body;
             const conn = await connect();
-            await conn.query('UPDATE MA_UNIDADMEDIDA SET ? WHERE c_unidadmedida = ?', [unidadMedida, c_unidadmedida]);
+            await conn.query('UPDATE ma_unidadmedida SET ? WHERE c_unidadmedida = ?', [unidadMedida, c_unidadmedida]);
             await conn.end();
             return res.status(200).json({ data: {...unidadMedida}, message: "Se actualizó la unidad de medida con éxito"  });
         }
@@ -104,7 +104,7 @@ export async function deleteUnidadMedida(req: Request, res: Response): Promise<R
     try {
         const c_unidadmedida = req.params.c_unidadmedida;
         const conn = await connect();
-        await conn.query('DELETE FROM MA_UNIDADMEDIDA WHERE c_unidadmedida = ?', [c_unidadmedida]);
+        await conn.query('DELETE FROM ma_unidadmedida WHERE c_unidadmedida = ?', [c_unidadmedida]);
         await conn.end();
         return res.status(200).json({ message: "Se eliminó la undiad de medida con éxito"  });
     } catch (error) {

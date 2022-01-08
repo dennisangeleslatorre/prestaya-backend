@@ -9,7 +9,7 @@ export async function getParametros(req: Request, res: Response): Promise<Respon
     try {
         const c_compania = req.params.c_codigocompania;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PARAMETROS where c_estado="A" AND c_compania=?',[c_compania])
+        const [rows, fields] = await conn.query('SELECT * FROM ma_parametros where c_estado="A" AND c_compania=?',[c_compania])
         await conn.end();
         const parametrosRes = rows as [Parametros];
         if(!parametrosRes[0]) {
@@ -25,7 +25,7 @@ export async function getParametros(req: Request, res: Response): Promise<Respon
 export async function getParametrosAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PARAMETROS')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_parametros')
         await conn.end();
         const ParametrosRes = rows as [Parametros];
         if(!ParametrosRes[0]) {
@@ -46,7 +46,7 @@ export async function registerParametros(req: Request, res: Response): Promise<R
             if(body.c_compania && body.c_parametrocodigo && body.c_descripcion && body.c_tipovalor) {
                 const parametros: Parametros = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_PARAMETROS SET ?', [parametros]);
+                const data = await conn.query('INSERT INTO ma_parametros SET ?', [parametros]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ success: true, data: parametros, message: "Se registró los parámetros con éxito." });
@@ -70,7 +70,7 @@ export async function updateParametro(req: Request, res: Response): Promise<Resp
         body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
         const parametros: Parametros = req.body;
         const conn = await connect();
-        await conn.query('UPDATE MA_PARAMETROS SET ? WHERE c_compania = ? AND c_parametrocodigo = ?', [parametros, c_compania, c_parametrocodigo]);
+        await conn.query('UPDATE ma_parametros SET ? WHERE c_compania = ? AND c_parametrocodigo = ?', [parametros, c_compania, c_parametrocodigo]);
         await conn.end();
         return res.status(200).json({ data: {...parametros}, message: "Se actualizó el parámetro con éxito"  });
     } catch (error) {
@@ -88,7 +88,7 @@ export async function getParametrosByCodigoParametros(req: Request, res: Respons
         const parametros: Parametros = body;
         if(parametros.c_compania && parametros.c_parametrocodigo) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_PARAMETROS where c_compania=? AND c_parametrocodigo=?',[parametros.c_compania,parametros.c_parametrocodigo])
+            const [rows, fields] = await conn.query('SELECT * FROM ma_parametros where c_compania=? AND c_parametrocodigo=?',[parametros.c_compania,parametros.c_parametrocodigo])
             await conn.end();
             const parametrosRes =rows as [Parametros];
             if(!parametrosRes[0]) {
@@ -108,7 +108,7 @@ export async function deleteParametro(req: Request, res: Response): Promise<Resp
         const parametros: Parametros = body;
         if(parametros.c_compania && parametros.c_parametrocodigo ) {
             const conn = await connect();
-            await conn.query('DELETE FROM MA_PARAMETROS WHERE c_compania = ? AND c_parametrocodigo = ?', [parametros.c_compania,parametros.c_parametrocodigo ]);
+            await conn.query('DELETE FROM ma_parametros WHERE c_compania = ? AND c_parametrocodigo = ?', [parametros.c_compania,parametros.c_parametrocodigo ]);
             await conn.end();
             return res.status(200).json({ message: "Se eliminó el parámetro con éxito"  });
         }return res.status(200).json({ message: "Se debe enviar el código de la compañía y el parámetro"  });

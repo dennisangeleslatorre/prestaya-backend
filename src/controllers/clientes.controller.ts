@@ -9,7 +9,7 @@ export async function getClientesXCompania(req: Request, res: Response): Promise
     try {
         const c_compania = req.params.c_codigocompania;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_CLIENTES where c_estado="A" AND c_compania=?',[c_compania])
+        const [rows, fields] = await conn.query('SELECT * FROM ma_clientes where c_estado="A" AND c_compania=?',[c_compania])
         await conn.end();
         const clientesRes = rows as [Cliente];
         if(!clientesRes[0]) {
@@ -25,7 +25,7 @@ export async function getClientesXCompania(req: Request, res: Response): Promise
 export async function getClientes(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_CLIENTES where c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_clientes where c_estado="A"')
         await conn.end();
         const clientesRes = rows as [Cliente];
         if(!clientesRes[0]) {
@@ -41,7 +41,7 @@ export async function getClientes(req: Request, res: Response): Promise<Response
 export async function getClientesAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_CLIENTES')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_clientes')
         await conn.end();
         const ClientesRes = rows as [Cliente];
         if(!ClientesRes[0]) {
@@ -60,7 +60,7 @@ export async function getClienteByCodigoCliente(req: Request, res: Response): Pr
         const cliente: Cliente = body;
         if(cliente.c_compania && cliente.n_cliente) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_CLIENTES where c_compania=? AND n_cliente=?',[cliente.c_compania,cliente.n_cliente])
+            const [rows, fields] = await conn.query('SELECT * FROM ma_clientes where c_compania=? AND n_cliente=?',[cliente.c_compania,cliente.n_cliente])
             await conn.end();
             const clienteRes =rows as [Cliente];
             if(!clienteRes[0]) {
@@ -108,7 +108,7 @@ export async function updateCliente(req: Request, res: Response): Promise<Respon
         body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
         const cliente: Cliente = req.body;
         const conn = await connect();
-        await conn.query('UPDATE MA_CLIENTES SET ? WHERE c_compania = ? AND n_cliente = ?', [cliente, c_compania, n_cliente]);
+        await conn.query('UPDATE ma_clientes SET ? WHERE c_compania = ? AND n_cliente = ?', [cliente, c_compania, n_cliente]);
         await conn.end();
         return res.status(200).json({ data: {...cliente}, message: "Se actualizó el cliente con éxito"  });
     } catch (error) {
@@ -126,7 +126,7 @@ export async function deleteCliente(req: Request, res: Response): Promise<Respon
         const cliente: Cliente = body;
         if(cliente.c_compania && cliente.n_cliente ) {
             const conn = await connect();
-            await conn.query('DELETE FROM MA_CLIENTES WHERE c_compania = ? AND n_cliente = ?', [cliente.c_compania,cliente.n_cliente]);
+            await conn.query('DELETE FROM ma_clientes WHERE c_compania = ? AND n_cliente = ?', [cliente.c_compania,cliente.n_cliente]);
             await conn.end();
             return res.status(200).json({ message: "Se eliminó el cliente con éxito"  });
         }return res.status(200).json({ message: "Se debe enviar el código de la compañía y cliente"  });

@@ -8,7 +8,7 @@ import moment from 'moment'
 export async function getCompania(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT c_compania,c_descripcion,c_ruc,c_direccion,c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo FROM  MA_COMPANIA where c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT c_compania,c_descripcion,c_ruc,c_direccion,c_paiscodigo,c_departamentocodigo,c_provinciacodigo,c_distritocodigo FROM  ma_compania where c_estado="A"')
         await conn.end();
         const tipoCompaniaRes = rows as [Compania];
         if(!tipoCompaniaRes[0]) {
@@ -24,7 +24,7 @@ export async function getCompania(req: Request, res: Response): Promise<Response
 export async function getCompaniaAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_COMPANIA')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_compania')
         await conn.end();
         const TipoCompaniaRes = rows as [Compania];
         if(!TipoCompaniaRes[0]) {
@@ -46,7 +46,7 @@ export async function registerCompania(req: Request, res: Response): Promise<Res
             if(body.c_compania && body.c_ruc && body.c_direccion && body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
                 const compania: Compania = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_COMPANIA SET ?', [compania]);
+                const data = await conn.query('INSERT INTO ma_compania SET ?', [compania]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ success: true, data: compania, message: "Se registró la compañía con éxito." });
@@ -65,7 +65,7 @@ export async function getCompaniaByCodigoCompania(req: Request, res: Response): 
     try {
         const c_compania = req.params.c_compania;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_COMPANIA WHERE c_compania = ?', [c_compania]);
+        const [rows, fields] = await conn.query('SELECT * FROM ma_compania WHERE c_compania = ?', [c_compania]);
         await conn.end();
         const companiaRes = rows as [Compania];
         if(!companiaRes[0]) {
@@ -86,7 +86,7 @@ export async function updateCompania(req: Request, res: Response): Promise<Respo
         body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
         const compania: Compania = req.body;
         const conn = await connect();
-        await conn.query('UPDATE MA_COMPANIA SET ? WHERE c_compania = ?', [compania, c_compania]);
+        await conn.query('UPDATE ma_compania SET ? WHERE c_compania = ?', [compania, c_compania]);
         await conn.end();
         return res.status(200).json({ data: {...compania}, message: "Se actualizó la compañía con éxito"  });
     } catch (error) {
@@ -103,7 +103,7 @@ export async function deleteCompania(req: Request, res: Response): Promise<Respo
     try {
         const c_compania = req.params.c_compania;
         const conn = await connect();
-        await conn.query('DELETE FROM MA_COMPANIA WHERE c_compania = ?', [c_compania]);
+        await conn.query('DELETE FROM ma_compania WHERE c_compania = ?', [c_compania]);
         await conn.end();
         return res.status(200).json({ message: "Se eliminó la compañía con éxito"  });
     } catch (error) {

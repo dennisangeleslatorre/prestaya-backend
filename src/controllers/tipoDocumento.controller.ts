@@ -7,7 +7,7 @@ import moment from 'moment'
 export async function getTiposDocumentoAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_TIPODOCUMENTO')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_tipodocumento')
         await conn.end();
         const TiposDocumentoRes = rows as [TipoDocumento];
         if(!TiposDocumentoRes[0]) {
@@ -23,7 +23,7 @@ export async function getTiposDocumentoAdmin(req: Request, res: Response): Promi
 export async function getTiposDocumento(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_TIPODOCUMENTO WHERE c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_tipodocumento WHERE c_estado="A"')
         await conn.end();
         const TiposDocumentoRes = rows as [TipoDocumento];
         if(!TiposDocumentoRes[0]) {
@@ -45,7 +45,7 @@ export async function registerTipoDocumento(req: Request, res: Response): Promis
             if(body.c_tipodocumento && body.c_descripcion ) {
                 const tipoDocumento: TipoDocumento = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_TIPODOCUMENTO SET ?', [tipoDocumento]);
+                const data = await conn.query('INSERT INTO ma_tipodocumento SET ?', [tipoDocumento]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ data: tipoDocumento, message: "Se registró el tipo de documento con éxito." });
@@ -64,7 +64,7 @@ export async function getTipoDocumentoByCodigoTipoDocumento(req: Request, res: R
     try {
         const c_tipodocumento = req.params.c_tipodocumento;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_TIPODOCUMENTO WHERE c_tipodocumento = ?', [c_tipodocumento]);
+        const [rows, fields] = await conn.query('SELECT * FROM ma_tipodocumento WHERE c_tipodocumento = ?', [c_tipodocumento]);
         await conn.end();
         const tipoDocumentoRes = rows as [TipoDocumento];
         if(!tipoDocumentoRes[0]) {
@@ -86,7 +86,7 @@ export async function updateTipoDocumento(req: Request, res: Response): Promise<
             body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
             const tipoDocumento: TipoDocumento = body;
             const conn = await connect();
-            const resp = await conn.query('UPDATE MA_TIPODOCUMENTO SET ? WHERE c_tipodocumento = ?', [tipoDocumento, c_tipodocumento]);
+            const resp = await conn.query('UPDATE ma_tipodocumento SET ? WHERE c_tipodocumento = ?', [tipoDocumento, c_tipodocumento]);
             console.log("res", resp);
             await conn.end();
             return res.status(200).json({ data: {...tipoDocumento}, message: "Se actualizó el tipo de documento con éxito"  });
@@ -105,7 +105,7 @@ export async function deleteTipoDocumento(req: Request, res: Response): Promise<
     try {
         const c_tipodocumento = req.params.c_tipodocumento;
         const conn = await connect();
-        await conn.query('DELETE FROM MA_TIPODOCUMENTO WHERE c_tipodocumento = ?', [c_tipodocumento]);
+        await conn.query('DELETE FROM ma_tipodocumento WHERE c_tipodocumento = ?', [c_tipodocumento]);
         await conn.end();
         return res.status(200).json({ message: "Se eliminó el tipo de documento con éxito"  });
     } catch (error) {

@@ -9,7 +9,7 @@ export async function getPeriodos(req: Request, res: Response): Promise<Response
     try {
         const c_compania = req.params.c_codigocompania;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PERIODOS where c_estado="A" AND c_compania=?',[c_compania])
+        const [rows, fields] = await conn.query('SELECT * FROM ma_periodos where c_estado="A" AND c_compania=?',[c_compania])
         await conn.end();
         const periodosRes = rows as [Periodos];
         if(!periodosRes[0]) {
@@ -25,7 +25,7 @@ export async function getPeriodos(req: Request, res: Response): Promise<Response
 export async function getPeriodosAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PERIODOS')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_periodos')
         await conn.end();
         const periodosRes = rows as [Periodos];
         if(!periodosRes[0]) {
@@ -50,7 +50,7 @@ export async function registerPeriodos(req: Request, res: Response): Promise<Res
                 }
                 const periodos: Periodos = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_PERIODOS SET ?', [periodos]);
+                const data = await conn.query('INSERT INTO ma_periodos SET ?', [periodos]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ success: true, data: periodos, message: "Se registró los periodos con éxito." });
@@ -71,7 +71,7 @@ export async function getPeriodosByCodigoPeriodos(req: Request, res: Response): 
         const periodos: Periodos = body;
         if(periodos.c_compania && periodos.c_tipoperiodo) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_PERIODOS where c_compania=? AND c_tipoperiodo=?',[periodos.c_compania,periodos.c_tipoperiodo])
+            const [rows, fields] = await conn.query('SELECT * FROM ma_periodos where c_compania=? AND c_tipoperiodo=?',[periodos.c_compania,periodos.c_tipoperiodo])
             await conn.end();
             const periodosRes =rows as [Periodos];
             if(!periodosRes[0]) {
@@ -98,7 +98,7 @@ export async function updatePeriodo(req: Request, res: Response): Promise<Respon
         }
         const periodo: Periodos = req.body;
         const conn = await connect();
-        await conn.query('UPDATE MA_PERIODOS SET ? WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo, c_compania, c_tipoperiodo]);
+        await conn.query('UPDATE ma_periodos SET ? WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo, c_compania, c_tipoperiodo]);
         await conn.end();
         return res.status(200).json({ data: {...periodo}, message: "Se actualizó el periodo con éxito"  });
     } catch (error) {
@@ -116,7 +116,7 @@ export async function deletePeriodo(req: Request, res: Response): Promise<Respon
         const periodo: Periodos = body;
         if(periodo.c_compania && periodo.c_tipoperiodo ) {
             const conn = await connect();
-            await conn.query('DELETE FROM MA_PERIODOS WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo.c_compania,periodo.c_tipoperiodo]);
+            await conn.query('DELETE FROM ma_periodos WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo.c_compania,periodo.c_tipoperiodo]);
             await conn.end();
             return res.status(200).json({ message: "Se eliminó el periodo con éxito"  });
         }return res.status(200).json({ message: "Se debe enviar el código de la compañía y el periodo"  });

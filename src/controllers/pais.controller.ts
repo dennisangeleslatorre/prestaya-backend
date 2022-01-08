@@ -7,7 +7,7 @@ import moment from 'moment'
 export async function getPaises(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT c_paiscodigo, c_descripcion FROM MA_PAIS where c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT c_paiscodigo, c_descripcion FROM ma_pais where c_estado="A"')
         await conn.end();
         const paisesRes = rows as [Pais];
         if(!paisesRes[0]) {
@@ -23,7 +23,7 @@ export async function getPaises(req: Request, res: Response): Promise<Response> 
 export async function getPaisesAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PAIS')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_pais')
         await conn.end();
         const paisesRes = rows as [Pais];
         if(!paisesRes[0]) {
@@ -44,7 +44,7 @@ export async function registerPais(req: Request, res: Response): Promise<Respons
             if(body.c_paiscodigo && body.c_descripcion ) {
                 const pais: Pais = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_PAIS SET ?', [pais]);
+                const data = await conn.query('INSERT INTO ma_pais SET ?', [pais]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ data: pais, message: "Se registró el pais con éxito." });
@@ -63,7 +63,7 @@ export async function getPaisByCodigoPais(req: Request, res: Response): Promise<
     try {
         const c_paiscodigo = req.params.c_paiscodigo;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_PAIS WHERE c_paiscodigo = ?', [c_paiscodigo]);
+        const [rows, fields] = await conn.query('SELECT * FROM ma_pais WHERE c_paiscodigo = ?', [c_paiscodigo]);
         await conn.end();
         const paisRes = rows as [Pais];
         if(!paisRes[0]) {
@@ -86,7 +86,7 @@ export async function updatePais(req: Request, res: Response): Promise<Response>
             body.c_ultimousuario = body.c_usuarioregistro;
             const pais: Pais = req.body;
             const conn = await connect();
-            await conn.query('UPDATE MA_PAIS SET ? WHERE c_paiscodigo = ?', [pais, c_paiscodigo]);
+            await conn.query('UPDATE ma_pais SET ? WHERE c_paiscodigo = ?', [pais, c_paiscodigo]);
             await conn.end();
             return res.status(200).json({ data: {...pais}, message: "Se actualizó el pais con éxito"  });
         }
@@ -104,7 +104,7 @@ export async function deletePais(req: Request, res: Response): Promise<Response>
     try {
         const c_paiscodigo = req.params.c_paiscodigo;
         const conn = await connect();
-        await conn.query('DELETE FROM MA_PAIS WHERE c_paiscodigo = ?', [c_paiscodigo]);
+        await conn.query('DELETE FROM ma_pais WHERE c_paiscodigo = ?', [c_paiscodigo]);
         await conn.end();
         return res.status(200).json({ message: "Se eliminó el pais con éxito"  });
     } catch (error) {

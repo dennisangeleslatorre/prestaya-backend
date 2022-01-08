@@ -7,7 +7,7 @@ import moment from 'moment'
 export async function getTipoProducto(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT c_tipoproducto, c_descripcion FROM MA_TIPOPRODUCTO where c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT c_tipoproducto, c_descripcion FROM ma_tipoproducto where c_estado="A"')
         await conn.end();
         const tipoProductoRes = rows as [TipoProducto];
         if(!tipoProductoRes[0]) {
@@ -23,7 +23,7 @@ export async function getTipoProducto(req: Request, res: Response): Promise<Resp
 export async function getTipoProductoAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_TIPOPRODUCTO')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_tipoproducto')
         await conn.end();
         const TipoProductoRes = rows as [TipoProducto];
         if(!TipoProductoRes[0]) {
@@ -45,7 +45,7 @@ export async function registerTipoProducto(req: Request, res: Response): Promise
             if(body.c_tipoproducto && body.c_descripcion ) {
                 const tipoProducto: TipoProducto = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_TIPOPRODUCTO SET ?', [tipoProducto]);
+                const data = await conn.query('INSERT INTO ma_tipoproducto SET ?', [tipoProducto]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ data: tipoProducto, message: "Se registró el tipo de producto con éxito." });
@@ -69,7 +69,7 @@ export async function updateTipoProducto(req: Request, res: Response): Promise<R
             body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
             const tipoProducto: TipoProducto = body;
             const conn = await connect();
-            const resp = await conn.query('UPDATE MA_TIPOPRODUCTO SET ? WHERE c_tipoproducto = ?', [tipoProducto, c_tipoproducto]);
+            const resp = await conn.query('UPDATE ma_tipoproducto SET ? WHERE c_tipoproducto = ?', [tipoProducto, c_tipoproducto]);
             console.log("resp", resp)
             await conn.end();
             return res.status(200).json({ message: "Se actualizó el tipo de documento con éxito"  });
@@ -88,7 +88,7 @@ export async function getTipoProductoByCodigoTipoProducto(req: Request, res: Res
     try {
         const c_tipoproducto = req.params.c_tipoproducto;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_TIPOPRODUCTO WHERE c_tipoproducto = ?', [c_tipoproducto]);
+        const [rows, fields] = await conn.query('SELECT * FROM ma_tipoproducto WHERE c_tipoproducto = ?', [c_tipoproducto]);
         await conn.end();
         const tipoProductoRes = rows as [TipoProducto];
         if(!tipoProductoRes[0]) {
@@ -105,7 +105,7 @@ export async function deleteTipoProducto(req: Request, res: Response): Promise<R
     try {
         const c_tipoproducto = req.params.c_tipoproducto;
         const conn = await connect();
-        await conn.query('DELETE FROM MA_TIPOPRODUCTO WHERE c_tipoproducto = ?', [c_tipoproducto]);
+        await conn.query('DELETE FROM ma_tipoproducto WHERE c_tipoproducto = ?', [c_tipoproducto]);
         await conn.end();
         return res.status(200).json({ message: "Se eliminó el tipo de producto con éxito"  });
     } catch (error) {

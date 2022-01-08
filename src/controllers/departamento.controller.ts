@@ -9,7 +9,7 @@ export async function getDepartamentos(req: Request, res: Response): Promise<Res
         const body = req.body;
         const departamento: Departamento = body;
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_DEPARTAMENTO where c_estado="A"');
+        const [rows, fields] = await conn.query('SELECT * FROM ma_departamento where c_estado="A"');
         await conn.end();
         const departamentosRes =rows as [Departamento];
         if(!departamentosRes[0]) {
@@ -25,7 +25,7 @@ export async function getDepartamentos(req: Request, res: Response): Promise<Res
 export async function getDepartamentosAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM MA_DEPARTAMENTO')
+        const [rows, fields] = await conn.query('SELECT * FROM ma_departamento')
         await conn.end();
         const departamentosRes =rows as [Departamento];
         if(!departamentosRes[0]) {
@@ -47,7 +47,7 @@ export async function registerDepartamento(req: Request, res: Response): Promise
             if(body.c_paiscodigo && body.c_departamentocodigo && body.c_descripcion){
                 const departamento: Departamento = body;
                 const conn = await connect();
-                const data = await conn.query('INSERT INTO MA_DEPARTAMENTO SET ?', [departamento]);
+                const data = await conn.query('INSERT INTO ma_departamento SET ?', [departamento]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
                 return res.status(200).json({ success:true, data: departamento, message: "Se registró el departamento con éxito" });
@@ -69,7 +69,7 @@ export async function getDepartamentoByCodigoDepartamento(req: Request, res: Res
         const departamento: Departamento = body;
         if(departamento.c_paiscodigo && departamento.c_departamentocodigo) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM MA_DEPARTAMENTO WHERE c_paiscodigo=? AND c_departamentocodigo=?',[departamento.c_paiscodigo,departamento.c_departamentocodigo])
+            const [rows, fields] = await conn.query('SELECT * FROM ma_departamento WHERE c_paiscodigo=? AND c_departamentocodigo=?',[departamento.c_paiscodigo,departamento.c_departamentocodigo])
             await conn.end();
             const departamentosRes =rows as [Departamento];
             if(!departamentosRes[0]) {
@@ -92,7 +92,7 @@ export async function updateDepartamento(req: Request, res: Response): Promise<R
         body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
         const departamento: Departamento = req.body;
         const conn = await connect();
-        await conn.query('UPDATE MA_DEPARTAMENTO SET ? WHERE c_paiscodigo = ? AND c_departamentocodigo = ?', [departamento, c_paiscodigo, c_departamentocodigo]);
+        await conn.query('UPDATE ma_departamento SET ? WHERE c_paiscodigo = ? AND c_departamentocodigo = ?', [departamento, c_paiscodigo, c_departamentocodigo]);
         await conn.end();
         return res.status(200).json({ data: {...departamento}, message: "Se actualizó el departamento con éxito"  });
     } catch (error) {
@@ -110,7 +110,7 @@ export async function deleteDepartamento(req: Request, res: Response): Promise<R
         const departamento: Departamento = body;
         if(departamento.c_paiscodigo && departamento.c_departamentocodigo) {
             const conn = await connect();
-            await conn.query('DELETE FROM MA_DEPARTAMENTO WHERE c_paiscodigo = ? AND c_departamentocodigo = ?', [departamento.c_paiscodigo,departamento.c_departamentocodigo]);
+            await conn.query('DELETE FROM ma_departamento WHERE c_paiscodigo = ? AND c_departamentocodigo = ?', [departamento.c_paiscodigo,departamento.c_departamentocodigo]);
             await conn.end();
             return res.status(200).json({ message: "Se eliminó el departamento con éxito"  });
         }return res.status(200).json({ message: "Se debe enviar el código del país y departamento"  });
@@ -130,7 +130,7 @@ export async function getDepartamentoByNPerfil(req: Request, res: Response): Pro
         const c_paiscodigo = req.query.c_paiscodigo;
         const c_departamentocodigo = req.query.c_departamentocodigo;
         const conn = await connect();
-        const data = await conn.query('SELECT * FROM MA_DEPARTAMENTO WHERE c_paiscodigo = ? AND c_departamentocodigo', [c_paiscodigo, c_departamentocodigo]);
+        const data = await conn.query('SELECT * FROM ma_departamento WHERE c_paiscodigo = ? AND c_departamentocodigo', [c_paiscodigo, c_departamentocodigo]);
         await conn.end();
         const departamentoRes = data[0] as [Departamento];
         if(!departamentoRes[0]) {
