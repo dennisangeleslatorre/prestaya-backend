@@ -42,35 +42,6 @@ export async function validateUnidades(req: Request, res: Response): Promise<Res
     }
 }
 
-export async function insertProductoGarantia(c_compania:string, c_prestamo:string, c_usuarioregistro:string, productos:string): Promise<Result> {
-    try {
-        const conn = await connect();
-        const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto('${c_compania}','${c_prestamo}','${c_usuarioregistro}','${c_usuarioregistro}',"${productos}",@respuesta)`)
-        await conn.end();
-        const responseProcedure = responseProducts as RowDataPacket;
-        const responseMessage = responseProcedure[0][0];
-        if(!responseMessage || responseMessage.respuesta === "ERROR") {
-            return Promise.reject({ success: false, message:"No se pudo crear los productos" });
-        }
-        return Promise.resolve({ success: true, data: responseMessage.respuesta });
-    } catch (error) {
-        console.error(error);
-        return Promise.reject({ success: false, error });
-    }
-}
-
-export async function deletePrestamo(c_prestamo:string): Promise<Result> {
-    try {
-        const conn = await connect();
-        await conn.query('DELETE FROM co_prestamosproductos WHERE c_prestamo = ?', [c_prestamo]);
-        await conn.end();
-        return Promise.resolve({ success: true, data: "Se eliminó con éxito." });
-    } catch (error) {
-        console.error(error);
-        return Promise.reject({ success: false, error });
-    }
-}
-
 export async function registerPrestamo(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body.prestamo;
@@ -153,6 +124,64 @@ export async function getPrestamoDinamico(req: Request, res: Response): Promise<
             }
             return res.status(200).json({data:rows, message: "Se obtuvo préstamos" });
         }return res.status(200).json({ message: "Se debe enviar algún dato para filtrar"  });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function insertProductoGarantia(c_compania:string, c_prestamo:string, c_usuarioregistro:string, productos:string): Promise<Result> {
+    try {
+        const conn = await connect();
+        const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto('${c_compania}','${c_prestamo}','${c_usuarioregistro}','${c_usuarioregistro}',"${productos}",@respuesta)`)
+        await conn.end();
+        const responseProcedure = responseProducts as RowDataPacket;
+        const responseMessage = responseProcedure[0][0];
+        if(!responseMessage || responseMessage.respuesta === "ERROR") {
+            return Promise.reject({ success: false, message:"No se pudo crear los productos" });
+        }
+        return Promise.resolve({ success: true, data: responseMessage.respuesta });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
+
+
+export async function updateProductoGarantia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania	&& body.c_prestamo && body.c_ultimousuario && body.in_listproducto) {
+            const conn = await connect();
+            const [responseProducts, column2] = await conn.query(`CALL sp_Actualizar_Producto(?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_ultimousuario,body.in_listproducto]);
+            await conn.end();
+            const responseProcedure = responseProducts as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage! || responseMessage.respuesta !== "OK") {
+                return res.status(200).json({message: "Error al actualizar" });
+            }
+            return res.status(200).json({data: responseMessage.respuesta });
+        }return res.status(200).json({ message: "Se debe enviar los datos obligatorios"  });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function deleteProductoGarantia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania	&& body.c_prestamo && body.in_listproducto) {
+            const conn = await connect();
+            const [responseProducts, column2] = await conn.query(`CALL sp_Delete_Producto(?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.in_listproducto]);
+            await conn.end();
+            const responseProcedure = responseProducts as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage! || responseMessage.respuesta !== "OK") {
+                return res.status(200).json({message: "Error al eliminar" });
+            }
+            return res.status(200).json({data: responseMessage.respuesta });
+        }return res.status(200).json({ message: "Se debe enviar los datos obligatorios"  });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
