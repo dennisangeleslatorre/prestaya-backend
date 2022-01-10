@@ -1,15 +1,17 @@
-import { Request, response, Response } from 'express'
+import { Request, Response } from 'express'
 import { Prestamo } from 'interfaces/prestamo.inteface';
 import { Result } from "../interfaces/result"
 import { connect } from '../database'
+import { RowDataPacket } from 'mysql2';
 
 export async function validateTipos(req: Request, res: Response): Promise<Response> {
     try {
         const ids = req.body.ids;
         const conn = await connect();
-        const [response, column] = await conn.query(`call sp_Validar_EstadoProducto("${ids}",@respuesta)`);
+        const [response , column] = await conn.query(`call sp_Validar_EstadoProducto("${ids}",@respuesta)`);
         await conn.end();
-        const responseMessage = response[0][0];
+        const responseProcedure = response as RowDataPacket;
+        const responseMessage = responseProcedure[0][0];
         if(responseMessage && responseMessage.respuesta === "OK" ) {
             return res.status(200).send({message: "OK"});
         } else {
@@ -27,7 +29,8 @@ export async function validateUnidades(req: Request, res: Response): Promise<Res
         const conn = await connect();
         const [response, column] = await conn.query(`call sp_Validar_EstadoUnidadMedida("${ids}",@respuesta)`);
         await conn.end();
-        const responseMessage = response[0][0];
+        const responseProcedure = response as RowDataPacket;
+        const responseMessage = responseProcedure[0][0];
         if(responseMessage && responseMessage.respuesta === "OK" ) {
             return res.status(200).send({message: "OK"});
         } else {
@@ -44,7 +47,8 @@ export async function insertProductoGarantia(c_compania:string, c_prestamo:strin
         const conn = await connect();
         const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto('${c_compania}','${c_prestamo}','${c_usuarioregistro}','${c_usuarioregistro}',"${productos}",@respuesta)`)
         await conn.end();
-        const responseMessage = responseProducts[0][0];
+        const responseProcedure = responseProducts as RowDataPacket;
+        const responseMessage = responseProcedure[0][0];
         if(!responseMessage || responseMessage.respuesta === "ERROR") {
             return Promise.reject({ success: false, message:"No se pudo crear los productos" });
         }
@@ -78,7 +82,8 @@ export async function registerPrestamo(req: Request, res: Response): Promise<Res
                 const conn = await connect();
                 const [response, column] = await conn.query(`CALL sp_Registrar_Prestamo('${body.c_compania}','${body.n_cliente}','${body.c_nombrecompleto}','${body.c_tipodocumento}','${body.c_numerodocumento}','${body.c_direccioncliente}','${body.c_paiscodigo}','${body.c_departamentocodigo}','${body.c_provinciacodigo}','${body.c_distritocodigo}','${body.c_telefono1}','${body.c_monedaprestamo}','${body.n_montoprestamo}','${body.n_tasainteres}','${body.n_montointereses}','${body.n_montototalprestamo}','${body.d_fechadesembolso}','${body.n_diasplazo}','${body.d_fechavencimiento}','${body.n_montointeresesdiario}','${body.c_observacionesregistro}','${body.c_usuarioregistro}','${body.c_ultimousuario}','${body.c_usuarioregpendiente}',@respuesta)`);
                 await conn.end();
-                const responseMessage = response[0][0];
+                const responseProcedure = response as RowDataPacket;
+                const responseMessage = responseProcedure[0][0];
                 if(!responseMessage || responseMessage.respuesta === "ERROR") {
                     return res.status(503).json({message: "Ocurrio un problema al insertar el préstamo" });
                 } else {
@@ -88,7 +93,6 @@ export async function registerPrestamo(req: Request, res: Response): Promise<Res
                         if(responseProducts.success) {
                             return res.status(200).json({message: "Se egistró con éxito el préstamo" });
                         } else {
-                            await deletePrestamo( responseMessage.respuesta);
                             return res.status(503).json({message: "Ocurrió un problema al insertar el préstamo" });
                         }
                     }
