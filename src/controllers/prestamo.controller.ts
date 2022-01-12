@@ -1,8 +1,31 @@
 import { Request, Response } from 'express'
 import { Prestamo } from 'interfaces/prestamo.inteface';
+import { updateProductoGarantia, deleteProductoGarantia, insertProductoGarantia } from '../controllers/prestamoProducto.controller'
 import { Result } from "../interfaces/result"
 import { connect } from '../database'
+import { ResultSetHeader } from "../interfaces/result"
 import { RowDataPacket } from 'mysql2';
+import moment from 'moment'
+
+export async function getPrestamoByCodigoPrestamo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const prestamo: Prestamo = body;
+        if(prestamo.c_compania && prestamo.c_prestamo) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM co_prestamos where c_compania=? AND c_prestamo=?',[prestamo.c_compania,prestamo.c_prestamo])
+            await conn.end();
+            const prestamoRes =rows as [Prestamo];
+            if(!prestamoRes[0]) {
+                return res.status(200).json({ message: "No se encontró préstamos" });
+            }
+            return res.status(200).json({ data:prestamoRes[0], message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía y código del préstamo para listar la información" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
 
 export async function validateTipos(req: Request, res: Response): Promise<Response> {
     try {
@@ -51,7 +74,7 @@ export async function registerPrestamo(req: Request, res: Response): Promise<Res
             body.c_usuarioregpendiente = body.c_usuarioregistro;
             if(body.c_compania && body.n_cliente && body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
                 const conn = await connect();
-                const [response, column] = await conn.query(`CALL sp_Registrar_Prestamo('${body.c_compania}','${body.n_cliente}','${body.c_nombrecompleto}','${body.c_tipodocumento}','${body.c_numerodocumento}','${body.c_direccioncliente}','${body.c_paiscodigo}','${body.c_departamentocodigo}','${body.c_provinciacodigo}','${body.c_distritocodigo}','${body.c_telefono1}','${body.c_monedaprestamo}','${body.n_montoprestamo}','${body.n_tasainteres}','${body.n_montointereses}','${body.n_montototalprestamo}','${body.d_fechadesembolso}','${body.n_diasplazo}','${body.d_fechavencimiento}','${body.n_montointeresesdiario}','${body.c_observacionesregistro}','${body.c_usuarioregistro}','${body.c_ultimousuario}','${body.c_usuarioregpendiente}',@respuesta)`);
+                const [response, column] = await conn.query(`CALL sp_Registrar_Prestamo('${body.c_compania}','${body.n_cliente}','${body.c_nombrescompleto}','${body.c_tipodocumento}','${body.c_numerodocumento}','${body.c_direccioncliente}','${body.c_paiscodigo}','${body.c_departamentocodigo}','${body.c_provinciacodigo}','${body.c_distritocodigo}','${body.c_telefono1}','${body.c_monedaprestamo}','${body.n_montoprestamo}','${body.n_tasainteres}','${body.n_montointereses}','${body.n_montototalprestamo}','${body.d_fechadesembolso}','${body.n_diasplazo}','${body.d_fechavencimiento}','${body.n_montointeresesdiario}','${body.c_observacionesregistro}','${body.c_usuarioregistro}','${body.c_ultimousuario}','${body.c_usuarioregpendiente}',@respuesta)`);
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
@@ -59,7 +82,6 @@ export async function registerPrestamo(req: Request, res: Response): Promise<Res
                     return res.status(503).json({message: "Ocurrio un problema al insertar el préstamo" });
                 } else {
                     if(productos) {
-                        console.log("responseMessage.respuesta", responseMessage.respuesta)
                         const responseProducts = await insertProductoGarantia(body.c_compania, responseMessage.respuesta, body.c_usuarioregistro, productos);
                         if(responseProducts.success) {
                             return res.status(200).json({message: "Se egistró con éxito el préstamo" });
@@ -71,6 +93,51 @@ export async function registerPrestamo(req: Request, res: Response): Promise<Res
                 }
             }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
         } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function updatePrestamo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body.prestamo;
+        const nuevosProductos = req.body.nuevosProductos;
+        const actualizarProductos = req.body.actualizarProductos;
+        const eliminarProductos = req.body.eliminarProductos;
+        if(body.c_ultimousuario) {
+            body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+            if(body.c_compania && body.n_cliente && body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
+                const prestamo: Prestamo = body;
+                const conn = await connect();
+                const [rows, column] = await conn.query('UPDATE co_prestamos SET ? WHERE c_compania = ? AND c_prestamo = ?', [prestamo, body.c_compania, body.c_prestamo]);
+                await conn.end();
+                const parsedRes: ResultSetHeader = rows as ResultSetHeader;
+                if(parsedRes.affectedRows === 1) {
+                    //Insertar nuevos productos
+                    if(nuevosProductos) {
+                        const responseNewProducts = await insertProductoGarantia(body.c_compania, body.c_prestamo, body.c_ultimousuario, nuevosProductos);
+                        if(!responseNewProducts.success) {
+                            return res.status(503).json({message: "Ocurrió un problema al actualizar el préstamo" });
+                        }
+                    }
+                    if(actualizarProductos) {
+                        const responseUpdateProducts = await updateProductoGarantia(body.c_compania, body.c_prestamo, body.c_ultimousuario, actualizarProductos);
+                        if(!responseUpdateProducts.success) {
+                            return res.status(503).json({message: "Ocurrió un problema al actualizar el préstamo" });
+                        }
+                    }
+                    if(eliminarProductos) {
+                        const responseDeleteProducts = await deleteProductoGarantia(body.c_compania, body.c_prestamo, eliminarProductos);
+                        if(!responseDeleteProducts.success) {
+                            return res.status(503).json({message: "Ocurrió un problema al actualizar el préstamo" });
+                        }
+                    }
+                    return res.status(200).json({ message: "Se actualizó el prestamo con éxito" });
+                }
+                return res.status(503).json({ message: "Error al actualizar el préstamo" });
+            } return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
+        } return res.status(503).json({message: "No se está enviando el usuario que realiza la modificación." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -124,64 +191,6 @@ export async function getPrestamoDinamico(req: Request, res: Response): Promise<
             }
             return res.status(200).json({data:rows, message: "Se obtuvo préstamos" });
         }return res.status(200).json({ message: "Se debe enviar algún dato para filtrar"  });
-    } catch (error) {
-        console.error(error)
-        return res.status(500).send(error)
-    }
-}
-
-export async function insertProductoGarantia(c_compania:string, c_prestamo:string, c_usuarioregistro:string, productos:string): Promise<Result> {
-    try {
-        const conn = await connect();
-        const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto('${c_compania}','${c_prestamo}','${c_usuarioregistro}','${c_usuarioregistro}',"${productos}",@respuesta)`)
-        await conn.end();
-        const responseProcedure = responseProducts as RowDataPacket;
-        const responseMessage = responseProcedure[0][0];
-        if(!responseMessage || responseMessage.respuesta === "ERROR") {
-            return Promise.reject({ success: false, message:"No se pudo crear los productos" });
-        }
-        return Promise.resolve({ success: true, data: responseMessage.respuesta });
-    } catch (error) {
-        console.error(error);
-        return Promise.reject({ success: false, error });
-    }
-}
-
-
-export async function updateProductoGarantia(req: Request, res: Response): Promise<Response> {
-    try {
-        const body = req.body;
-        if(body.c_compania	&& body.c_prestamo && body.c_ultimousuario && body.in_listproducto) {
-            const conn = await connect();
-            const [responseProducts, column2] = await conn.query(`CALL sp_Actualizar_Producto(?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_ultimousuario,body.in_listproducto]);
-            await conn.end();
-            const responseProcedure = responseProducts as RowDataPacket;
-            const responseMessage = responseProcedure[0][0];
-            if(!responseMessage! || responseMessage.respuesta !== "OK") {
-                return res.status(200).json({message: "Error al actualizar" });
-            }
-            return res.status(200).json({data: responseMessage.respuesta });
-        }return res.status(200).json({ message: "Se debe enviar los datos obligatorios"  });
-    } catch (error) {
-        console.error(error)
-        return res.status(500).send(error)
-    }
-}
-
-export async function deleteProductoGarantia(req: Request, res: Response): Promise<Response> {
-    try {
-        const body = req.body;
-        if(body.c_compania	&& body.c_prestamo && body.in_listproducto) {
-            const conn = await connect();
-            const [responseProducts, column2] = await conn.query(`CALL sp_Delete_Producto(?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.in_listproducto]);
-            await conn.end();
-            const responseProcedure = responseProducts as RowDataPacket;
-            const responseMessage = responseProcedure[0][0];
-            if(!responseMessage! || responseMessage.respuesta !== "OK") {
-                return res.status(200).json({message: "Error al eliminar" });
-            }
-            return res.status(200).json({data: responseMessage.respuesta });
-        }return res.status(200).json({ message: "Se debe enviar los datos obligatorios"  });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)

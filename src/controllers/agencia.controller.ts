@@ -27,7 +27,7 @@ export async function getAgencia(req: Request, res: Response): Promise<Response>
 export async function getAgenciaAdmin(req: Request, res: Response) {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM ma_agencia');
+        const [rows, fields] = await conn.query('SELECT a.c_compania, a.c_agencia, a.c_descripcion, a.c_estado, a.c_usuarioregistro, a.d_fecharegistro, a.c_ultimousuario, a.d_ultimafechamodificacion, c.c_descripcion as companyname FROM ma_agencia a INNER JOIN ma_compania c ON a.c_compania = c.c_compania');
         await conn.end();
         const agenciaRes = rows as [Agencia];
         if(!agenciaRes[0]) {

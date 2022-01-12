@@ -25,7 +25,7 @@ export async function getParametros(req: Request, res: Response): Promise<Respon
 export async function getParametrosAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM ma_parametros')
+        const [rows, fields] = await conn.query('SELECT p.c_compania, p.c_parametrocodigo, p.c_descripcion, p.c_tipovalor, p.n_valornumero, p.d_valorfecha, p.c_valortexto, p.c_estado, p.c_usuarioregistro, p.d_fecharegistro, p.c_ultimousuario, p.d_ultimafechamodificacion, c.c_descripcion as companyname FROM ma_parametros p INNER JOIN ma_compania c ON p.c_compania = c.c_compania')
         await conn.end();
         const ParametrosRes = rows as [Parametros];
         if(!ParametrosRes[0]) {
