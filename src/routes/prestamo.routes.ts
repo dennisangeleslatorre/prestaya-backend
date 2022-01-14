@@ -13,6 +13,6 @@ router.post('/getPrestamoByCodigoPrestamo',passport.authenticate('jwt', { sessio
 router.post('/getPrestamoDinamico',passport.authenticate('jwt', { session: false }), getPrestamoDinamico);
 router.post('/validateTipos',passport.authenticate('jwt', { session: false }), validateTipos);
 router.post('/validateUnidades',passport.authenticate('jwt', { session: false }), validateUnidades);
-router.put('/anularPrestamo',passport.authenticate('jwt', { session: false }), anularPrestamo);
+router.post('/anularPrestamo',passport.authenticate('jwt', { session: false }), anularPrestamo);
 
 export default router;
