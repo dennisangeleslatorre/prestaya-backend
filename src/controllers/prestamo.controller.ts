@@ -107,10 +107,10 @@ export async function updatePrestamo(req: Request, res: Response): Promise<Respo
         const eliminarProductos = req.body.eliminarProductos;
         if(body.c_ultimousuario) {
             body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
-            if(body.c_compania && body.n_cliente && body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
+            if(body.c_compania && body.c_prestamo && body.n_cliente && body.c_paiscodigo && body.c_departamentocodigo && body.c_provinciacodigo && body.c_distritocodigo) {
                 const prestamo: Prestamo = body;
                 const conn = await connect();
-                const [rows, column] = await conn.query('UPDATE co_prestamos SET ? WHERE c_compania = ? AND c_prestamo = ?', [prestamo, body.c_compania, body.c_prestamo]);
+                const [rows, column] = await conn.query(`UPDATE co_prestamos SET ? WHERE c_compania = ? AND c_prestamo = ? AND c_estado = 'PE'`, [prestamo, body.c_compania, body.c_prestamo]);
                 await conn.end();
                 const parsedRes: ResultSetHeader = rows as ResultSetHeader;
                 if(parsedRes.affectedRows === 1) {
