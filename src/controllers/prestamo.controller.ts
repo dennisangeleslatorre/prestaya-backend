@@ -202,7 +202,7 @@ export async function getPrestamoDinamico(req: Request, res: Response): Promise<
 export async function anularPrestamo(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        if(body.c_usuarioregistro) {
+        if(body.c_ultimousuario) {
             if(body.c_compania && body.c_prestamo && body.c_estado && body.c_observacionesanula) {
                 const conn = await connect();
                 const [response, column] = await conn.query(`CALL sp_Anular_Prestamo(?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_estado,body.c_observacionesanula,body.c_ultimousuario]);
@@ -212,7 +212,7 @@ export async function anularPrestamo(req: Request, res: Response): Promise<Respo
                 if(!responseMessage || responseMessage.respuesta === "ERROR") {
                     return res.status(503).json({message: "Ocurrio un problema al anular el préstamo" });
                 } else {
-                    return res.status(200).json({message: "Se registró con éxito el préstamo" });
+                    return res.status(200).json({message: "Se anuló con éxito el préstamo" });
                 }
             }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
         } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
@@ -238,6 +238,29 @@ export async function validarRetornarPendiente(req: Request, res: Response): Pro
             return res.status(200).json({message: responseMessage.respuesta });
         } else
             return res.status(503).json({message: "No se está enviando la compañía o el código del préstamo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function updtVigentePrestamo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_usuarioregistro) {
+            if(body.c_compania && body.c_prestamo && body.c_estado && body.c_observacionesvigente) {
+                const conn = await connect();
+                const [response, column] = await conn.query(`CALL sp_UpdVigente_Prestamo(?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_estado,body.c_observacionesvigente,body.c_usuarioregistro]);
+                await conn.end();
+                const responseProcedure = response as RowDataPacket;
+                const responseMessage = responseProcedure[0][0];
+                if(!responseMessage || responseMessage.respuesta === "ERROR") {
+                    return res.status(503).json({message: "Ocurrio un problema actualizar a vigente el préstamo" });
+                } else {
+                    return res.status(200).json({message: "Se egistró con éxito la operación del préstamo" });
+                }
+            }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
+        } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
