@@ -1,6 +1,6 @@
 import { Router } from "express"
 import {registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo, anularPrestamo,
-        validarRetornarPendiente, retornarPendiente, validarEstadoRemate, cambiarEstadoRemate,updtVigentePrestamo} from '../controllers/prestamo.controller'
+        validarRetornarPendiente, retornarPendiente, validarEstadoRemate, cambiarEstadoRemate,updtVigentePrestamo, cambiarEstadoEntregar} from '../controllers/prestamo.controller'
 import passport from 'passport'
 
 
@@ -16,9 +16,10 @@ router.post('/validateTipos',passport.authenticate('jwt', { session: false }), v
 router.post('/validateUnidades',passport.authenticate('jwt', { session: false }), validateUnidades);
 router.put('/anularPrestamo',passport.authenticate('jwt', { session: false }), anularPrestamo);
 router.post('/validarRetornarPendiente',passport.authenticate('jwt', { session: false }), validarRetornarPendiente);
-router.post('/updtVigentePrestamo',passport.authenticate('jwt', { session: false }), updtVigentePrestamo);
+router.put('/updtVigentePrestamo',passport.authenticate('jwt', { session: false }), updtVigentePrestamo);
 router.put('/retornarPendiente',passport.authenticate('jwt', { session: false }), retornarPendiente);
 router.post('/validarEstadoRemate',passport.authenticate('jwt', { session: false }), validarEstadoRemate);
 router.put('/cambiarEstadoRemate',passport.authenticate('jwt', { session: false }), cambiarEstadoRemate);
+router.put('/cambiarEstadoEntregar',passport.authenticate('jwt', { session: false }), cambiarEstadoEntregar);
 
 export default router;
