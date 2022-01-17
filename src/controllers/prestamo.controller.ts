@@ -244,6 +244,72 @@ export async function validarRetornarPendiente(req: Request, res: Response): Pro
     }
 }
 
+export async function retornarPendiente(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if( body.c_compania && body.c_prestamo ) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`call sp_Retornar_Pendiente(?, ?, @respuesta);`,[body.c_compania, body.c_prestamo]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al retornar el préstamo a pendiente."
+                return res.status(503).json({message: message});
+            }
+            return res.status(200).json({message: responseMessage.respuesta });
+        } else
+            return res.status(503).json({message: "No se está enviando la compañía o el código del préstamo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function validarEstadoRemate(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if( body.c_compania && body.c_prestamo ) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`call sp_Validar_Estado_Remate(?, ?, @respuesta);`,[body.c_compania, body.c_prestamo]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al validar el préstamo."
+                return res.status(503).json({message: message});
+            }
+            return res.status(200).json({message: responseMessage.respuesta });
+        } else
+            return res.status(503).json({message: "No se está enviando la compañía o el código del préstamo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function cambiarEstadoRemate(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if( body.c_compania && body.c_prestamo && body.c_usuarioRemate, body.d_fechaRemate && body.c_observacionesremate ) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`call sp_Cambiar_Remate(?, ?, ?, ?, ?, ?, @respuesta);`,[body.c_compania, body.c_prestamo, body.d_fechaRemate, body.c_observacionesremate, body.c_usuarioRemate]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al cambiar el estado del préstamo a remate."
+                return res.status(503).json({message: message});
+            }
+            return res.status(200).json({message: responseMessage.respuesta });
+        } else
+            return res.status(503).json({message: "No se está enviando la compañía, el código del préstamo, el usuario que realiza el cambio de estado, la fecha de remate o la observación de remate." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
 export async function updtVigentePrestamo(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
