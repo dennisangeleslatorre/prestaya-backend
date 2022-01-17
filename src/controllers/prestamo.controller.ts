@@ -201,9 +201,9 @@ export async function getPrestamoDinamico(req: Request, res: Response): Promise<
 
 export async function anularPrestamo(req: Request, res: Response): Promise<Response> {
     try {
-        const body = req.body.prestamo;
+        const body = req.body;
         if(body.c_usuarioregistro) {
-            if(body.c_compania && body.c_agencia && body.c_estado && body.c_observacionesanula) {
+            if(body.c_compania && body.c_prestamo && body.c_estado && body.c_observacionesanula) {
                 const conn = await connect();
                 const [response, column] = await conn.query(`CALL sp_Anular_Prestamo(?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_estado,body.c_observacionesanula,body.c_usuarioregistro]);
                 await conn.end();
