@@ -215,7 +215,7 @@ export async function anularPrestamo(req: Request, res: Response): Promise<Respo
                     return res.status(200).json({message: "Se anuló con éxito el préstamo" });
                 }
             }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
-        } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
+        } return res.status(503).json({message: "No se está enviando el usuario que realiza la anulación." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -293,7 +293,7 @@ export async function cambiarEstadoRemate(req: Request, res: Response): Promise<
         const body = req.body;
         if( body.c_compania && body.c_prestamo && body.c_usuarioRemate, body.d_fechaRemate && body.c_observacionesremate ) {
             const conn = await connect();
-            const [response, column] = await conn.query(`call sp_Cambiar_Remate(?, ?, ?, ?, ?, ?, @respuesta);`,[body.c_compania, body.c_prestamo, body.d_fechaRemate, body.c_observacionesremate, body.c_usuarioRemate]);
+            const [response, column] = await conn.query(`call sp_Cambiar_Remate(?, ?, ?, ?, ?, ?, @respuesta);`,[body.c_compania, body.c_prestamo, body.d_fechaRemate, body.c_observacionesremate, body.c_usuarioRemate, moment().format('YYYY-MM-DD HH:MM:ss')]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
             const responseMessage = responseProcedure[0][0];
