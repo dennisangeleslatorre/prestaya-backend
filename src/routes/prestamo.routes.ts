@@ -1,5 +1,5 @@
 import { Router } from "express"
-import {registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo,anularPrestamo} from '../controllers/prestamo.controller'
+import {registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo, anularPrestamo, validarRetornarPendiente} from '../controllers/prestamo.controller'
 import passport from 'passport'
 
 
@@ -13,6 +13,7 @@ router.post('/getPrestamoByCodigoPrestamo',passport.authenticate('jwt', { sessio
 router.post('/getPrestamoDinamico',passport.authenticate('jwt', { session: false }), getPrestamoDinamico);
 router.post('/validateTipos',passport.authenticate('jwt', { session: false }), validateTipos);
 router.post('/validateUnidades',passport.authenticate('jwt', { session: false }), validateUnidades);
-router.post('/anularPrestamo',passport.authenticate('jwt', { session: false }), anularPrestamo);
+router.put('/anularPrestamo',passport.authenticate('jwt', { session: false }), anularPrestamo);
+router.post('/validarRetornarPendiente',passport.authenticate('jwt', { session: false }), validarRetornarPendiente);
 
 export default router;
