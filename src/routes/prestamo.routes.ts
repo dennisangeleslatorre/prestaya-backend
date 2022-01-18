@@ -1,6 +1,6 @@
 import { Router } from "express"
-import {registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo, anularPrestamo, validarRetornarPendiente,
-        retornarPendiente, validarEstadoRemate, cambiarEstadoRemate,updtVigentePrestamo, cambiarEstadoEntregar, cancelarPrestamo} from '../controllers/prestamo.controller'
+import {registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo, anularPrestamo, validarRetornarPendiente, retornarPendiente,
+        validarEstadoRemate, cambiarEstadoRemate,updtVigentePrestamo, cambiarEstadoEntregar, cancelarPrestamo, anularCancelacion, getCancelacionesByCodigoPrestamo} from '../controllers/prestamo.controller'
 import passport from 'passport'
 
 
@@ -21,7 +21,8 @@ router.put('/retornarPendiente',passport.authenticate('jwt', { session: false })
 router.post('/validarEstadoRemate',passport.authenticate('jwt', { session: false }), validarEstadoRemate);
 router.put('/cambiarEstadoRemate',passport.authenticate('jwt', { session: false }), cambiarEstadoRemate);
 router.put('/cambiarEstadoEntregar',passport.authenticate('jwt', { session: false }), cambiarEstadoEntregar);
+router.post('/getCancelacionesByCodigoPrestamo',passport.authenticate('jwt', { session: false }), getCancelacionesByCodigoPrestamo);
 router.post('/cancelarPrestamo',passport.authenticate('jwt', { session: false }), cancelarPrestamo);
-
+router.post('/anularCancelacion',passport.authenticate('jwt', { session: false }), anularCancelacion);
 
 export default router;
