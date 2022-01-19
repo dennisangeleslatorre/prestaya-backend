@@ -267,6 +267,28 @@ export async function retornarPendiente(req: Request, res: Response): Promise<Re
     }
 }
 
+export async function validarFechaRemate(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if( body.c_compania && body.c_prestamo && body.d_fechaRemate ) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`call sp_Validar_Fecha_Remate(?, ?, ?, @respuesta);`,[body.c_compania, body.c_prestamo, body.d_fechaRemate]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al validar el préstamo."
+                return res.status(503).json({message: message});
+            }
+            return res.status(200).json({message: responseMessage.respuesta });
+        } else
+            return res.status(503).json({message: "No se está enviando la compañía, el código del préstamo o la fecha de remate." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
 export async function validarEstadoRemate(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
