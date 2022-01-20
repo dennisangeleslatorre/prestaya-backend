@@ -85,12 +85,12 @@ export async function registerPrestamo(req: Request, res: Response): Promise<Res
                     if(productos) {
                         const responseProducts = await insertProductoGarantia(body.c_compania, responseMessage.respuesta, body.c_usuarioregistro, productos);
                         if(responseProducts.success) {
-                            return res.status(200).json({message: "Se egistró con éxito el préstamo" });
+                            return res.status(200).json({message: "Se registró con éxito el préstamo" });
                         } else {
                             return res.status(503).json({message: "Ocurrió un problema al insertar el préstamo" });
                         }
                     }
-                    return res.status(200).json({message: "Se egistró con éxito el préstamo" });
+                    return res.status(200).json({message: "Se registró con éxito el préstamo" });
                 }
             }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
         } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
@@ -436,6 +436,27 @@ export async function anularCancelacion(req: Request, res: Response): Promise<Re
             } else {
                 return res.status(200).json({message: "Se anuló la cancelación con éxito." });
             }
+        }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function obtenerDatosFormatoPrestamo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania && body.c_prestamo) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT p.*, a.c_descripcion as agencianame FROM co_prestamos p INNER JOIN ma_agencia a on a.c_agencia = p.c_agencia AND a.c_compania = p.c_compania WHERE p.c_compania=? AND p.c_prestamo=?;',
+            [body.c_compania,body.c_prestamo])
+            await conn.end();
+            const prestamoRes =rows as [Prestamo];
+            if(!prestamoRes[0]) {
+                return res.status(200).json({ message: "No se encontró préstamos" });
+            }
+            return res.status(200).json({ data:prestamoRes[0], message: "Se obtuvo registros" });
+
         }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
     } catch (error) {
         console.error(error)

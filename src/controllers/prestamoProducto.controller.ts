@@ -23,6 +23,23 @@ export async function getProductosByPrestamo(req: Request, res: Response): Promi
     }
 }
 
+export async function getProductosByFormato(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_compania = req.body.c_compania;
+        const c_prestamo = req.body.c_prestamo;
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT p.*, t.c_descripcion as tipoproductodesc, u.c_descripcion as unidadmedidadesc FROM co_prestamosproductos p INNER JOIN  ma_tipoproducto t on t.c_tipoproducto = p.c_tipoproducto INNER JOIN ma_unidadmedida u on u.c_unidadmedida = p.c_unidadmedida where c_compania=? AND c_prestamo=?;',[c_compania, c_prestamo]);
+        await conn.end();
+        const parametrosRes = rows as [PrestamoProducto];
+        if(!parametrosRes[0]) {
+            return res.status(200).json({data:[], message: "No se encontró productos" });
+        }
+        return res.status(200).json({data:rows, message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
 
 export async function updateProductoGarantia(c_compania:string, c_prestamo:string, c_ultimousuario:string, productos:string): Promise<Result> {
     try {

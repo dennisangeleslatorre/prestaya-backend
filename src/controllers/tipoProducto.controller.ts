@@ -7,7 +7,7 @@ import moment from 'moment'
 export async function getTipoProducto(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT c_tipoproducto, c_descripcion FROM ma_tipoproducto where c_estado="A"')
+        const [rows, fields] = await conn.query('SELECT c_tipoproducto, c_descripcion, c_flagpeso FROM ma_tipoproducto where c_estado="A"')
         await conn.end();
         const tipoProductoRes = rows as [TipoProducto];
         if(!tipoProductoRes[0]) {
