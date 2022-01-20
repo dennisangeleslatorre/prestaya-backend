@@ -44,14 +44,19 @@ export async function registerDepartamento(req: Request, res: Response): Promise
         const body = req.body;
         if(body.c_usuarioregistro) {
             body.c_ultimousuario = body.c_usuarioregistro
-            if(body.c_paiscodigo && body.c_departamentocodigo && body.c_descripcion){
-                const departamento: Departamento = body;
-                const conn = await connect();
-                const data = await conn.query('INSERT INTO ma_departamento SET ?', [departamento]);
-                await conn.end();
-                const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
-                return res.status(200).json({ success:true, data: departamento, message: "Se registró el departamento con éxito" });
-            }return res.status(200).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+            const conn = await connect();
+            const [rows, fields]  = await conn.query('SELECT c_estado FROM ma_pais where c_paiscodigo= ?', [body.c_paiscodigo]);
+            await conn.end();
+            const departamentosRes =rows as [Departamento];
+            if(!departamentosRes[0] && departamentosRes[0]==='A') {        
+                if(body.c_paiscodigo && body.c_departamentocodigo && body.c_descripcion){
+                    const departamento: Departamento = body;
+                    const conn = await connect();
+                    await conn.query('INSERT INTO ma_departamento SET ?', [departamento]);
+                    await conn.end();
+                    return res.status(200).json({ success:true, data: departamento, message: "Se registró el departamento con éxito" });
+                }return res.status(200).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+            }return res.status(503).json({message: "El país debe encontrarse activo." });
         }return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
     } catch (error) {
         console.error(error);
