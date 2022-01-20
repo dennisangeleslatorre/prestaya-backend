@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { Prestamo } from 'interfaces/prestamo.inteface';
+import { PrestamoCancelaciones } from 'interfaces/prestamoCancelaciones.interface';
 import { updateProductoGarantia, deleteProductoGarantia, insertProductoGarantia } from '../controllers/prestamoProducto.controller'
 import { Result } from "../interfaces/result"
 import { connect } from '../database'
@@ -202,10 +203,10 @@ export async function getPrestamoDinamico(req: Request, res: Response): Promise<
 export async function anularPrestamo(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        if(body.c_ultimousuario) {
+        if(body.c_usuarioanulacion) {
             if(body.c_compania && body.c_prestamo && body.c_estado && body.c_observacionesanula) {
                 const conn = await connect();
-                const [response, column] = await conn.query(`CALL sp_Anular_Prestamo(?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_estado,body.c_observacionesanula,body.c_ultimousuario]);
+                const [response, column] = await conn.query(`CALL sp_Anular_Prestamo(?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_estado,body.c_observacionesanula,body.c_usuarioanulacion]);
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
@@ -260,6 +261,28 @@ export async function retornarPendiente(req: Request, res: Response): Promise<Re
             return res.status(200).json({message: responseMessage.respuesta });
         } else
             return res.status(503).json({message: "No se está enviando la compañía o el código del préstamo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function validarFechaRemate(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if( body.c_compania && body.c_prestamo && body.d_fechaRemate ) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`call sp_Validar_Fecha_Remate(?, ?, ?, @respuesta);`,[body.c_compania, body.c_prestamo, body.d_fechaRemate]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al validar el préstamo."
+                return res.status(503).json({message: message});
+            }
+            return res.status(200).json({message: responseMessage.respuesta });
+        } else
+            return res.status(503).json({message: "No se está enviando la compañía, el código del préstamo o la fecha de remate." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -356,6 +379,24 @@ export async function cambiarEstadoEntregar(req: Request, res: Response): Promis
     }
 }
 
+export async function getCancelacionesByCodigoPrestamo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania && body.c_prestamo) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM co_prestamoscancelaciones where c_compania=? AND c_prestamo=?',[body.c_compania,body.c_prestamo])
+            await conn.end();
+            const prestamoRes = rows as [PrestamoCancelaciones];
+            if(!prestamoRes[0]) {
+                return res.status(200).json({ message: "No se encontró cancelaciones para ese préstamo" });
+            }
+            return res.status(200).json({ data:prestamoRes, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía y código del préstamo para listar la información" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
 
 export async function cancelarPrestamo(req: Request, res: Response): Promise<Response> {
     try {
@@ -374,6 +415,28 @@ export async function cancelarPrestamo(req: Request, res: Response): Promise<Res
                 }
             }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
         } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function anularCancelacion(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania && body.c_prestamo) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`CALL sp_Anular_Cancelacion(?,?,@respuesta)`,[body.c_compania,body.c_prestamo]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al anular la cancelación."
+                return res.status(503).json({message: message});
+            } else {
+                return res.status(200).json({message: "Se anuló la cancelación con éxito." });
+            }
+        }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
