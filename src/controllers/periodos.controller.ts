@@ -71,7 +71,7 @@ export async function getPeriodosByCodigoPeriodos(req: Request, res: Response): 
         const periodos: Periodos = body;
         if(periodos.c_compania && periodos.c_tipoperiodo) {
             const conn = await connect();
-            const [rows, fields] = await conn.query('SELECT * FROM ma_periodos where c_compania=? AND c_tipoperiodo=?',[periodos.c_compania,periodos.c_tipoperiodo])
+            const [rows, fields] = await conn.query('SELECT * FROM ma_periodos where c_compania=? AND c_tipoperiodo=? AND c_periodo=?',[periodos.c_compania,periodos.c_tipoperiodo, periodos.c_periodo])
             await conn.end();
             const periodosRes =rows as [Periodos];
             if(!periodosRes[0]) {
@@ -91,6 +91,7 @@ export async function updatePeriodo(req: Request, res: Response): Promise<Respon
         const body = req.body;
         const c_compania = body.c_compania;
         const c_tipoperiodo = body.c_tipoperiodo;
+        const c_periodo = body.c_periodo;
         body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
         if(body.c_estado === "C") {
             body.c_usuariocierre = body.c_ultimousuario;
@@ -98,7 +99,7 @@ export async function updatePeriodo(req: Request, res: Response): Promise<Respon
         }
         const periodo: Periodos = req.body;
         const conn = await connect();
-        await conn.query('UPDATE ma_periodos SET ? WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo, c_compania, c_tipoperiodo]);
+        await conn.query('UPDATE ma_periodos SET ? WHERE c_compania = ? AND c_tipoperiodo = ? AND c_periodo = ?', [periodo, c_compania, c_tipoperiodo, c_periodo]);
         await conn.end();
         return res.status(200).json({ data: {...periodo}, message: "Se actualizó el periodo con éxito"  });
     } catch (error) {
@@ -116,7 +117,7 @@ export async function deletePeriodo(req: Request, res: Response): Promise<Respon
         const periodo: Periodos = body;
         if(periodo.c_compania && periodo.c_tipoperiodo ) {
             const conn = await connect();
-            await conn.query('DELETE FROM ma_periodos WHERE c_compania = ? AND c_tipoperiodo = ?', [periodo.c_compania,periodo.c_tipoperiodo]);
+            await conn.query('DELETE FROM ma_periodos WHERE c_compania = ? AND c_tipoperiodo = ? AND c_periodo = ?', [periodo.c_compania,periodo.c_tipoperiodo, body.c_periodo]);
             await conn.end();
             return res.status(200).json({ message: "Se eliminó el periodo con éxito"  });
         }return res.status(200).json({ message: "Se debe enviar el código de la compañía y el periodo"  });
