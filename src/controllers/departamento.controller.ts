@@ -3,6 +3,7 @@ import { connect } from '../database'
 import { Departamento } from 'interfaces/departamento.interface'
 import { ResultSetHeader } from "../interfaces/result"
 import moment from 'moment'
+import { RowDataPacket } from 'mysql2';
 
 export async function getDepartamentos(req: Request, res: Response): Promise<Response> {
     try {
@@ -47,8 +48,10 @@ export async function registerDepartamento(req: Request, res: Response): Promise
             const conn = await connect();
             const [rows, fields]  = await conn.query('SELECT c_estado FROM ma_pais where c_paiscodigo= ?', [body.c_paiscodigo]);
             await conn.end();
-            const departamentosRes =rows as [Departamento];
-            if(!departamentosRes[0] && departamentosRes[0]==='A') {        
+            const response = rows as RowDataPacket;
+            const ResponseMessage = response[0];
+            console.log(ResponseMessage.c_estado);
+            if(response[0] && ResponseMessage.c_estado==='A') {        
                 if(body.c_paiscodigo && body.c_departamentocodigo && body.c_descripcion){
                     const departamento: Departamento = body;
                     const conn = await connect();
