@@ -3,6 +3,7 @@ import { connect } from '../database'
 import { Reporte } from 'interfaces/reporte.interface'
 import moment from 'moment'
 import { Prestamo } from 'interfaces/prestamo.inteface';
+import { Result } from 'interfaces/result';
 
 export async function getReportesByPerfil(req: Request, res: Response): Promise<Response> {
     try {
@@ -21,17 +22,184 @@ export async function getReportesByPerfil(req: Request, res: Response): Promise<
     }
 }
 
+export async function functionGetDataReporteResumidoPrestamo(c_compania: string, periodo_inicio: string, periodo_fin: string, n_cliente: string): Promise<Result> {
+    try {
+        let queryWhere = `WHERE p.c_compania = ${c_compania}`;
+        if(periodo_inicio && periodo_fin) queryWhere = `${queryWhere} AND ( DATE_FORMAT(p.d_fechadesembolso, '%Y%m') BETWEEN ${periodo_inicio} AND ${periodo_fin} )`
+        if(n_cliente) queryWhere = `${queryWhere} AND p.n_cliente = ${n_cliente}`
+        const conn = await connect();
+        const [rows, fields] = await conn.query(`
+            SELECT DATE_FORMAT(p.d_fechadesembolso, '%Y%m')  as periodo, p.n_cliente as cliente, p.c_nombrescompleto  as clientenombre, p.c_monedaprestamo  as moneda, p.d_fechadesembolso,
+            SUM(p.n_montoprestamo) as calc_sumamontoprestamo, SUM(p.n_montointereses) as calc_sumamontointereses,
+            SUM(p.n_montototalprestamo) as calc_sumamontototalprestamo, SUM(pp.n_montovalortotal) as calc_sumamontovalorproductos FROM co_prestamos p
+            INNER JOIN co_prestamosproductos pp ON p.c_compania = pp.c_compania AND p.c_prestamo = pp.c_prestamo
+            ${queryWhere}
+            GROUP BY periodo, p.n_cliente, p.c_monedaprestamo;
+        `);
+        await conn.end();
+        const reportePrestamoRes = rows as [Prestamo];
+        if(!reportePrestamoRes[0]) {
+            return Promise.resolve({ success: false, data: {} });
+        }
+        return Promise.resolve({ success: true, data: reportePrestamoRes });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
+
+export async function functionGetDataReporteResumidoCancelaciones(c_compania: string, periodo_inicio: string, periodo_fin: string, n_cliente: string): Promise<Result> {
+    try {
+        let queryWhere = `WHERE p.c_compania = ${c_compania}`;
+        if(periodo_inicio && periodo_fin) queryWhere = `${queryWhere} AND ( DATE_FORMAT(pc.d_fechacancelacion, '%Y%m') BETWEEN ${periodo_inicio} AND ${periodo_fin} )`
+        else queryWhere = `${queryWhere} AND DATE_FORMAT(pc.d_fechacancelacion, '%Y%m') IS NOT NULL`
+        if(n_cliente) queryWhere = `${queryWhere} AND p.n_cliente = ${n_cliente}`
+        const conn = await connect();
+        const [rows, fields] = await conn.query(`
+            SELECT DATE_FORMAT(pc.d_fechacancelacion, '%Y%m')  as periodo, p.n_cliente as cliente, p.c_nombrescompleto as clientenombre, p.c_monedaprestamo as moneda, pc.d_fechacancelacion,
+            SUM(pc.n_montointeresescancelar) as calc_sumainterecamcelado, SUM(pc.n_montoprestamocancelar) as calc_montoprestamocancelado, SUM(pc.n_montocomisioncancelar) as calc_sumacomisioncancelada,
+            SUM(pc.n_montototalcancelar) as calc_sumamontototalcancelado FROM co_prestamos p
+            INNER JOIN co_prestamoscancelaciones pc ON p.c_compania = pc.c_compania AND p.c_prestamo = pc.c_prestamo
+            ${queryWhere}
+            GROUP BY periodo, p.n_cliente, p.c_monedaprestamo;
+        `);
+        await conn.end();
+        const reporteCancelacionRes = rows as [Prestamo];
+        if(!reporteCancelacionRes[0]) {
+            return Promise.resolve({ success: false, data: {} });
+        }
+        return Promise.resolve({ success: true, data: reporteCancelacionRes });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
+
 export async function getDataReporteResumidos(req: Request, res: Response): Promise<Response> {
     try {
-        //const n_perfil = req.body.n_perfil;
-        const conn = await connect();
-        const [rows, fields] = await conn.query(`SELECT p.n_cliente, p.c_nombrescompleto, p.c_monedaprestamo, SUM(p.n_montoprestamo) as calc_sumamontoprestamo, SUM(p.n_montointereses) as calc_sumamontointereses, SUM(p.n_montototalprestamo) as calc_sumamontototalprestamo, SUM(pp.n_montovalortotal) as calc_sumamontovalorproductos, SUM(pc.n_montointeresescancelar) as calc_sumainterecamcelado, SUM(pc.n_montoprestamocancelar) as calc_montoprestamocancelado, SUM(pc.n_montocomisioncancelar) as calc_sumacomisioncancelada, SUM(pc.n_montototalcancelar) as calc_sumamontototalcancelado FROM co_prestamos p INNER JOIN co_prestamoscancelaciones pc ON p.c_compania = pc.c_compania AND p.c_prestamo = pc.c_prestamo INNER JOIN co_prestamosproductos pp ON p.c_compania = pp.c_compania AND p.c_prestamo = pp.c_prestamo WHERE ( p.d_fechadesembolso BETWEEN '2021-12-01' AND '2022-01-31' ) AND ( pc.d_fechacancelacion BETWEEN '2021-12-01' AND '2022-01-31' ) AND p.n_cliente = 1000 AND p.c_compania = '00100000' GROUP BY p.n_cliente, p.c_monedaprestamo;`);
-        await conn.end();
-        const reporteRes = rows as [Prestamo];
-        if(!reporteRes[0]) {
-            return res.status(200).json({data:[], message: "No se datos" });
+        const c_compania = req.body.c_compania;
+        const periodo_inicio = req.body.periodo_inicio;
+        const periodo_fin = req.body.periodo_fin;
+        const n_cliente = req.body.n_cliente;
+        const responseDataPrestamos = await functionGetDataReporteResumidoPrestamo(c_compania, periodo_inicio, periodo_fin, n_cliente);
+        const dataPrestamos = responseDataPrestamos.data as [Object];
+        const responseDataCancelaciones = await functionGetDataReporteResumidoCancelaciones(c_compania, periodo_inicio, periodo_fin, n_cliente);
+        const dataCancelaciones = responseDataCancelaciones.data as [Object];
+        return res.status(200).json({data:[...dataPrestamos, ...dataCancelaciones]});
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function functionGetDataReporteDetallado(c_compania: string, n_cliente: string, esvencido: string, c_paiscodigo: string, c_departamentocodigo: string,
+    c_provinciacodigo: string, c_distritocodigo: string, c_estado: string, excluiranulados: string, solovalidos: string, d_fechadesembolsoinicio: string, d_fechadesembolsofin: string,
+    d_fechacancelacioninicio: string, d_fechacancelacionfin: string, d_fechavencimientoinicio: string, d_fechavencimientofin: string, d_fechavencimientoreprogramadainicio: string,
+    d_fechavencimientoreprogramadafin: string): Promise<Result> {
+    try {
+        let queryWherePrestamo = `WHERE p.c_compania = ${c_compania}`;
+        let queryWhereCancelacion = `WHERE c.c_compania = ${c_compania}`;
+        let queryWhereJoin = `WHERE pres.c_compania = ${c_compania}`;
+        //Filtros de prestamo
+        if(n_cliente) queryWherePrestamo = `${queryWherePrestamo} AND p.n_cliente = ${n_cliente}`;
+        if(c_paiscodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_paiscodigo = ${c_paiscodigo}`;
+        if(c_departamentocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_departamentocodigo = ${c_departamentocodigo}`;
+        if(c_provinciacodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_provinciacodigo = ${c_provinciacodigo}`;
+        if(c_distritocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_distritocodigo = ${c_distritocodigo}`;
+        if(c_estado) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado = ${c_estado}`;
+        else {
+            if(solovalidos) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ['VI', 'CA', 'EN', 'RE']`;
+            else {
+                if(excluiranulados) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ['PE', 'VI', 'CA', 'EN', 'RE']`;
+            }
         }
-        return res.status(200).json({data:rows, message: "Se obtuvo datos" });
+        if(d_fechadesembolsoinicio && d_fechadesembolsofin) queryWherePrestamo = `${queryWherePrestamo} AND (p.d_fechadesembolso BETWEEN ${d_fechadesembolsoinicio} AND ${d_fechadesembolsofin})`;
+        if(d_fechavencimientoinicio && d_fechavencimientofin) queryWherePrestamo = `${queryWherePrestamo} AND (p.d_fechavencimiento BETWEEN ${d_fechavencimientoinicio} AND ${d_fechavencimientofin})`;
+        //Filtros Join
+        if(esvencido) queryWhereJoin = `${queryWhereJoin} AND can.esvencido = ${esvencido}`;
+        if(d_fechacancelacioninicio && d_fechacancelacionfin) queryWhereJoin = `${queryWhereJoin} AND (can.ultimafechacancelacionregistrada BETWEEN ${d_fechacancelacioninicio} AND ${d_fechacancelacionfin})`;
+        if(d_fechavencimientoreprogramadainicio && d_fechavencimientoreprogramadafin) queryWhereJoin = `${queryWhereJoin} AND (can.d_fechavencimientoreprogramada BETWEEN ${d_fechavencimientoreprogramadainicio} AND ${d_fechavencimientoreprogramadafin})`;
+
+        const conn = await connect();
+        const [rows, fields] = await conn.query(`
+            SELECT pres.c_prestamo, pres.c_compania, pres.n_cliente, pres.c_nombrescompleto, pres.d_fechadesembolso, pres.n_diasplazo, pres.d_fechavencimiento, pres.c_monedaprestamo,
+            pres.n_montoprestamo, pres.n_tasainteres, pres.n_montointereses, pres.n_montototalprestamo, pres.calc_sumamontovalorproductos, pres.c_estado, pres.c_descripcion as nombredistrito,
+            can.d_fechavencimientoreprogramada, can.ultimafechacancelacionregistrada, can.calc_sumainterescancelado, can.calc_sumamontoprestamocancelado,
+            can.calc_sumamontocomisioncancelada, can.calc_sumamontotalcancelado, can.ultimalinea, can.calc_diasvencido, can.esvencido
+            FROM (
+            SELECT p.c_prestamo, p.c_compania, p.n_cliente, p.c_nombrescompleto, p.d_fechadesembolso, p.n_diasplazo, p.d_fechavencimiento, p.c_monedaprestamo, p.n_montoprestamo, p.n_tasainteres,
+            p.n_montointereses, p.n_montototalprestamo, SUM(pp.n_montovalortotal) as calc_sumamontovalorproductos, p.c_estado, d.c_descripcion
+            FROM co_prestamos p
+            INNER JOIN co_prestamosproductos pp ON pp.c_prestamo = p.c_prestamo AND p.c_compania = pp.c_compania
+            INNER JOIN ma_distrito d ON d.c_paiscodigo = p.c_paiscodigo AND d.c_departamentocodigo = p.c_departamentocodigo AND d.c_provinciacodigo = p.c_provinciacodigo AND d.c_distritocodigo = p.c_distritocodigo
+            ${queryWherePrestamo}
+            GROUP BY p.c_prestamo, p.c_compania) pres
+            INNER JOIN
+            (SELECT  cc.c_prestamo, cc.c_compania, cc.d_fechavencimientoreprogramada, cc.ultimafechacancelacionregistrada, cc.calc_sumainterescancelado, cc.calc_sumamontoprestamocancelado,
+            cc.calc_sumamontocomisioncancelada, cc.calc_sumamontotalcancelado, cv.ultimalinea, cv.calc_diasvencido, cv.esvencido
+            FROM (SELECT ca.c_prestamo, ca.c_compania, ca.d_fechavencimientoreprogramada, ca.ultimafechacancelacionregistrada, SUM(cb.n_montointeresescancelar) as calc_sumainterescancelado,
+            SUM(cb.n_montoprestamocancelar) as calc_sumamontoprestamocancelado, SUM(cb.n_montocomisioncancelar) as calc_sumamontocomisioncancelada,
+            SUM(cb.n_montototalcancelar) as calc_sumamontotalcancelado
+            FROM (SELECT c.c_prestamo, c.c_compania, MAX(c.d_fechavencimiento) as d_fechavencimientoreprogramada, MAX(c.d_fechacancelacion) as ultimafechacancelacionregistrada
+            FROM co_prestamoscancelaciones c
+            ${queryWhereCancelacion}
+            GROUP BY c.c_prestamo, c.c_compania) ca
+            INNER JOIN co_prestamoscancelaciones cb ON ca.c_prestamo = cb.c_prestamo AND cb.c_compania = ca.c_compania
+            GROUP BY cb.c_prestamo, cb.c_compania) cc
+            INNER JOIN
+            (SELECT  ca.c_prestamo, ca.c_compania, ca.ultimalinea,
+            if(cb.d_fechacancelacion IS NULL, DATEDIFF(now(), cb.d_fechavencimiento), DATEDIFF(cb.d_fechacancelacion, cb.d_fechavencimiento)) as calc_diasvencido,
+            if((if(cb.d_fechacancelacion IS NULL, DATEDIFF(now(), cb.d_fechavencimiento), DATEDIFF(cb.d_fechacancelacion, cb.d_fechavencimiento))) > 0, 'S', 'N') as esvencido
+            FROM ( SELECT c.c_prestamo, c.c_compania, MAX(c.n_linea) as ultimalinea
+            FROM co_prestamoscancelaciones c
+            ${queryWhereCancelacion}
+            GROUP BY c.c_prestamo, c.c_compania) ca
+            INNER JOIN co_prestamoscancelaciones cb ON ca.c_prestamo = cb.c_prestamo AND cb.c_compania = ca.c_compania AND ca.ultimalinea = cb.n_linea
+            GROUP BY cb.c_prestamo, cb.c_compania) cv
+            ON cc.c_prestamo = cv.c_prestamo AND cc.c_compania = cv.c_compania) can
+            ON pres.c_prestamo = can.c_prestamo AND pres.c_compania = can.c_compania
+            ${queryWhereJoin}
+        `);
+        await conn.end();
+        const reporteCancelacionRes = rows as [Prestamo];
+        if(!reporteCancelacionRes[0]) {
+            return Promise.resolve({ success: false, data: {} });
+        }
+        return Promise.resolve({ success: true, data: reporteCancelacionRes });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
+
+export async function getDataReporteDetallado(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_compania = req.body.c_compania;
+        const n_cliente = req.body.n_cliente;
+        const esvencido = req.body.esvencido;
+        const c_paiscodigo = req.body.c_paiscodigo;
+        const c_departamentocodigo = req.body.c_departamentocodigo;
+        const c_provinciacodigo = req.body.c_provinciacodigo;
+        const c_distritocodigo = req.body.c_distritocodigo;
+        const c_estado = req.body.c_distritocodigo;
+        const excluiranulados = req.body.excluiranulados;
+        const solovalidos = req.body.solovalidos;
+        const d_fechadesembolsoinicio = req.body.d_fechadesembolsoinicio;
+        const d_fechadesembolsofin = req.body.d_fechadesembolsofin;
+        const d_fechacancelacioninicio = req.body.d_fechacancelacioninicio;
+        const d_fechacancelacionfin = req.body.d_fechacancelacionfin;
+        const d_fechavencimientoinicio = req.body.d_fechavencimientoinicio;
+        const d_fechavencimientofin = req.body.d_fechavencimientofin;
+        const d_fechavencimientoreprogramadainicio = req.body.d_fechavencimientoreprogramadainicio;
+        const d_fechavencimientoreprogramadafin = req.body.d_fechavencimientoreprogramadafin;
+
+        const responseDataReporteDetallado = await functionGetDataReporteDetallado(c_compania, n_cliente, esvencido, c_paiscodigo, c_departamentocodigo, c_provinciacodigo, c_distritocodigo,
+            c_estado, excluiranulados, solovalidos, d_fechadesembolsoinicio, d_fechadesembolsofin, d_fechacancelacioninicio, d_fechacancelacionfin, d_fechavencimientoinicio, d_fechavencimientofin,
+            d_fechavencimientoreprogramadainicio, d_fechavencimientoreprogramadafin);
+
+        const dataReporteDetallado = responseDataReporteDetallado.data as [Object];
+
+        return res.status(200).json({data:dataReporteDetallado});
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
