@@ -25,6 +25,7 @@ import Periodos from './routes/periodos.routes'
 import Cliente from './routes/cliente.routes'
 import Prestamo from './routes/prestamo.routes'
 import PrestamoProducto from './routes/prestamoProducto.routes'
+import Reporte from './routes/reporte.routes'
 
 
 export class App {
@@ -70,6 +71,7 @@ export class App {
         this.app.use('/cliente', Cliente);
         this.app.use('/prestamo', Prestamo);
         this.app.use('/prestamoproducto', PrestamoProducto);
+        this.app.use('/reporte', Reporte);
     }
 
     async listen() {
