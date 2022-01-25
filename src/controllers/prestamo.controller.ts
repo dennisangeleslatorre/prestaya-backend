@@ -151,6 +151,7 @@ export async function getPrestamoDinamico(req: Request, res: Response): Promise<
         body.c_compania			  		 = body.c_compania				   ? body.c_compania			  	: null
         body.c_agencia			  		 = body.c_agencia				   ? body.c_agencia			  	    : null
         body.c_prestamo			  		 = body.c_prestamo				   ? body.c_prestamo			  	: null
+        body.c_estado			  		 = body.c_estado				   ? body.c_estado			  	: null
         body.n_cliente			  		 = body.n_cliente			       ? body.n_cliente			  		: '0'
         body.c_nombrescompleto	  		 = body.c_nombrescompleto	       ? body.c_nombrescompleto	  		: null
         body.c_tipodocumento	  		 = body.c_tipodocumento	     	   ? body.c_tipodocumento	      	: null
@@ -187,13 +188,13 @@ export async function getPrestamoDinamico(req: Request, res: Response): Promise<
 
         if(body) {
             const conn = await connect();
-            const [[rows,fields], response] = await conn.query(`CALL sp_listDinamico_Prestamo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,[body.c_compania,body.c_agencia, body.c_prestamo,body.n_cliente,body.c_nombrescompleto,body.c_tipodocumento,body.c_numerodocumento,body.c_paiscodigo,body.c_departamentocodigo,body.c_provinciacodigo,body.c_distritocodigo,body.c_telefono1,body.d_fechadesembolsoinicio,body.d_fechadesembolsofin,body.d_fechavencimientoinicio,body.d_fechavencimientofin,body.d_fecharegistroinicio,body.d_fecharegistrofin,body.d_fechavigenteinicio,body.d_fechavigentefin,body.d_fechaentregainicio,body.d_fechaentregafin,body.d_fechaEntregaUSinicio,body.d_fechaEntregaUSfin,body.d_fechaanulacioninicio,body.d_fechaanulacionfin,body.d_fechaRemateinicio,body.d_fechaRematefin,body.d_fechaRemateUSinicio,body.d_fechaRemateUSfin,body.d_fecharegpendienteinicio,body.d_fecharegpendientefin,body.d_fechacancelacioninicio,body.d_fechacancelacionfin,body.d_fvencimientoreproinicio,body.d_fvencimientoreprofin]);
+            const [[rows,fields], response] = await conn.query(`CALL sp_listDinamico_Prestamo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,[body.c_compania,body.c_agencia, body.c_prestamo, body.c_estado,body.n_cliente,body.c_nombrescompleto,body.c_tipodocumento,body.c_numerodocumento,body.c_paiscodigo,body.c_departamentocodigo,body.c_provinciacodigo,body.c_distritocodigo,body.c_telefono1,body.d_fechadesembolsoinicio,body.d_fechadesembolsofin,body.d_fechavencimientoinicio,body.d_fechavencimientofin,body.d_fecharegistroinicio,body.d_fecharegistrofin,body.d_fechavigenteinicio,body.d_fechavigentefin,body.d_fechaentregainicio,body.d_fechaentregafin,body.d_fechaEntregaUSinicio,body.d_fechaEntregaUSfin,body.d_fechaanulacioninicio,body.d_fechaanulacionfin,body.d_fechaRemateinicio,body.d_fechaRematefin,body.d_fechaRemateUSinicio,body.d_fechaRemateUSfin,body.d_fecharegpendienteinicio,body.d_fecharegpendientefin,body.d_fechacancelacioninicio,body.d_fechacancelacionfin,body.d_fvencimientoreproinicio,body.d_fvencimientoreprofin]);
             await conn.end();
             const prestamoRes = rows as [Prestamo];
             if(!prestamoRes[0]) {
                 return res.status(200).json({message: "No se encontró préstamos" });
             }
-            return res.status(200).json({data:rows, message: "Se obtuvo préstamos" });
+            return res.status(200).json({data:prestamoRes, message: "Se obtuvo préstamos" });
         }return res.status(200).json({ message: "Se debe enviar algún dato para filtrar"  });
     } catch (error) {
         console.error(error)
