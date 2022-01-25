@@ -411,8 +411,9 @@ export async function cancelarPrestamo(req: Request, res: Response): Promise<Res
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
-                if(!responseMessage || responseMessage.respuesta === "ERROR") {
-                    return res.status(503).json({message: "Ocurrio un problema al registrar la cancelación del préstamo" });
+                if(!responseMessage || responseMessage.respuesta !== "OK" ) {
+                    const message = responseMessage.respuesta ? responseMessage.respuesta : "Ocurrio un problema al registrar la cancelación del préstamo"
+                    return res.status(503).json({message: message });
                 } else {
                     return res.status(200).json({message: "Se registró con éxito la cancelación" });
                 }
