@@ -25,7 +25,7 @@ export async function getPeriodos(req: Request, res: Response): Promise<Response
 export async function getPeriodosAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT p.c_compania, p.c_tipoperiodo, p.c_periodo, p.c_estado, p.c_usuarioregistro, p.d_fecharegistro, p.c_ultimousuario, p.d_ultimafechamodificacion, p.c_usuariocierre, p.d_fechacierre, c.c_descripcion as companyname FROM ma_periodos p INNER JOIN ma_compania c ON p.c_compania = c.c_compania')
+        const [rows, fields] = await conn.query('SELECT p.c_compania, p.c_tipoperiodo, p.c_periodo, p.c_estado, p.c_usuarioregistro, p.d_fecharegistro, p.c_ultimousuario, p.d_ultimafechamodificacion, p.c_usuariocierre, p.d_fechacierre, c.c_descripcion as companyname FROM ma_periodos p INNER JOIN ma_compania c ON p.c_compania = c.c_compania order by p.c_compania, p.c_tipoperiodo asc, p.c_periodo desc')
         await conn.end();
         const periodosRes = rows as [Periodos];
         if(!periodosRes[0]) {
