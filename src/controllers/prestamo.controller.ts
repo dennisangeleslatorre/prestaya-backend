@@ -251,9 +251,9 @@ export async function validarRetornarPendiente(req: Request, res: Response): Pro
 export async function retornarPendiente(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        if( body.c_compania && body.c_prestamo ) {
+        if( body.c_compania && body.c_prestamo && body.c_usuarioretornarpendiente) {
             const conn = await connect();
-            const [response, column] = await conn.query(`call sp_Retornar_Pendiente(?, ?, @respuesta);`,[body.c_compania, body.c_prestamo]);
+            const [response, column] = await conn.query(`call sp_Retornar_Pendiente(?, ?,?, @respuesta);`,[body.c_compania, body.c_prestamo,body.c_usuarioretornarpendiente]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
             const responseMessage = responseProcedure[0][0];
