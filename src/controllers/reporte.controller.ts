@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
 import { Reporte } from 'interfaces/reporte.interface'
-import moment from 'moment'
 import { Prestamo } from 'interfaces/prestamo.inteface';
 import { Result } from 'interfaces/result';
 
@@ -24,7 +23,7 @@ export async function getReportesByPerfil(req: Request, res: Response): Promise<
 
 export async function functionGetDataReporteResumidoPrestamo(c_compania: string, periodo_inicio: string, periodo_fin: string, n_cliente: string): Promise<Result> {
     try {
-        let queryWhere = `WHERE p.c_compania = ${c_compania}`;
+        let queryWhere = `WHERE p.c_compania = ${c_compania} AND p.c_estado IN ('VI', 'CA', 'EN', 'RE')`;
         if(periodo_inicio && periodo_fin) queryWhere = `${queryWhere} AND ( DATE_FORMAT(p.d_fechadesembolso, '%Y%m') BETWEEN ${periodo_inicio} AND ${periodo_fin} )`
         if(n_cliente) queryWhere = `${queryWhere} AND p.n_cliente = ${n_cliente}`
         const conn = await connect();
@@ -93,7 +92,7 @@ export async function getDataReporteResumidos(req: Request, res: Response): Prom
 }
 
 export async function functionGetDataReporteDetallado(c_compania: string, n_cliente: string, esvencido: string, c_paiscodigo: string, c_departamentocodigo: string,
-    c_provinciacodigo: string, c_distritocodigo: string, c_estado: string, excluiranulados: string, solovalidos: string, d_fechadesembolsoinicio: string, d_fechadesembolsofin: string,
+    c_provinciacodigo: string, c_distritocodigo: string, c_estado: string, excluiranulados: boolean, solovalidos: boolean, d_fechadesembolsoinicio: string, d_fechadesembolsofin: string,
     d_fechacancelacioninicio: string, d_fechacancelacionfin: string, d_fechavencimientoinicio: string, d_fechavencimientofin: string, d_fechavencimientoreprogramadainicio: string,
     d_fechavencimientoreprogramadafin: string): Promise<Result> {
     try {
@@ -108,9 +107,9 @@ export async function functionGetDataReporteDetallado(c_compania: string, n_clie
         if(c_distritocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_distritocodigo = ${c_distritocodigo}`;
         if(c_estado) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado = ${c_estado}`;
         else {
-            if(solovalidos) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ['VI', 'CA', 'EN', 'RE']`;
+            if(solovalidos) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ('VI', 'CA', 'EN', 'RE')`;
             else {
-                if(excluiranulados) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ['PE', 'VI', 'CA', 'EN', 'RE']`;
+                if(excluiranulados) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ('PE', 'VI', 'CA', 'EN', 'RE')`;
             }
         }
         if(d_fechadesembolsoinicio && d_fechadesembolsofin) queryWherePrestamo = `${queryWherePrestamo} AND (p.d_fechadesembolso BETWEEN ${d_fechadesembolsoinicio} AND ${d_fechadesembolsofin})`;
@@ -122,7 +121,7 @@ export async function functionGetDataReporteDetallado(c_compania: string, n_clie
 
         const conn = await connect();
         const [rows, fields] = await conn.query(`
-            SELECT pres.c_prestamo, pres.c_compania, pres.n_cliente, pres.c_nombrescompleto, pres.d_fechadesembolso, pres.n_diasplazo, pres.d_fechavencimiento, pres.c_monedaprestamo,
+            SELECT pres.c_prestamo, pres.c_compania, pres.n_cliente, pres.c_nombrescompleto, pres.d_fechadesembolso, pres.n_diasplazo * can.ultimalinea as calc_diasplazototales, pres.d_fechavencimiento, pres.c_monedaprestamo,
             pres.n_montoprestamo, pres.n_tasainteres, pres.n_montointereses, pres.n_montototalprestamo, pres.calc_sumamontovalorproductos, pres.c_estado, pres.c_descripcion as nombredistrito,
             can.d_fechavencimientoreprogramada, can.ultimafechacancelacionregistrada, can.calc_sumainterescancelado, can.calc_sumamontoprestamocancelado,
             can.calc_sumamontocomisioncancelada, can.calc_sumamontotalcancelado, can.ultimalinea, can.calc_diasvencido, can.esvencido
@@ -174,6 +173,7 @@ export async function functionGetDataReporteDetallado(c_compania: string, n_clie
 
 export async function getDataReporteDetallado(req: Request, res: Response): Promise<Response> {
     try {
+        //strings
         const c_compania = req.body.c_compania;
         const n_cliente = req.body.n_cliente;
         const esvencido = req.body.esvencido;
@@ -182,8 +182,10 @@ export async function getDataReporteDetallado(req: Request, res: Response): Prom
         const c_provinciacodigo = req.body.c_provinciacodigo;
         const c_distritocodigo = req.body.c_distritocodigo;
         const c_estado = req.body.c_distritocodigo;
+        //booleans
         const excluiranulados = req.body.excluiranulados;
         const solovalidos = req.body.solovalidos;
+        //Fechas
         const d_fechadesembolsoinicio = req.body.d_fechadesembolsoinicio;
         const d_fechadesembolsofin = req.body.d_fechadesembolsofin;
         const d_fechacancelacioninicio = req.body.d_fechacancelacioninicio;

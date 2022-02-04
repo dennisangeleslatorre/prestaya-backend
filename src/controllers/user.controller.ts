@@ -99,16 +99,29 @@ export async function getByUsername(c_codigousuario:string): Promise<Result> {
     }
 }
 
+export async function postAuditLogin(c_descripcion:string, c_usuario:string): Promise<Result> {
+    try {
+        const d_fechalogin = moment().format('YYYY-MM-DD HH:MM:ss');
+        const conn = await connect();
+        const res = await conn.query(`INSERT INTO aud_loginauditoria (c_descripcion, c_usuario, d_fechalogin) values(${c_descripcion}, ${c_usuario}, ${d_fechalogin})`);
+        await conn.end();
+        return Promise.resolve({ success: true, data:{} });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
 
 export async function  login(req: Request, res: Response): Promise<Response> {
     const secret = "PrestaYA"
     try {
-        const { c_codigousuario, c_clave } = req.body;
+        const { c_codigousuario, c_clave, c_descripcion_login } = req.body;
         const userRes = await getByUsername(c_codigousuario);
         const user = userRes.data as [User];
         if (!user.length) return res.status(200).json({ success: false, message: "Usuario no registrado." });
         if (user[0].c_estado !== "A") return res.status(200).json({ success: false, message: "El usuario no está activo." });
         if (user[0] != undefined && user[0].c_clave && bcrypt.compareSync(c_clave, user[0].c_clave)) {
+            //await postAuditLogin(c_descripcion_login, c_codigousuario);
             delete user[0].c_clave;
             user[0].a_paginas = user[0].c_paginas.split(",");
 

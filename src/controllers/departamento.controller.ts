@@ -26,7 +26,10 @@ export async function getDepartamentos(req: Request, res: Response): Promise<Res
 export async function getDepartamentosAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM ma_departamento')
+        const [rows, fields] = await conn.query(`
+            SELECT d.*, p.c_descripcion as pais FROM ma_departamento d
+            INNER JOIN ma_pais p ON d.c_paiscodigo = p.c_paiscodigo
+        `)
         await conn.end();
         const departamentosRes =rows as [Departamento];
         if(!departamentosRes[0]) {
@@ -51,7 +54,7 @@ export async function registerDepartamento(req: Request, res: Response): Promise
             const response = rows as RowDataPacket;
             const ResponseMessage = response[0];
             console.log(ResponseMessage.c_estado);
-            if(response[0] && ResponseMessage.c_estado==='A') {        
+            if(response[0] && ResponseMessage.c_estado==='A') {
                 if(body.c_paiscodigo && body.c_departamentocodigo && body.c_descripcion){
                     const departamento: Departamento = body;
                     const conn = await connect();

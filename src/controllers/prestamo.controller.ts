@@ -270,6 +270,50 @@ export async function retornarPendiente(req: Request, res: Response): Promise<Re
     }
 }
 
+export async function retornarEntrega(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if( body.c_compania && body.c_prestamo ) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`call sp_Retornar_Entrega(?, ?, @respuesta);`,[body.c_compania, body.c_prestamo]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al regresar entrega."
+                return res.status(503).json({message: message});
+            }
+            return res.status(200).json({message: responseMessage.respuesta });
+        } else
+            return res.status(503).json({message: "No se está enviando la compañía o el código del préstamo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function retornarRemate(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if( body.c_compania && body.c_prestamo ) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`call sp_Retornar_Remate(?, ?, @respuesta);`,[body.c_compania, body.c_prestamo]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al regresar remate."
+                return res.status(503).json({message: message});
+            }
+            return res.status(200).json({message: responseMessage.respuesta });
+        } else
+            return res.status(503).json({message: "No se está enviando la compañía o el código del préstamo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
 export async function validarFechaRemate(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;

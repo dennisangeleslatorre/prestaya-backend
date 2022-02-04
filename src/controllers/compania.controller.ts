@@ -24,7 +24,14 @@ export async function getCompania(req: Request, res: Response): Promise<Response
 export async function getCompaniaAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM ma_compania')
+        const [rows, fields] = await conn.query(
+            `SELECT c.*, p.c_descripcion as pais, dp.c_descripcion as departamento, pr.c_descripcion as provincia, d.c_descripcion as distrito
+            FROM ma_compania c
+            INNER JOIN ma_pais p ON c.c_paiscodigo = p.c_paiscodigo
+            INNER JOIN ma_departamento dp ON dp.c_paiscodigo = c.c_paiscodigo AND dp.c_departamentocodigo = c.c_departamentocodigo
+            INNER JOIN ma_provincia pr ON pr.c_paiscodigo = c.c_paiscodigo AND pr.c_departamentocodigo = c.c_departamentocodigo AND pr.c_provinciacodigo = c.c_provinciacodigo
+            INNER JOIN ma_distrito d ON d.c_paiscodigo = c.c_paiscodigo AND d.c_departamentocodigo = c.c_departamentocodigo AND d.c_provinciacodigo = c.c_provinciacodigo AND d.c_distritocodigo = c.c_distritocodigo
+        `)
         await conn.end();
         const TipoCompaniaRes = rows as [Compania];
         if(!TipoCompaniaRes[0]) {

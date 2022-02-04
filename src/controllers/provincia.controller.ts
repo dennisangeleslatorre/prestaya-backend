@@ -25,7 +25,11 @@ export async function getProvincias(req: Request, res: Response): Promise<Respon
 export async function getProvinciasAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM ma_provincia')
+        const [rows, fields] = await conn.query(`
+            SELECT pr.*, p.c_descripcion as pais, d.c_descripcion as departamento FROM ma_provincia pr
+            INNER JOIN ma_pais p ON p.c_paiscodigo = pr.c_paiscodigo
+            INNER JOIN ma_departamento d ON d.c_paiscodigo = pr.c_paiscodigo AND pr.c_departamentocodigo = d.c_departamentocodigo
+        `)
         await conn.end();
         const provinciaRes =rows as [Provincia];
         if(!provinciaRes[0]) {
