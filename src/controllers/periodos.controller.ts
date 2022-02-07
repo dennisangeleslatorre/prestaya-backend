@@ -44,7 +44,7 @@ export async function registerPeriodos(req: Request, res: Response): Promise<Res
         if(body.c_usuarioregistro) {
             body.c_ultimousuario = body.c_usuarioregistro
             if(body.c_compania && body.c_tipoperiodo && body.c_periodo) {
-                if(body.c_periodo === "C") {
+                if(body.c_estado === "C") {
                     body.c_usuariocierre = body.c_usuarioregistro;
                     body.d_fechacierre = moment().format('YYYY-MM-DD HH:MM:ss');
                 }

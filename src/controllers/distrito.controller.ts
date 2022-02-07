@@ -25,7 +25,13 @@ export async function getDistritos(req: Request, res: Response): Promise<Respons
 export async function getDistritosAdmin(req: Request, res: Response): Promise<Response> {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT * FROM ma_distrito')
+        const [rows, fields] = await conn.query(`
+            SELECT dt.*, p.c_descripcion as pais, d.c_descripcion departamento, pr.c_descripcion provincia
+            FROM ma_distrito dt
+            INNER JOIN ma_pais p ON p.c_paiscodigo = dt.c_paiscodigo
+            INNER JOIN ma_departamento d ON d.c_paiscodigo = dt.c_paiscodigo AND dt.c_departamentocodigo = d.c_departamentocodigo
+            INNER JOIN ma_provincia pr ON dt.c_paiscodigo = pr.c_paiscodigo AND pr.c_departamentocodigo = dt.c_departamentocodigo AND pr.c_provinciacodigo = dt.c_provinciacodigo
+        `)
         await conn.end();
         const distritoRes =rows as [Distrito];
         if(!distritoRes[0]) {
