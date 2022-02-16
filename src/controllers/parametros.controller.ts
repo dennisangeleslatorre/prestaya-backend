@@ -102,6 +102,24 @@ export async function getParametrosByCodigoParametros(req: Request, res: Respons
     }
 }
 
+export async function getParametroSession(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const parametros: Parametros = body;
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM ma_parametros where c_parametrocodigo=?',["PACO000010"])
+        await conn.end();
+        const parametrosRes =rows as [Parametros];
+        if(!parametrosRes[0]) {
+            return res.status(200).json({ data:[], message: "No se encontró parámetros" });
+        }
+        return res.status(200).json({ data:parametrosRes[0], message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
 export async function deleteParametro(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;

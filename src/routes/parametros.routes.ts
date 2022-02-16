@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getParametros,getParametrosAdmin,registerParametros,getParametrosByCodigoParametros,updateParametro,deleteParametro} from '../controllers/parametros.controller'
+import { getParametros,getParametrosAdmin,registerParametros,getParametrosByCodigoParametros,updateParametro,deleteParametro,getParametroSession} from '../controllers/parametros.controller'
 import passport from 'passport'
 
 const router = Router();
@@ -10,5 +10,6 @@ router.post('/register',passport.authenticate('jwt', { session: false }), regist
 router.put('/update',  passport.authenticate('jwt', { session: false }), updateParametro);
 router.post('/delete', passport.authenticate('jwt', { session: false }), deleteParametro );
 router.post('/getParametrosByCodigoParametros',passport.authenticate('jwt', { session: false }), getParametrosByCodigoParametros);
+router.get('/getParametroSession', passport.authenticate('jwt', { session: false }), getParametroSession);
 
 export default router;

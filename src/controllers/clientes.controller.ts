@@ -143,12 +143,12 @@ export async function deleteCliente(req: Request, res: Response): Promise<Respon
 export async function getClienteDinamico(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        body.c_compania = body.c_compania ? body.c_compania : null
-        body.n_cliente = body.n_cliente ? body.n_cliente : '0'
-        body.c_estado = body.c_estado ? body.c_estado : null
-        body.c_nombrescompleto = body.c_nombrescompleto ? body.c_nombrescompleto : null
-        body.c_tipodocumento = body.c_tipodocumento ? body.c_tipodocumento : null
-        body.c_numerodocumento = body.c_numerodocumento ? body.c_numerodocumento : null
+        body.c_compania = body.c_compania ? body.c_compania : null;
+        body.n_cliente = body.n_cliente ? body.n_cliente : '0';
+        body.c_estado = body.c_estado ? body.c_estado : null;
+        body.c_nombrescompleto = body.c_nombrescompleto ? body.c_nombrescompleto : null;
+        body.c_tipodocumento = body.c_tipodocumento ? body.c_tipodocumento : null;
+        body.c_numerodocumento = body.c_numerodocumento ? body.c_numerodocumento : null;
         if(body) {
             const conn = await connect();
             const [[rows,fields], response] = await conn.query(`CALL cliente_getList(?,?,?,?,?,?)`,[body.c_compania,body.n_cliente,body.c_estado, body.c_nombrescompleto,body.c_tipodocumento,body.c_numerodocumento]);

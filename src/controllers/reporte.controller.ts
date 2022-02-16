@@ -2,7 +2,25 @@ import { Request, Response } from 'express'
 import { connect } from '../database'
 import { Reporte } from 'interfaces/reporte.interface'
 import { Prestamo } from 'interfaces/prestamo.inteface';
+import { PerfilReporte } from 'interfaces/perfilReporte.interface';
 import { Result } from 'interfaces/result';
+import moment from 'moment'
+
+export async function getReportes(req: Request, res: Response): Promise<Response> {
+    try {
+        const conn = await connect();
+        const [rows, fields] = await conn.query("SELECT * FROM prestaya.ma_reportes WHERE c_estado='A'");
+        await conn.end();
+        const reporteRes = rows as [Reporte];
+        if(!reporteRes[0]) {
+            return res.status(200).json({data:[], message: "No se encontró reportes asignados al perfil" });
+        }
+        return res.status(200).json({data:rows, message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
 
 export async function getReportesByPerfil(req: Request, res: Response): Promise<Response> {
     try {
@@ -81,9 +99,9 @@ export async function getDataReporteResumidos(req: Request, res: Response): Prom
         const periodo_fin = req.body.periodo_fin;
         const n_cliente = req.body.n_cliente;
         const responseDataPrestamos = await functionGetDataReporteResumidoPrestamo(c_compania, periodo_inicio, periodo_fin, n_cliente);
-        const dataPrestamos = responseDataPrestamos.data as [Object];
+        const dataPrestamos = responseDataPrestamos.success ? responseDataPrestamos.data as [Object] : [];
         const responseDataCancelaciones = await functionGetDataReporteResumidoCancelaciones(c_compania, periodo_inicio, periodo_fin, n_cliente);
-        const dataCancelaciones = responseDataCancelaciones.data as [Object];
+        const dataCancelaciones = responseDataCancelaciones.success ? responseDataCancelaciones.data as [Object] : [];
         return res.status(200).json({data:[...dataPrestamos, ...dataCancelaciones]});
     } catch (error) {
         console.error(error)
@@ -199,9 +217,96 @@ export async function getDataReporteDetallado(req: Request, res: Response): Prom
             c_estado, excluiranulados, solovalidos, d_fechadesembolsoinicio, d_fechadesembolsofin, d_fechacancelacioninicio, d_fechacancelacionfin, d_fechavencimientoinicio, d_fechavencimientofin,
             d_fechavencimientoreprogramadainicio, d_fechavencimientoreprogramadafin);
 
-        const dataReporteDetallado = responseDataReporteDetallado.data as [Object];
+        const dataReporteDetallado = responseDataReporteDetallado.success ? responseDataReporteDetallado.data as [Object] : [];
 
         return res.status(200).json({data:dataReporteDetallado});
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function getReporteAcceso(n_perfil:string, c_tiporeporte:string, n_grupo:number, n_reporte:number): Promise<Result> {
+    try {
+        const conn = await connect();
+        const res = await conn.query('SELECT * FROM ma_perfilreporte WHERE n_perfil = ? AND c_tiporeporte = ? AND n_grupo = ? AND n_reporte = ?', [n_perfil, c_tiporeporte, n_grupo, n_reporte]);
+        await conn.end();
+        return Promise.resolve({ success: true, data: res[0] });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
+
+export async function updateReporteAcceso(n_perfil:string, c_tiporeporte:string, n_grupo:number, n_reporte:number, c_ultimousuario: String): Promise<Result> {
+    try {
+        const conn = await connect();
+        const res = await conn.query("UPDATE ma_perfilreporte set c_acceso='S', c_ultimousuario = ?, d_ultimafechamodificacion = ? WHERE n_perfil = ? AND c_tiporeporte = ? AND n_grupo = ? AND n_reporte = ?",
+        [c_ultimousuario, moment().format('YYYY-MM-DD HH:MM:ss'), n_perfil, c_tiporeporte, n_grupo, n_reporte]);
+        await conn.end();
+        return Promise.resolve({ success: true, data: res[0] });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
+
+export async function createReporteAcceso(n_perfil:string, c_tiporeporte:string, n_grupo:number, n_reporte:number, usuario:string): Promise<Result> {
+    try {
+        const reporteAcceso: PerfilReporte = {
+            n_perfil: n_perfil,
+            c_tiporeporte: c_tiporeporte,
+            n_grupo: n_grupo,
+            n_reporte: n_reporte,
+            c_acceso: 'S',
+            c_estado: 'A',
+            c_ultimousuario: usuario,
+            d_ultimafechamodificacion: moment().format('YYYY-MM-DD HH:MM:ss')
+        };
+        const conn = await connect();
+        const res = await conn.query("INSERT INTO ma_perfilreporte SET ?",
+        [reporteAcceso]);
+        await conn.end();
+        return Promise.resolve({ success: true, data: res[0] });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
+
+export async function restablecerAccessos(n_perfil:string, c_ultimousuario: string): Promise<Result> {
+    try {
+        const conn = await connect();
+        const res = await conn.query("UPDATE ma_perfilreporte set c_acceso='N', c_ultimousuario = ?, d_ultimafechamodificacion = ? WHERE n_perfil = ?",
+        [c_ultimousuario, moment().format('YYYY-MM-DD HH:MM:ss'), n_perfil]);
+        await conn.end();
+        return Promise.resolve({ success: true, data: res[0] });
+    } catch (error) {
+        console.error(error);
+        return Promise.reject({ success: false, error });
+    }
+}
+
+export async function assignReportToProfile(req: Request, res: Response): Promise<Response> {
+    try {
+        const reportes = req.body.reportes;
+        const usuario = req.body.usuario;
+        const n_perfil = req.body.n_perfil;
+        await restablecerAccessos(n_perfil, usuario);
+        if(reportes.length > 0) {
+            reportes.forEach( async (reporte: PerfilReporte) => {
+                //Buscamos si existe
+                const reporteRes = await getReporteAcceso(n_perfil, reporte.c_tiporeporte, reporte.n_grupo, reporte.n_reporte);
+                const reporteData = reporteRes.data as [PerfilReporte];
+                //si esxite lo actualizas si no lo creas
+                if(reporteData.length > 0) {
+                    await updateReporteAcceso(n_perfil, reporte.c_tiporeporte, reporte.n_grupo, reporte.n_reporte, usuario);
+                } else {
+                    await createReporteAcceso(n_perfil, reporte.c_tiporeporte, reporte.n_grupo, reporte.n_reporte, usuario);
+                }
+            });
+        }
+        return res.status(200).send({success: true})
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)

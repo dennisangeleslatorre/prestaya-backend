@@ -79,8 +79,8 @@ export async function registerPrestamo(req: Request, res: Response): Promise<Res
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
-                if(!responseMessage || responseMessage.respuesta === "ERROR") {
-                    return res.status(503).json({message: "Ocurrio un problema al insertar el préstamo" });
+                if(!responseMessage || responseMessage.respuesta === "ERROR" || responseMessage.respuesta === "PERIODO INACTIVO") {
+                    return res.status(503).json({message: responseMessage.respuesta === "ERROR" ? "Revisa que el estado de la compañía, cliente, país, departamento, provincia y distrito." : responseMessage.respuesta });
                 } else {
                     if(productos) {
                         const responseProducts = await insertProductoGarantia(body.c_compania, responseMessage.respuesta, body.c_usuarioregistro, productos);
