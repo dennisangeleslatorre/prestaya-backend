@@ -114,21 +114,19 @@ export async function functionGetDataReporteDetallado(c_compania: string, n_clie
     d_fechacancelacioninicio: string, d_fechacancelacionfin: string, d_fechavencimientoinicio: string, d_fechavencimientofin: string, d_fechavencimientoreprogramadainicio: string,
     d_fechavencimientoreprogramadafin: string): Promise<Result> {
     try {
-        let queryWherePrestamo = `WHERE p.c_compania = ${c_compania}`;
-        let queryWhereCancelacion = `WHERE c.c_compania = ${c_compania}`;
-        let queryWhereJoin = `WHERE pres.c_compania = ${c_compania}`;
+        let queryWherePrestamo = `WHERE p.c_compania = '${c_compania}'`;
+        let queryWhereCancelacion = `WHERE c.c_compania = '${c_compania}'`;
+        let queryWhereJoin = `WHERE pres.c_compania = '${c_compania}'`;
         //Filtros de prestamo
         if(n_cliente) queryWherePrestamo = `${queryWherePrestamo} AND p.n_cliente = ${n_cliente}`;
         if(c_paiscodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_paiscodigo = ${c_paiscodigo}`;
         if(c_departamentocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_departamentocodigo = ${c_departamentocodigo}`;
         if(c_provinciacodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_provinciacodigo = ${c_provinciacodigo}`;
         if(c_distritocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_distritocodigo = ${c_distritocodigo}`;
-        if(c_estado) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado = ${c_estado}`;
+        if(c_estado) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado = '${c_estado}'`;
         else {
             if(solovalidos) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ('VI', 'CA', 'EN', 'RE')`;
-            else {
-                if(excluiranulados) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ('PE', 'VI', 'CA', 'EN', 'RE')`;
-            }
+            else if(excluiranulados) queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ('PE', 'VI', 'CA', 'EN', 'RE')`;
         }
         if(d_fechadesembolsoinicio && d_fechadesembolsofin) queryWherePrestamo = `${queryWherePrestamo} AND (p.d_fechadesembolso BETWEEN ${d_fechadesembolsoinicio} AND ${d_fechadesembolsofin})`;
         if(d_fechavencimientoinicio && d_fechavencimientofin) queryWherePrestamo = `${queryWherePrestamo} AND (p.d_fechavencimiento BETWEEN ${d_fechavencimientoinicio} AND ${d_fechavencimientofin})`;
@@ -151,7 +149,7 @@ export async function functionGetDataReporteDetallado(c_compania: string, n_clie
             INNER JOIN ma_distrito d ON d.c_paiscodigo = p.c_paiscodigo AND d.c_departamentocodigo = p.c_departamentocodigo AND d.c_provinciacodigo = p.c_provinciacodigo AND d.c_distritocodigo = p.c_distritocodigo
             ${queryWherePrestamo}
             GROUP BY p.c_prestamo, p.c_compania) pres
-            INNER JOIN
+            LEFT JOIN
             (SELECT  cc.c_prestamo, cc.c_compania, cc.d_fechavencimientoreprogramada, cc.ultimafechacancelacionregistrada, cc.calc_sumainterescancelado, cc.calc_sumamontoprestamocancelado,
             cc.calc_sumamontocomisioncancelada, cc.calc_sumamontotalcancelado, cv.ultimalinea, cv.calc_diasvencido, cv.esvencido
             FROM (SELECT ca.c_prestamo, ca.c_compania, ca.d_fechavencimientoreprogramada, ca.ultimafechacancelacionregistrada, SUM(cb.n_montointeresescancelar) as calc_sumainterescancelado,
@@ -199,7 +197,7 @@ export async function getDataReporteDetallado(req: Request, res: Response): Prom
         const c_departamentocodigo = req.body.c_departamentocodigo;
         const c_provinciacodigo = req.body.c_provinciacodigo;
         const c_distritocodigo = req.body.c_distritocodigo;
-        const c_estado = req.body.c_distritocodigo;
+        const c_estado = req.body.c_estado;
         //booleans
         const excluiranulados = req.body.excluiranulados;
         const solovalidos = req.body.solovalidos;
@@ -212,7 +210,6 @@ export async function getDataReporteDetallado(req: Request, res: Response): Prom
         const d_fechavencimientofin = req.body.d_fechavencimientofin;
         const d_fechavencimientoreprogramadainicio = req.body.d_fechavencimientoreprogramadainicio;
         const d_fechavencimientoreprogramadafin = req.body.d_fechavencimientoreprogramadafin;
-
         const responseDataReporteDetallado = await functionGetDataReporteDetallado(c_compania, n_cliente, esvencido, c_paiscodigo, c_departamentocodigo, c_provinciacodigo, c_distritocodigo,
             c_estado, excluiranulados, solovalidos, d_fechadesembolsoinicio, d_fechadesembolsofin, d_fechacancelacioninicio, d_fechacancelacionfin, d_fechavencimientoinicio, d_fechavencimientofin,
             d_fechavencimientoreprogramadainicio, d_fechavencimientoreprogramadafin);

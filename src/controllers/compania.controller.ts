@@ -68,6 +68,30 @@ export async function registerCompania(req: Request, res: Response): Promise<Res
     }
 }
 
+export async function getCompaniaToFormato(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_compania = req.params.c_compania;
+        const conn = await connect();
+        const [rows, fields] = await conn.query(`
+        SELECT c.*, p.c_descripcion as pais, dp.c_descripcion as departamento, pr.c_descripcion as provincia, d.c_descripcion as distrito
+        FROM ma_compania c
+        INNER JOIN ma_pais p ON c.c_paiscodigo = p.c_paiscodigo
+        INNER JOIN ma_departamento dp ON dp.c_paiscodigo = c.c_paiscodigo AND dp.c_departamentocodigo = c.c_departamentocodigo
+        INNER JOIN ma_provincia pr ON pr.c_paiscodigo = c.c_paiscodigo AND pr.c_departamentocodigo = c.c_departamentocodigo AND pr.c_provinciacodigo = c.c_provinciacodigo
+        INNER JOIN ma_distrito d ON d.c_paiscodigo = c.c_paiscodigo AND d.c_departamentocodigo = c.c_departamentocodigo AND d.c_provinciacodigo = c.c_provinciacodigo AND d.c_distritocodigo = c.c_distritocodigo
+        WHERE c_compania = ?`, [c_compania]);
+        await conn.end();
+        const companiaRes = rows as [Compania];
+        if(!companiaRes[0]) {
+            return res.status(200).json({ data:{}, message: "No se encontró la compañía." });
+        }
+        return res.status(200).json({ data: companiaRes[0], message: "Se obtuvo la compañia." });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send(error);
+    }
+}
+
 export async function getCompaniaByCodigoCompania(req: Request, res: Response): Promise<Response> {
     try {
         const c_compania = req.params.c_compania;
