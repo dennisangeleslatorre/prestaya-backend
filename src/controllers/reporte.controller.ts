@@ -51,7 +51,7 @@ export async function functionGetDataReporteResumidoPrestamo(c_compania: string,
             SUM(p.n_montototalprestamo) as calc_sumamontototalprestamo, SUM(pp.n_montovalortotal) as calc_sumamontovalorproductos FROM co_prestamos p
             INNER JOIN co_prestamosproductos pp ON p.c_compania = pp.c_compania AND p.c_prestamo = pp.c_prestamo
             ${queryWhere}
-            GROUP BY periodo, p.n_cliente, p.c_monedaprestamo;
+            GROUP BY periodo, p.n_cliente, p.c_nombrescompleto, p.c_monedaprestamo, p.d_fechadesembolso;
         `);
         await conn.end();
         const reportePrestamoRes = rows as [Prestamo];
@@ -78,7 +78,7 @@ export async function functionGetDataReporteResumidoCancelaciones(c_compania: st
             SUM(pc.n_montototalcancelar) as calc_sumamontototalcancelado FROM co_prestamos p
             INNER JOIN co_prestamoscancelaciones pc ON p.c_compania = pc.c_compania AND p.c_prestamo = pc.c_prestamo
             ${queryWhere}
-            GROUP BY periodo, p.n_cliente, p.c_monedaprestamo;
+            GROUP BY periodo, p.n_cliente, p.c_nombrescompleto, p.c_monedaprestamo, pc.d_fechacancelacion;
         `);
         await conn.end();
         const reporteCancelacionRes = rows as [Prestamo];
