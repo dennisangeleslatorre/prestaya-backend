@@ -570,3 +570,4 @@ export async function getCancelacionesByNLinea(req: Request, res: Response): Pro
         console.error(error)
         return res.status(500).send(error)
     }
+}
