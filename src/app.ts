@@ -26,6 +26,8 @@ import Cliente from './routes/cliente.routes'
 import Prestamo from './routes/prestamo.routes'
 import PrestamoProducto from './routes/prestamoProducto.routes'
 import Reporte from './routes/reporte.routes'
+import TipoMovimientoCaja from './routes/tipoMovimientoCaja.routes'
+import FlujoCaja from './routes/flujoCaja.routes'
 
 
 export class App {
@@ -72,6 +74,8 @@ export class App {
         this.app.use('/prestamo', Prestamo);
         this.app.use('/prestamoproducto', PrestamoProducto);
         this.app.use('/reporte', Reporte);
+        this.app.use('/tipomovimientocaja', TipoMovimientoCaja);
+        this.app.use('/flujocaja', FlujoCaja);
     }
 
     async listen() {

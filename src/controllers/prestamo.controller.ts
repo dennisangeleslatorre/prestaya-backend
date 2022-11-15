@@ -28,6 +28,38 @@ export async function getPrestamoByCodigoPrestamo(req: Request, res: Response): 
     }
 }
 
+export async function getPrestamoByCodigoPrestamoParaTicket(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const prestamo: Prestamo = body;
+        if(prestamo.c_compania && prestamo.c_prestamo) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query(`SELECT p.* , mc.c_descripcion as nombreCompania, mc.c_ruc, mc.c_direccion as direccionCompania, ma.c_descripcion as nombreAgencia, md.c_descripcion as nombreDistrito, mt.c_descripcion as descripcionTipoDoc,
+            mpa.c_descripcion as nombrePais, mdp.c_descripcion as nombreDepartamento, mp.c_descripcion as nombreProvincia
+            FROM co_prestamos p
+            inner join ma_compania mc on p.c_compania = mc.c_compania
+            inner join ma_agencia ma on mc.c_compania = ma.c_compania
+            inner join ma_tipodocumento mt on mt.c_tipodocumento = p.c_tipodocumento
+            inner join ma_pais mpa on mc.c_paiscodigo = mpa.c_paiscodigo
+            inner join ma_departamento mdp on mc.c_paiscodigo = mdp.c_paiscodigo and mc.c_departamentocodigo = mdp.c_departamentocodigo
+            inner join ma_provincia mp on mc.c_paiscodigo = mp.c_paiscodigo and mc.c_departamentocodigo = mp.c_departamentocodigo
+            and mc.c_provinciacodigo = mp.c_provinciacodigo
+            inner join ma_distrito md on mc.c_paiscodigo = md.c_paiscodigo and mc.c_departamentocodigo = md.c_departamentocodigo
+            and mc.c_provinciacodigo = md.c_provinciacodigo and mc.c_distritocodigo = md.c_distritocodigo
+            where p.c_compania=? AND p.c_prestamo=?`,[prestamo.c_compania,prestamo.c_prestamo])
+            await conn.end();
+            const prestamoRes =rows as [Prestamo];
+            if(!prestamoRes[0]) {
+                return res.status(200).json({ message: "No se encontró préstamos" });
+            }
+            return res.status(200).json({ data:prestamoRes[0], message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía y código del préstamo para listar la información" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
 export async function validateTipos(req: Request, res: Response): Promise<Response> {
     try {
         const ids = req.body.ids;
@@ -384,16 +416,16 @@ export async function updtVigentePrestamo(req: Request, res: Response): Promise<
     try {
         const body = req.body;
         if(body.c_usuariovigente) {
-            if(body.c_compania && body.c_prestamo && body.c_estado && body.c_observacionesvigente) {
+            if(body.c_compania && body.c_prestamo && body.c_estado && body.c_observacionesvigente && body.c_usuariodesembolso) {
                 const conn = await connect();
-                const [response, column] = await conn.query(`CALL sp_UpdVigente_Prestamo(?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_estado,body.c_observacionesvigente,body.c_usuariovigente]);
+                const [response, column] = await conn.query(`CALL sp_UpdVigente_Prestamo(?,?,?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.c_estado,body.c_observacionesvigente,body.c_usuariovigente,body.c_usuariodesembolso,body.n_monto]);
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
                 if(!responseMessage || responseMessage.respuesta === "ERROR") {
                     return res.status(503).json({message: "Ocurrio un problema actualizar a vigente el préstamo" });
                 } else {
-                    return res.status(200).json({message: "Se egistró con éxito la operación del préstamo" });
+                    return res.status(200).json({message: "Se actualizó con éxito la operación del préstamo" });
                 }
             }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
         } return res.status(503).json({message: "No se está enviando el usuario que realiza el cambio de esrado." });
@@ -451,7 +483,7 @@ export async function cancelarPrestamo(req: Request, res: Response): Promise<Res
         if(body.c_ultimousuario) {
             if(body.c_compania && body.c_prestamo && body.n_montototalcancelar && body.c_tipocancelacion) {
                 const conn = await connect();
-                const [response, column] = await conn.query(`CALL sp_Agregar_Cancelacion(?,?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,[body.c_compania,body.c_prestamo,body.n_linea,body.c_tipocancelacion,body.d_fechacancelacion,body.n_diastranscurridos,body.n_montointeresescancelar,body.n_montoprestamocancelar,body.n_montocomisioncancelar,body.n_montototalcancelar,body.c_observacionescancelar,body.c_ultimousuario]);
+                const [response, column] = await conn.query(`CALL sp_Agregar_Cancelacion(?,?,?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,[body.c_compania,body.c_prestamo,body.n_linea,body.c_tipocancelacion,body.d_fechacancelacion,body.n_diastranscurridos,body.n_montointeresescancelar,body.n_montoprestamocancelar,body.n_montocomisioncancelar,body.n_montototalcancelar,body.c_observacionescancelar,body.c_ultimousuario,body.c_usuariooperacion]);
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
@@ -511,3 +543,30 @@ export async function obtenerDatosFormatoPrestamo(req: Request, res: Response): 
         return res.status(500).send(error)
     }
 }
+
+export async function getCancelacionesByNLinea(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania && body.c_prestamo && body.nlineas) {
+            const nlineasArray = body.nlineas.split(',');
+            let nLineasQuery = '(';
+            nlineasArray.forEach((item: number, id:number) => {
+                if (nlineasArray.length === id+1) {
+                    nLineasQuery = `${nLineasQuery}${item})`
+                } else {
+                    nLineasQuery = `${nLineasQuery}${item},`
+                }
+            });
+            const conn = await connect();
+            const [rows, fields] = await conn.query(`SELECT * FROM co_prestamoscancelaciones where c_compania=? AND c_prestamo=? AND n_linea in ${nLineasQuery}`,[body.c_compania,body.c_prestamo])
+            await conn.end();
+            const prestamoRes = rows as [PrestamoCancelaciones];
+            if(!prestamoRes[0]) {
+                return res.status(200).json({ message: "No se encontró cancelaciones para ese préstamo" });
+            }
+            return res.status(200).json({ data:prestamoRes, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía y código del préstamo para listar la información" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }

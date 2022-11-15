@@ -145,7 +145,7 @@ export async function functionGetDataReporteDetallado(c_compania: string, n_clie
             SELECT p.c_prestamo, p.c_compania, p.n_cliente, p.c_nombrescompleto, p.d_fechadesembolso, p.n_diasplazo, p.d_fechavencimiento, p.c_monedaprestamo, p.n_montoprestamo, p.n_tasainteres,
             p.n_montointereses, p.n_montototalprestamo, SUM(pp.n_montovalortotal) as calc_sumamontovalorproductos, p.c_estado, d.c_descripcion
             FROM co_prestamos p
-            INNER JOIN co_prestamosproductos pp ON pp.c_prestamo = p.c_prestamo AND p.c_compania = pp.c_compania
+            LEFT JOIN co_prestamosproductos pp ON pp.c_prestamo = p.c_prestamo AND p.c_compania = pp.c_compania
             INNER JOIN ma_distrito d ON d.c_paiscodigo = p.c_paiscodigo AND d.c_departamentocodigo = p.c_departamentocodigo AND d.c_provinciacodigo = p.c_provinciacodigo AND d.c_distritocodigo = p.c_distritocodigo
             ${queryWherePrestamo}
             GROUP BY p.c_prestamo, p.c_compania) pres
@@ -307,5 +307,57 @@ export async function assignReportToProfile(req: Request, res: Response): Promis
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
+    }
+}
+
+export async function getDataReporteFlujoCaja(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania	= body.c_compania ? body.c_compania : null;
+        body.c_agencia = body.c_agencia ? body.c_agencia : null;
+        body.c_monedafcu = body.c_monedafcu ? body.c_monedafcu : null;
+        body.c_tipofcu = body.c_tipofcu ? body.c_tipofcu : null;
+        body.c_usuariofcu = body.c_usuariofcu ? body.c_usuariofcu : null;
+        body.d_fechamovimientoinicio = body.d_fechamovimientoinicio ? body.d_fechamovimientoinicio : null;
+        body.d_fechamovimientofin = body.d_fechamovimientofin ? body.d_fechamovimientofin : null;
+        body.c_estado = body.c_estado ? body.c_estado : null;
+        body.c_fuente = body.c_fuente ? body.c_fuente : null;
+        body.c_tipomovimientocc = body.c_tipomovimientocc ? body.c_tipomovimientocc : null;
+        body.c_clasetipomov = body.c_clasetipomov ? body.c_clasetipomov : null;
+
+        if(body.c_compania) {
+            let movimientosCajaUsuario = [];
+            let movimientosPrestamos:any = [];
+            let movimientosCancelaciones:any = [];
+            const conn = await connect();
+
+            const [responseFlujo, column2] : [any, any] = await conn.query(`CALL sp_Reporte_FLujoCaja_Movimientos(?,?,?,?,?,?,?,?,?,?,?)`,
+            [   body.c_compania, body.c_agencia, body.c_monedafcu, body.c_tipofcu, body.c_usuariofcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin,
+                body.c_estado, body.c_fuente, body.c_tipomovimientocc, body.c_clasetipomov
+            ]);
+            movimientosCajaUsuario = responseFlujo[0] as [any];
+
+            if(body.c_clasetipomov != "S" || body.c_tipomovimientocc != "003" ) {
+                const [responseMovPrestamos, columnMP] : [any, any] = await conn.query(`CALL sp_Reporte_Prestamos_Movimientos(?,?,?,?,?,?)`,
+                [body.c_compania, body.c_agencia, body.c_monedafcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin, body.c_usuariofcu]);
+                movimientosPrestamos = responseMovPrestamos[0] as [any];
+            }
+
+            if(body.c_clasetipomov != "I" || (body.c_tipomovimientocc != "004" || body.c_tipomovimientocc != "005" || body.c_tipomovimientocc != "006") ) {
+                const [responseMovCancelaciones, columnMC] : [any, any] = await conn.query(`CALL sp_Reporte_Cancelaciones_Movimientos(?,?,?,?,?,?,?)`,
+                [body.c_compania, body.c_agencia, body.c_monedafcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin, body.c_tipomovimientocc, body.c_usuariofcu]);
+                movimientosCancelaciones = responseMovCancelaciones[0] as [any];
+            }
+
+            await conn.end();
+            return res.status(200).json({data:{
+                movimientosCajaUsuario: movimientosCajaUsuario,
+                movimientosPxC: [...movimientosPrestamos, ...movimientosCancelaciones]
+            }, message: "Se obtuvieron registros." });
+        }
+        return res.status(503).json({ message: "Se debe enviar la compañía para filtrar." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error);
     }
 }

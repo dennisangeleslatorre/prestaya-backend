@@ -1,7 +1,7 @@
 import { Router } from "express"
 import {registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo, anularPrestamo, validarRetornarPendiente, retornarPendiente,
         validarEstadoRemate, cambiarEstadoRemate,updtVigentePrestamo, cambiarEstadoEntregar, cancelarPrestamo, anularCancelacion, getCancelacionesByCodigoPrestamo, validarFechaRemate,
-        obtenerDatosFormatoPrestamo, retornarEntrega, retornarRemate} from '../controllers/prestamo.controller'
+        obtenerDatosFormatoPrestamo, retornarEntrega, retornarRemate, getPrestamoByCodigoPrestamoParaTicket, getCancelacionesByNLinea} from '../controllers/prestamo.controller'
 import passport from 'passport'
 
 
@@ -12,6 +12,7 @@ router.put('/update',  passport.authenticate('jwt', { session: false }), updateC
 router.post('/register',passport.authenticate('jwt', { session: false }), registerPrestamo);
 router.put('/update',passport.authenticate('jwt', { session: false }), updatePrestamo);
 router.post('/getPrestamoByCodigoPrestamo',passport.authenticate('jwt', { session: false }), getPrestamoByCodigoPrestamo);
+router.post('/getPrestamoByCodigoPrestamoParaTicket',passport.authenticate('jwt', { session: false }), getPrestamoByCodigoPrestamoParaTicket);
 router.post('/getPrestamoDinamico',passport.authenticate('jwt', { session: false }), getPrestamoDinamico);
 router.post('/validateTipos',passport.authenticate('jwt', { session: false }), validateTipos);
 router.post('/validateUnidades',passport.authenticate('jwt', { session: false }), validateUnidades);
@@ -23,6 +24,7 @@ router.post('/validarEstadoRemate',passport.authenticate('jwt', { session: false
 router.put('/cambiarEstadoRemate',passport.authenticate('jwt', { session: false }), cambiarEstadoRemate);
 router.put('/cambiarEstadoEntregar',passport.authenticate('jwt', { session: false }), cambiarEstadoEntregar);
 router.post('/getCancelacionesByCodigoPrestamo',passport.authenticate('jwt', { session: false }), getCancelacionesByCodigoPrestamo);
+router.post('/getCancelacionesByNLinea',passport.authenticate('jwt', { session: false }), getCancelacionesByNLinea);
 router.post('/cancelarPrestamo',passport.authenticate('jwt', { session: false }), cancelarPrestamo);
 router.post('/anularCancelacion',passport.authenticate('jwt', { session: false }), anularCancelacion);
 router.post('/validarFechaRemate',passport.authenticate('jwt', { session: false }), validarFechaRemate);
