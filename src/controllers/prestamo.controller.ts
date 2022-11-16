@@ -422,10 +422,10 @@ export async function updtVigentePrestamo(req: Request, res: Response): Promise<
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
-                if(!responseMessage || responseMessage.respuesta === "ERROR") {
-                    return res.status(503).json({message: "Ocurrio un problema actualizar a vigente el préstamo" });
-                } else {
+                if(responseMessage && responseMessage.respuesta === "OK") {
                     return res.status(200).json({message: "Se actualizó con éxito la operación del préstamo" });
+                } else {
+                    return res.status(503).json({message: responseMessage.respuesta });
                 }
             }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
         } return res.status(503).json({message: "No se está enviando el usuario que realiza el cambio de esrado." });

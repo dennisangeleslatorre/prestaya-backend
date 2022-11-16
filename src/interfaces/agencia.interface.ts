@@ -6,7 +6,8 @@ export interface Agencia {
     c_usuarioregistro?:	string,
     d_fecharegistro?:	Date,
     c_ultimousuario?:	string,
-    d_ultimafechamodificacion?:	Date
+    d_ultimafechamodificacion?:	Date,
+    c_flagvalidacju?: string
 }
 
 
