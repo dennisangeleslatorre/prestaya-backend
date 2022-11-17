@@ -547,18 +547,9 @@ export async function obtenerDatosFormatoPrestamo(req: Request, res: Response): 
 export async function getCancelacionesByNLinea(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        if(body.c_compania && body.c_prestamo && body.nlineas) {
-            const nlineasArray = body.nlineas.split(',');
-            let nLineasQuery = '(';
-            nlineasArray.forEach((item: number, id:number) => {
-                if (nlineasArray.length === id+1) {
-                    nLineasQuery = `${nLineasQuery}${item})`
-                } else {
-                    nLineasQuery = `${nLineasQuery}${item},`
-                }
-            });
+        if(body.c_compania && body.c_prestamo) {
             const conn = await connect();
-            const [rows, fields] = await conn.query(`SELECT * FROM co_prestamoscancelaciones where c_compania=? AND c_prestamo=? AND n_linea in ${nLineasQuery}`,[body.c_compania,body.c_prestamo])
+            const [rows, fields] = await conn.query(`SELECT * FROM co_prestamoscancelaciones where c_compania=? AND c_prestamo=? order by n_linea`,[body.c_compania,body.c_prestamo]);
             await conn.end();
             const prestamoRes = rows as [PrestamoCancelaciones];
             if(!prestamoRes[0]) {
