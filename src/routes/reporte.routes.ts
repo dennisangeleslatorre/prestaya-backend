@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getReportesByPerfil, getDataReporteResumidos, getDataReporteDetallado, getReportes, assignReportToProfile, getDataReporteFlujoCaja } from '../controllers/reporte.controller'
+import { getReportesByPerfil, getDataReporteResumidos, getDataReporteDetallado, getReportes, assignReportToProfile, getDataReporteFlujoCaja, getDataReporteVencidosyNoVencidos } from '../controllers/reporte.controller'
 import passport from 'passport'
 
 const router = Router();
@@ -10,5 +10,6 @@ router.post('/getDataReporteDetallado', passport.authenticate('jwt', { session: 
 router.get('/getReportes', passport.authenticate('jwt', { session: false }), getReportes);
 router.post('/assignReportToProfile', passport.authenticate('jwt', { session: false }), assignReportToProfile);
 router.post('/getDataReporteFlujoCaja', passport.authenticate('jwt', { session: false }), getDataReporteFlujoCaja);
+router.post('/getDataReporteVencidosyNoVencidos', passport.authenticate('jwt', { session: false }), getDataReporteVencidosyNoVencidos);
 
 export default router;
