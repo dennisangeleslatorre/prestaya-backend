@@ -373,24 +373,24 @@ export async function getDataReporteVencidosyNoVencidos(req: Request, res: Respo
             let queryWhereCancelacion = `WHERE c.c_compania = '${body.c_compania}'`;
             let queryWhereJoin = `WHERE pres.c_compania = '${body.c_compania}'`;
             //Prestamos
-            if(body.c_agencia) queryWherePrestamo = `${queryWherePrestamo} AND p.c_agencia = ${body.c_agencia}`;
-            if(body.n_cliente) queryWherePrestamo = `${queryWherePrestamo} AND p.n_cliente = ${body.n_cliente}`;
+            if(body.c_agencia) queryWherePrestamo = `${queryWherePrestamo} AND p.c_agencia = '${body.c_agencia}'`;
+            if(body.n_cliente) queryWherePrestamo = `${queryWherePrestamo} AND p.n_cliente = '${body.n_cliente}'`;
             if(body.c_estado) {queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado = '${body.c_estado}'`}
             else {
                 queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado IN ('VI', 'CA', 'EN', 'RE')`;
             }
             if(body.d_fechadesembolsoinicio && body.d_fechadesembolsofin) queryWherePrestamo = `${queryWherePrestamo} AND (p.d_fechadesembolso BETWEEN '${body.d_fechadesembolsoinicio}' AND '${body.d_fechadesembolsofin}')`;
             if(body.d_fechavencimientoinicio && body.d_fechavencimientofin) queryWherePrestamo = `${queryWherePrestamo} AND (p.d_fechavencimiento BETWEEN '${body.d_fechavencimientoinicio}' AND '${body.d_fechavencimientofin}')`;
-            if(body.c_prestamo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_prestamo = ${body.c_prestamo}`;
-            if(body.c_paiscodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_paiscodigo = ${body.c_paiscodigo}`;
-            if(body.c_departamentocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_departamentocodigo = ${body.c_departamentocodigo}`;
-            if(body.c_provinciacodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_provinciacodigo = ${body.c_provinciacodigo}`;
-            if(body.c_distritocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_distritocodigo = ${body.c_distritocodigo}`;
+            if(body.c_prestamo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_prestamo = '${body.c_prestamo}'`;
+            if(body.c_paiscodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_paiscodigo = '${body.c_paiscodigo}'`;
+            if(body.c_departamentocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_departamentocodigo = '${body.c_departamentocodigo}'`;
+            if(body.c_provinciacodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_provinciacodigo = '${body.c_provinciacodigo}'`;
+            if(body.c_distritocodigo) queryWherePrestamo = `${queryWherePrestamo} AND p.c_distritocodigo = '${body.c_distritocodigo}'`;
             //Filtros Join
             if(body.d_fechacancelacioninicio && body.d_fechacancelacionfin) queryWhereJoin = `${queryWhereJoin} AND (can.ultimafechacancelacionregistrada BETWEEN '${body.d_fechacancelacioninicio}' AND '${body.d_fechacancelacionfin}')`;
-            if(body.esvencido) queryWhereJoin = `${queryWhereJoin} AND can.esvencido = ${body.esvencido}`;
+            if(body.esVencido) queryWhereJoin = `${queryWhereJoin} AND can.esvencido = '${body.esVencido}'`;
             if(body.d_fechavencimientoreprogramadainicio && body.d_fechavencimientoreprogramadafin) queryWhereJoin = `${queryWhereJoin} AND (can.d_fechavencimientoreprogramada BETWEEN '${body.d_fechavencimientoreprogramadainicio}' AND '${body.d_fechavencimientoreprogramadafin}')`;
-            if(body.n_incio && body.n_fin) queryWhereJoin = `${queryWhereJoin} AND (can.calc_diasvencido >= '${body.n_incio}' AND can.calc_diasvencido <= '${body.n_fin}')`;
+            if(body.n_incio && body.n_fin) queryWhereJoin = `${queryWhereJoin} AND (can.calc_diasvencido >= ${body.n_incio} AND can.calc_diasvencido <= ${body.n_fin})`;
 
             const conn = await connect();
             const [responsePrestamos, column] : [any, any] = await conn.query(`CALL sp_Reporte_Prestamos_VencidosyNoVencidos(?,?,?,?)`,
