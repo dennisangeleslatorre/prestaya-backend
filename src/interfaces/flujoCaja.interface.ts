@@ -9,6 +9,7 @@ export interface FlujoCajaUsuario {
     c_monedafcu:string,
     c_estado:string,
     c_observaciones?:string,
+    c_flagsaldoxdia?:string,
     c_usuarioregistro?:string,
     d_fecharegistro?:Date,
     c_ultimousuario?:string,
@@ -45,7 +46,11 @@ export interface FlujoCajaUsuarioDiaMovimiento {
     c_ultimousuario:string,
     d_ultimafechamodificacion:Date,
     c_prestamo?: string,
-    n_linea?: string
+    n_linea?: string,
+    c_flagxconfirmar?: string,
+    c_flagconfirmado?: string,
+    c_usuarioconfirmado?: string,
+    d_fechaconfirmado?: string
 }
 
 export interface FlujoCajaUsuarioDiaMovimientoProcedure {
@@ -80,5 +85,9 @@ export interface FlujoCajaUsuarioDiaMovimientoProcedure {
     usuariomodificacionmovimiento: string,
     fechamodificacionmovimiento: Date,
     c_prestamo?: string,
-    n_linea?: string
+    n_linea?: string,
+    c_flagxconfirmar?: string,
+    c_flagconfirmado?: string,
+    c_usuarioconfirmado?: string,
+    d_fechaconfirmado?: string
 }

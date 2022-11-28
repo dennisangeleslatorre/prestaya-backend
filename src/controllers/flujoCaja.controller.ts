@@ -12,14 +12,21 @@ export async function registerFllujoCaja(req: Request, res: Response): Promise<R
         if(detalles && flujoCaja.c_compania && flujoCaja.c_agencia && flujoCaja.c_tipofcu && flujoCaja.c_usuariofcu && flujoCaja.d_fechaInicioMov
             && flujoCaja.d_fechaFinMov && flujoCaja.c_monedafcu && flujoCaja.c_estado && flujoCaja.c_observaciones && flujoCaja.c_usuarioregistro) {
             const conn = await connect();
-            const [responseFlujo, column2] = await conn.query(`CALL sp_Registrar_Flujo('${flujoCaja.c_compania}','${flujoCaja.c_agencia}','${flujoCaja.c_tipofcu}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}','${flujoCaja.c_monedafcu}','${flujoCaja.c_estado}','${flujoCaja.c_observaciones}','${flujoCaja.c_usuarioregistro}',"${detalles}",@respuesta)`)
-            await conn.end();
-            const responseProcedure = responseFlujo as RowDataPacket;
-            const responseMessage = responseProcedure[0][0];
-            if(!responseMessage || responseMessage.respuesta === "ERROR") {
-                return res.status(503).json({message: "Campos incompletos." });
+            const [responseValida, column] = await conn.query(`CALL sp_Valida_Datos_FC('${flujoCaja.c_compania}','${flujoCaja.c_agencia}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}',@respuesta)`)
+            const messageValida = responseValida as RowDataPacket;
+            if(messageValida[0][0].respuesta === "OK") {
+                const [responseFlujo, column2] = await conn.query(`CALL sp_Registrar_Flujo('${flujoCaja.c_compania}','${flujoCaja.c_agencia}','${flujoCaja.c_tipofcu}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}','${flujoCaja.c_monedafcu}','${flujoCaja.c_estado}','${flujoCaja.c_observaciones}','${flujoCaja.c_usuarioregistro}','${flujoCaja.c_flagsaldoxdia}',"${detalles}",@respuesta)`);
+                await conn.end();
+                const responseProcedure = responseFlujo as RowDataPacket;
+                const responseMessage = responseProcedure[0][0];
+                if(!responseMessage || responseMessage.respuesta === "ERROR") {
+                    return res.status(503).json({message: "Campos incompletos." });
+                }
+                return res.status(200).json({message: "Se registró con éxito el flujo de caja usuario." });
+            } else {
+                await conn.end();
+                return res.status(503).json({message: messageValida[0][0].respuesta });
             }
-            return res.status(200).json({message: "Se registró con éxito el flujo de caja usuario." });
         }
         return res.status(503).json({message: "Campos incompletos." });
     } catch (error) {
@@ -39,34 +46,44 @@ export async function updateFlujoCaja(req: Request, res: Response): Promise<Resp
             && flujoCaja.d_fechaFinMov && flujoCaja.c_monedafcu && flujoCaja.c_estado && flujoCaja.c_observaciones && flujoCaja.c_ultimousuario) {
             const conn = await connect();
 
-            const [responseFlujo, column2] = await conn.query(`CALL sp_Actualizar_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_agencia}','${flujoCaja.c_tipofcu}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}','${flujoCaja.c_monedafcu}','${flujoCaja.c_estado}','${flujoCaja.c_observaciones}','${flujoCaja.c_ultimousuario}',@respuesta)`)
-            const responseProcedure = responseFlujo as RowDataPacket;
-            const responseMessage = responseProcedure[0][0];
+            const [responseValida, column] = await conn.query(`CALL sp_Valida_Datos_FC_Actualizar('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_agencia}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}',@respuesta)`)
+            const messageValida = responseValida as RowDataPacket;
+            if(messageValida[0][0].respuesta === "OK") {
 
-            if(!responseMessage || responseMessage.respuesta === "ERROR") {
-                return res.status(503).json({message: "Campos incompletos." });
+                const [responseFlujo, column2] = await conn.query(`CALL sp_Actualizar_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_agencia}','${flujoCaja.c_tipofcu}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}','${flujoCaja.c_monedafcu}','${flujoCaja.c_estado}','${flujoCaja.c_observaciones}','${flujoCaja.c_flagsaldoxdia}','${flujoCaja.c_ultimousuario}',@respuesta)`)
+                const responseProcedure = responseFlujo as RowDataPacket;
+                const responseMessage = responseProcedure[0][0];
+
+                if(!responseMessage || responseMessage.respuesta === "ERROR") {
+                    await conn.end();
+                    return res.status(503).json({message: "Campos incompletos." });
+                } else {
+                    if(eliminarMovimientos) {
+                        await conn.query(
+                        `CALL sp_eliminar_movimientos('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}',"${eliminarMovimientos}",@respuesta)`
+                        )
+                    }
+                    if(eliminarDetalles) {
+                        console.log("eliminarDetalles", eliminarDetalles);
+                        await conn.query(
+                        `CALL sp_Eliminar_Dias_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}',"${eliminarDetalles}",@respuesta)`
+                        )
+                    }
+                    if(actualizarDetalles) {
+                        await conn.query(
+                        `CALL sp_Actualizar_Dias_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_ultimousuario}',"${actualizarDetalles}",@respuesta)`
+                        )
+                    }
+                    if(nuevosDetalles) {
+                        await conn.query(
+                        `CALL sp_Nuevos_Dias_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_ultimousuario}',"${nuevosDetalles}",@respuesta)`
+                        )
+                    }
+                }
+
             } else {
-                if(eliminarMovimientos) {
-                    await conn.query(
-                    `CALL sp_eliminar_movimientos('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}',"${eliminarMovimientos}",@respuesta)`
-                    )
-                }
-                if(eliminarDetalles) {
-                    console.log("eliminarDetalles", eliminarDetalles);
-                    await conn.query(
-                    `CALL sp_Eliminar_Dias_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}',"${eliminarDetalles}",@respuesta)`
-                    )
-                }
-                if(actualizarDetalles) {
-                    await conn.query(
-                    `CALL sp_Actualizar_Dias_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_ultimousuario}',"${actualizarDetalles}",@respuesta)`
-                    )
-                }
-                if(nuevosDetalles) {
-                    await conn.query(
-                    `CALL sp_Nuevos_Dias_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_ultimousuario}',"${nuevosDetalles}",@respuesta)`
-                    )
-                }
+                await conn.end();
+                return res.status(503).json({message: messageValida[0][0].respuesta });
             }
 
             await conn.end();
@@ -188,6 +205,11 @@ export async function getFlujoCajaByCodigo(req: Request, res: Response): Promise
                         d_ultimafechamodificacion: item.fechamodificacionmovimiento,
                         c_prestamo: item.c_prestamo,
                         n_linea: item.n_linea,
+                        c_flagxconfirmar: item.c_flagxconfirmar,
+                        c_flagconfirmado: item.c_flagconfirmado,
+                        c_usuarioconfirmado: item.c_usuarioconfirmado,
+                        d_fechaconfirmado:item.d_fechaconfirmado
+
                     };
                     flujosDetallesTemporal = flujosDetallesNuevo.filter((detalle : FlujoCajaUsuarioDia) => detalle["general"]["d_fechamov"] === fechaFormat);
                     if(flujosDetallesTemporal.length>0){
@@ -213,11 +235,51 @@ export async function getFlujoCajaByCodigo(req: Request, res: Response): Promise
                     d_fecharegistro: flujosCajaUsuario[0].d_fecharegistro,
                     c_ultimousuario: flujosCajaUsuario[0].c_ultimousuario,
                     d_ultimafechamodificacion: flujosCajaUsuario[0].d_ultimafechamodificacion,
+                    c_flagsaldoxdia: flujosCajaUsuario[0].c_flagsaldoxdia,
                 }, detalles: flujosDetallesNuevo}, message: "Se obtuvo registros." });
             }
             return res.status(503).json({data:[], message: "No se encontraron registros." });
         }
         return res.status(503).json({ message: "Se debe enviar compañía y correlativo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error);
+    }
+}
+
+export async function getMovimientosCajaUsuarioxConfirmar(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania) {
+            body.c_usuariofcu = body.c_usuariofcu ? body.c_usuariofcu : null;
+            const conn = await connect();
+            const [response, column2] : [any, any] = await conn.query(`CALL sp_Obtener_Movimientos_Por_Confirmar(?,?)`, [body.c_compania,body.c_usuariofcu]);
+            await conn.end();
+            const movimientosRes = response as RowDataPacket;
+            return res.status(200).json({ data:movimientosRes[0], message: "Se obtuvo registros." });
+        }
+        return res.status(503).json({ message: "Se debe enviar compañía y correlativo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error);
+    }
+}
+
+export async function confirmarMovimiento(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania, body.n_correlativo, body.d_fechamov, body.n_secuencia, body.c_agencia, body.usuario_confirma, body.c_usuariofcu,
+            body.c_usuariomovimiento, body.n_montoxdiamov, body.c_tipomovimientoccinverso, body.c_observacionesmov) {
+            const conn = await connect();
+            const [response, column2] : [any, any] = await conn.query(
+                `CALL sp_Confirmar_Movimiento(?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,
+            [ body.c_compania, body.n_correlativo, body.d_fechamov, body.n_secuencia, body.c_agencia, body.usuario_confirma, body.c_usuariofcu,
+              body.c_usuariomovimiento, body.n_montoxdiamov, body.c_tipomovimientoccinverso, body.c_observacionesmov ]);
+            await conn.end();
+            const movimientosRes = response as RowDataPacket;
+            return res.status(200).json({ message: movimientosRes[0][0].respuesta });
+        }
+        return res.status(503).json({ message: "Falta enviar datos." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error);

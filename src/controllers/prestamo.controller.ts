@@ -422,6 +422,7 @@ export async function updtVigentePrestamo(req: Request, res: Response): Promise<
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
+                console.log("resposne",responseMessage )
                 if(responseMessage && responseMessage.respuesta === "OK") {
                     return res.status(200).json({message: "Se actualizó con éxito la operación del préstamo" });
                 } else {
