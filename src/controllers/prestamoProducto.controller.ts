@@ -10,10 +10,11 @@ export async function getProductosByPrestamo(req: Request, res: Response): Promi
         const c_compania = req.body.c_compania;
         const c_prestamo = req.body.c_prestamo;
         const conn = await connect();
-        const [rows, fields] = await conn.query(`SELECT pp.*, mt.c_descripcion as tipoProducto, mu.c_descripcion as unidadmedidadesc
+        const [rows, fields] = await conn.query(`SELECT pp.*, mt.c_descripcion as tipoProducto, mu.c_descripcion as unidadmedidadesc, mc.c_nombrescompleto
         FROM co_prestamosproductos pp
         INNER JOIN ma_tipoproducto mt ON pp.c_tipoproducto = mt.c_tipoproducto
         INNER JOIN ma_unidadmedida mu ON  pp.c_unidadmedida = mu.c_unidadmedida
+        LEFT JOIN prestaya.ma_clientes mc ON pp.n_cliente=mc.n_cliente
         where pp.c_compania=? AND pp.c_prestamo=?`,[c_compania, c_prestamo]);
         await conn.end();
         const parametrosRes = rows as [PrestamoProducto];
