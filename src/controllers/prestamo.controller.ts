@@ -395,13 +395,18 @@ export async function cambiarEstadoRemate(req: Request, res: Response): Promise<
         const body = req.body;
         if( body.c_compania && body.c_prestamo && body.c_usuarioRemate, body.d_fechaRemate && body.c_observacionesremate ) {
             const conn = await connect();
-            const [response, column] = await conn.query(`call sp_Cambiar_Remate(?, ?, ?, ?, ?, ?, @respuesta);`,[body.c_compania, body.c_prestamo, body.d_fechaRemate, body.c_observacionesremate, body.c_usuarioRemate, moment().format('YYYY-MM-DD HH:MM:ss')]);
+            const [response, column] = await conn.query(
+            `call sp_Cambiar_Remate(?, ?, ?, ?, ?, ?, ?, @respuesta);`,
+            [body.c_compania, body.c_prestamo, body.d_fechaRemate, body.c_observacionesremate, body.c_usuarioRemate, JSON.stringify(body.productos), body.c_moneda]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
             const responseMessage = responseProcedure[0][0];
             if(!responseMessage || responseMessage.respuesta !== "OK") {
                 const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al cambiar el estado del préstamo a remate."
                 return res.status(503).json({message: message});
+            } //Cambiar estado de los productos
+            else {
+                console.log("responseMessage", responseMessage);
             }
             return res.status(200).json({message: responseMessage.respuesta });
         } else
@@ -557,6 +562,26 @@ export async function getCancelacionesByNLinea(req: Request, res: Response): Pro
                 return res.status(200).json({ message: "No se encontró cancelaciones para ese préstamo" });
             }
             return res.status(200).json({ data:prestamoRes, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía y código del préstamo para listar la información" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function obtenerSaldoPrestamo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania && body.c_prestamo) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`CALL sp_obtener_saldo_prestamo(?,?)`,[body.c_compania,body.c_prestamo]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            if(responseMessage) {
+                return res.status(200).json({ message: "Se encontró saldo", data: responseMessage });
+            }
+            return res.status(200).json({ message: "No se encontró saldo" });
         }return res.status(200).json({ message: "Se debe enviar el código de compañía y código del préstamo para listar la información" });
     } catch (error) {
         console.error(error)
