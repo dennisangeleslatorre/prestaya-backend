@@ -88,7 +88,7 @@ export async function updateFlujoCaja(req: Request, res: Response): Promise<Resp
 
             await conn.end();
 
-            return res.status(200).json({message: "Se registró con éxito el flujo de caja usuario." });
+            return res.status(200).json({message: "Se actualizó con éxito el flujo de caja usuario." });
         }
         return res.status(503).json({message: "Campos incompletos al enviar." });
     } catch (error) {
