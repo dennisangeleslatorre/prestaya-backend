@@ -193,30 +193,33 @@ export async function getFlujoCajaByCodigo(req: Request, res: Response): Promise
                             d_ultimafechamodificacion: item.fechamodificaciondetalle
                         }
                     };
-                    let movimiento : FlujoCajaUsuarioDiaMovimiento = {
-                        n_secuencia: item.n_secuencia,
-                        c_tipomovimientocc: item.c_tipomovimientocc,
-                        c_usuariomovimiento: item.c_usuariomovimiento,
-                        c_observaciones: item.observacionesmovimiento,
-                        n_montoxdiamov: item.n_montoxdiamov,
-                        c_usuarioregistro: item.usuarioregistromovimiento,
-                        d_fecharegistro: item.fecharegistromovimiento,
-                        c_ultimousuario: item.usuariomodificacionmovimiento,
-                        d_ultimafechamodificacion: item.fechamodificacionmovimiento,
-                        c_prestamo: item.c_prestamo,
-                        n_linea: item.n_linea,
-                        c_flagxconfirmar: item.c_flagxconfirmar,
-                        c_flagconfirmado: item.c_flagconfirmado,
-                        c_usuarioconfirmado: item.c_usuarioconfirmado,
-                        d_fechaconfirmado:item.d_fechaconfirmado
-
-                    };
-                    flujosDetallesTemporal = flujosDetallesNuevo.filter((detalle : FlujoCajaUsuarioDia) => detalle["general"]["d_fechamov"] === fechaFormat);
-                    if(flujosDetallesTemporal.length>0){
-                        let listmov = [...flujosDetallesNuevo[flujosDetallesNuevo.indexOf(flujosDetallesTemporal[0])]["movimientos"]];
-                        flujosDetallesNuevo[flujosDetallesNuevo.indexOf(flujosDetallesTemporal[0])]["movimientos"] = [...listmov, movimiento];
+                    if(item.n_secuencia) {
+                        let movimiento : FlujoCajaUsuarioDiaMovimiento = {
+                            n_secuencia: item.n_secuencia,
+                            c_tipomovimientocc: item.c_tipomovimientocc,
+                            c_usuariomovimiento: item.c_usuariomovimiento,
+                            c_observaciones: item.observacionesmovimiento.replace(/['"]+/g, ''),
+                            n_montoxdiamov: item.n_montoxdiamov,
+                            c_usuarioregistro: item.usuarioregistromovimiento,
+                            d_fecharegistro: item.fecharegistromovimiento,
+                            c_ultimousuario: item.usuariomodificacionmovimiento,
+                            d_ultimafechamodificacion: item.fechamodificacionmovimiento,
+                            c_prestamo: item.c_prestamo,
+                            n_linea: item.n_linea,
+                            c_flagxconfirmar: item.c_flagxconfirmar,
+                            c_flagconfirmado: item.c_flagconfirmado,
+                            c_usuarioconfirmado: item.c_usuarioconfirmado,
+                            d_fechaconfirmado:item.d_fechaconfirmado
+                        };
+                        flujosDetallesTemporal = flujosDetallesNuevo.filter((detalle : FlujoCajaUsuarioDia) => detalle["general"]["d_fechamov"] === fechaFormat);
+                        if(flujosDetallesTemporal.length>0){
+                            let listmov = [...flujosDetallesNuevo[flujosDetallesNuevo.indexOf(flujosDetallesTemporal[0])]["movimientos"]];
+                            flujosDetallesNuevo[flujosDetallesNuevo.indexOf(flujosDetallesTemporal[0])]["movimientos"] = [...listmov, movimiento];
+                        } else {
+                            flujosDetallesNuevo.push({...detalle, movimientos:[movimiento]});
+                        }
                     } else {
-                        flujosDetallesNuevo.push({...detalle, movimientos:[movimiento]});
+                        flujosDetallesNuevo.push({...detalle, movimientos:[]});
                     }
                 });
 
