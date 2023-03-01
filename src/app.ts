@@ -5,9 +5,6 @@ import passport from 'passport'
 import JWTStrategy from './utils/strategies/jwt.strategy'
 var cors = require('cors')
 
-
-
-
 // Routes
 import UserRoute from './routes/user.routes'
 import RoleRoute from './routes/role.routes'
@@ -28,6 +25,8 @@ import PrestamoProducto from './routes/prestamoProducto.routes'
 import Reporte from './routes/reporte.routes'
 import TipoMovimientoCaja from './routes/tipoMovimientoCaja.routes'
 import FlujoCaja from './routes/flujoCaja.routes'
+import Producto from './routes/producto.routes'
+import Transaccion from './routes/transaccion.routes'
 
 
 export class App {
@@ -76,6 +75,8 @@ export class App {
         this.app.use('/reporte', Reporte);
         this.app.use('/tipomovimientocaja', TipoMovimientoCaja);
         this.app.use('/flujocaja', FlujoCaja);
+        this.app.use('/producto', Producto);
+        this.app.use('/transaccion', Transaccion);
     }
 
     async listen() {

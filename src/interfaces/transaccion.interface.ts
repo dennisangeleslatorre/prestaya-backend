@@ -1,0 +1,40 @@
+export interface TransaccionCab {
+    c_compania: string,
+    c_agencia: string,
+    c_tipodocumento: string,
+    c_numerodocumento: string,
+    d_fechadocumento: Date
+    c_periodo: string,
+    n_cliente: number,
+    c_moneda: string,
+    c_observaciones: string,
+    n_montototal: number,
+    c_estado: string,
+    c_prestamo: string,
+    c_usuarioregistro?: string,
+    d_fecharegistro?: Date,
+    c_ultimousuario: string,
+    d_ultimafechamodificacion?: Date,
+    c_observacionesanulacion?: string,
+    c_usuarioanulacion?: string,
+    d_fechaanulacion?: Date,
+}
+
+export interface TransaccionDet {
+    c_compania: string,
+    c_agencia: string,
+    c_tipodocumento: string,
+    c_numerodocumento: string,
+    n_linea: number,
+    c_item: string,
+    n_cantidad: number,
+    n_precio: number,
+    n_montototal: number,
+    c_observacionesdet: string,
+    c_estado: string,
+    c_usuarioregistro?: string,
+    d_fecharegistro?: Date,
+    c_ultimousuario: string,
+    d_ultimafechamodificacion?: Date,
+
+}

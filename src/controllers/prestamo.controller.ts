@@ -592,9 +592,9 @@ export async function obtenerSaldoPrestamo(req: Request, res: Response): Promise
 export async function obtenerDatosTicketVentaTercero(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        if(body.c_compania && body.c_prestamo && body.nLineas) {
+        if(body.c_compania && body.c_prestamo && body.clientes) {
             const conn = await connect();
-            const [response, column] = await conn.query(`CALL sp_obtener_datos_ticket_venta_terceros(?,?,?)`,[body.c_compania,body.c_prestamo,body.nLineas]);
+            const [response, column] = await conn.query(`CALL sp_obtener_datos_ticket_venta_terceros(?,?,?)`,[body.c_compania,body.c_prestamo,body.clientes]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
             const responseMessage = responseProcedure[0];
@@ -602,7 +602,7 @@ export async function obtenerDatosTicketVentaTercero(req: Request, res: Response
                 return res.status(200).json({ message: "Se obtuvieron datos", data: responseMessage });
             }
             return res.status(200).json({ message: "No se encontraron datos" });
-        }return res.status(200).json({ message: "Se debe enviar el código de compañía, código del préstamo y números de linea para listar la información" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía, código del préstamo y cliente para listar la información" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
