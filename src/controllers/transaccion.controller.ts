@@ -39,3 +39,28 @@ export async function getTransaccionDinamico(req: Request, res: Response): Promi
     }
 }
 
+
+export async function getTransaccionDetalle(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania	= body.c_compania ? body.c_compania : null;
+        body.c_agencia	= body.c_agencia ? body.c_agencia : null;
+        body.c_tipodocumento	= body.c_tipodocumento ? body.c_tipodocumento : null;
+        body.c_numerodocumento	= body.c_numerodocumento ? body.c_numerodocumento : null;
+        if(body) {
+            const conn = await connect();
+            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Obtener_TransaccionesDetalle(?,?,?,?)`,
+            [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento ]);
+            await conn.end();
+            const transaccionRes = responseProcedure as RowDataPacket;
+            if(!transaccionRes[0][0]) {
+                return res.status(200).json({message: "No se encontró detalles de la transacción" });
+            }
+            return res.status(200).json({data:transaccionRes[0], message: "Se obtuvo detalles de la transacción" });
+        } return res.status(200).json({ message: "Se debe enviar algún dato para filtrar"  });
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
