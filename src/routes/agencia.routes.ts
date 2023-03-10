@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getAgencia,getAgenciaAdmin,registerAgencia,getAgenciaByCodigoAgencia,deleteAgencia,updateAgencia} from '../controllers/agencia.controller'
+import { getAgencia,getAgenciaAdmin,registerAgencia,getAgenciaByCodigoAgencia,deleteAgencia,updateAgencia,getAgenciaAndCompaniaByCodigo} from '../controllers/agencia.controller'
 import passport from 'passport'
 
 const router = Router();
@@ -10,6 +10,7 @@ router.post('/register',passport.authenticate('jwt', { session: false }), regist
 router.put('/update',  passport.authenticate('jwt', { session: false }), updateAgencia);
 router.post('/delete', passport.authenticate('jwt', { session: false }), deleteAgencia );
 router.post('/getAgenciaByCodigoAgencia',passport.authenticate('jwt', { session: false }), getAgenciaByCodigoAgencia);
+router.post('/getAgenciaAndCompaniaByCodigo',passport.authenticate('jwt', { session: false }), getAgenciaAndCompaniaByCodigo);
 
 
 export default router;

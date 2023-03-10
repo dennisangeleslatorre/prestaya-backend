@@ -64,3 +64,4 @@ export async function getTransaccionDetalle(req: Request, res: Response): Promis
         return res.status(500).send(error)
     }
 }
+
