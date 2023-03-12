@@ -27,7 +27,7 @@ export async function getAgencia(req: Request, res: Response): Promise<Response>
 export async function getAgenciaAdmin(req: Request, res: Response) {
     try {
         const conn = await connect();
-        const [rows, fields] = await conn.query('SELECT a.c_compania, a.c_agencia, a.c_descripcion, a.c_estado, a.c_usuarioregistro, a.d_fecharegistro, a.c_ultimousuario, a.d_ultimafechamodificacion, c.c_descripcion as companyname, IF(a.c_flagvalidacju ="N","NO","SI") AS flagvalidacu FROM ma_agencia a INNER JOIN ma_compania c ON a.c_compania = c.c_compania');
+        const [rows, fields] = await conn.query('SELECT a.c_compania, a.c_agencia, a.c_descripcion, a.c_estado, a.c_usuarioregistro, a.d_fecharegistro, a.c_ultimousuario, a.d_ultimafechamodificacion, c.c_descripcion as companyname, IF(a.c_flagvalidacju ="N","NO","SI") AS flagvalidacu, a.c_sufijoprestamo, a.c_sufijoproducto FROM ma_agencia a INNER JOIN ma_compania c ON a.c_compania = c.c_compania');
         await conn.end();
         const agenciaRes = rows as [Agencia];
         if(!agenciaRes[0]) {
@@ -72,6 +72,28 @@ export async function getAgenciaByCodigoAgencia(req: Request, res: Response): Pr
         if(agencia.c_compania && agencia.c_agencia) {
             const conn = await connect();
             const [rows, fields] = await conn.query('SELECT * FROM ma_agencia where c_compania=? AND c_agencia=?',[agencia.c_compania,agencia.c_agencia])
+            await conn.end();
+            const agenciaRes =rows as [Agencia];
+            if(!agenciaRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró agencias" });
+            }
+            return res.status(200).json({ data:agenciaRes[0], message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía y agencia para listar la información de agencia" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function getAgenciaAndCompaniaByCodigo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const agencia: Agencia = body;
+        if(agencia.c_compania && agencia.c_agencia) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query(
+                'SELECT mc.c_compania, mc.c_descripcion as compania_desc, ma.c_agencia, ma.c_descripcion as agencia_desc FROM ma_compania mc INNER JOIN ma_agencia ma ON mc.c_compania=ma.c_compania where ma.c_compania=? AND ma.c_agencia=?',
+                [agencia.c_compania,agencia.c_agencia])
             await conn.end();
             const agenciaRes =rows as [Agencia];
             if(!agenciaRes[0]) {
