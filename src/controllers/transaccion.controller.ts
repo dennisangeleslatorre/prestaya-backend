@@ -57,7 +57,7 @@ export async function getTransaccionDetalle(req: Request, res: Response): Promis
                 return res.status(200).json({message: "No se encontró detalles de la transacción" });
             }
             return res.status(200).json({data:transaccionRes[0], message: "Se obtuvo detalles de la transacción" });
-        } return res.status(200).json({ message: "Se debe enviar algún dato para filtrar"  });
+        } return res.status(200).json({ message: "Se debe enviar el código de la transacción"  });
 
     } catch (error) {
         console.error(error)
@@ -65,3 +65,47 @@ export async function getTransaccionDetalle(req: Request, res: Response): Promis
     }
 }
 
+export async function getTransaccionCabecera(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania	= body.c_compania ? body.c_compania : null;
+        body.c_agencia	= body.c_agencia ? body.c_agencia : null;
+        body.c_tipodocumento	= body.c_tipodocumento ? body.c_tipodocumento : null;
+        body.c_numerodocumento	= body.c_numerodocumento ? body.c_numerodocumento : null;
+        if(body.c_compania && body.c_agencia && body.c_tipodocumento && body.c_numerodocumento) {
+            const conn = await connect();
+            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_obtener_Transaccion(?,?,?,?)`,
+            [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento ]);
+            await conn.end();
+            const transaccionRes = responseProcedure as RowDataPacket;
+            if(!transaccionRes[0][0]) {
+                return res.status(200).json({message: "No se encontró detalles de la transacción" });
+            }
+            return res.status(200).json({data:transaccionRes[0][0], message: "Se obtuvo detalles de la transacción" });
+        } return res.status(200).json({ message: "Se debe enviar el código de la transacción"});
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+export async function registerTransaccion(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if( body.c_agencia && body.c_compania && body.c_usuarioregistro && body.productos && body.detalles ) {
+                const conn = await connect();
+                const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Registrar_Tansacciones(?,?,?,?,?,@respuesta)`,
+                [ body.c_compania, body.c_agencia, body.c_usuarioregistro, JSON.stringify(body.productos), JSON.stringify(body.detalles)]);
+                await conn.end();
+                const messageProcedure = responseProcedure as RowDataPacket;
+                console.log(messageProcedure)
+                if(messageProcedure[0][0] && messageProcedure[0][0].respuesta) {
+                    return res.status(200).json({ message: messageProcedure[0][0].respuesta});
+                } return res.status(200).json({ message: "Ocurrió un error en el procedimiento"});
+        } return res.status(200).json({ message: "Faltan datos para realizar el registro"});
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
