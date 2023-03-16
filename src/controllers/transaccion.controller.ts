@@ -79,9 +79,9 @@ export async function getTransaccionCabecera(req: Request, res: Response): Promi
             await conn.end();
             const transaccionRes = responseProcedure as RowDataPacket;
             if(!transaccionRes[0][0]) {
-                return res.status(200).json({message: "No se encontró detalles de la transacción" });
+                return res.status(200).json({message: "No se encontró la transacción" });
             }
-            return res.status(200).json({data:transaccionRes[0][0], message: "Se obtuvo detalles de la transacción" });
+            return res.status(200).json({data:transaccionRes[0][0], message: "Se obtuvo la transacción" });
         } return res.status(200).json({ message: "Se debe enviar el código de la transacción"});
 
     } catch (error) {
