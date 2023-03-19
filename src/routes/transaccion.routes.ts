@@ -1,6 +1,6 @@
 import { Router } from "express"
 
-import { getTransaccionDinamico, getTransaccionDetalle, getTransaccionCabecera, registerTransaccion,updateTransaccionAnular } from '../controllers/transaccion.controller'
+import { getTransaccionDinamico, getTransaccionDetalle, getTransaccionCabecera, registerTransaccion,updateTransaccionAnular,getReporteTransaccion } from '../controllers/transaccion.controller'
 
 import passport from 'passport'
 
@@ -11,5 +11,6 @@ router.post('/getTransaccionDetalle',passport.authenticate('jwt', { session: fal
 router.post('/getTransaccionCabecera',passport.authenticate('jwt', { session: false }), getTransaccionCabecera);
 router.post('/registerTransaccion',passport.authenticate('jwt', { session: false }), registerTransaccion);
 router.put('/updateTransaccionAnular',passport.authenticate('jwt', { session: false }),updateTransaccionAnular);
+router.post('/getReporteTransaccion',passport.authenticate('jwt', { session: false }),getReporteTransaccion);
 
 export default router;
