@@ -608,3 +608,23 @@ export async function obtenerDatosTicketVentaTercero(req: Request, res: Response
         return res.status(500).send(error)
     }
 }
+
+export async function obtenerDatosActaEntrega(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania && body.c_prestamo) {
+            const conn = await connect();
+            const [response, column] = await conn.query(`CALL sp_obtener_datos_Acta_Entrega(?,?)`,[body.c_compania,body.c_prestamo]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0];
+            if(responseMessage[0]) {
+                return res.status(200).json({ message: "Se obtuvieron datos", data: responseMessage[0] });
+            }
+            return res.status(200).json({ message: "No se encontraron datos" });
+        }return res.status(200).json({ message: "Se debe enviar el código de compañía y código del préstamo para traer la información" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}

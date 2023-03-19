@@ -121,14 +121,14 @@ export async function updateTransaccionAnular(req: Request, res: Response): Prom
         body.c_ultimousuario	= body.c_ultimousuario ? body.c_ultimousuario : null;
         if(body) {
             const conn = await connect();
-            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Anular_Transacciones(?,?,?,?,?)`,
+            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Anular_Transacciones(?,?,?,?,?,@respuesta)`,
             [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento, body.c_ultimousuario ]);
             await conn.end();
             const transaccionRes = responseProcedure as RowDataPacket;
             if(!transaccionRes[0][0]) {
                 return res.status(200).json({message: "No se encontró nota de salida" });
             }
-            return res.status(200).json({data:transaccionRes[0], message: "Se anuló correctamente" });
+            return res.status(200).json({data:transaccionRes[0][0], message: transaccionRes[0][0].respuesta });
         } return res.status(200).json({ message: "Se debe enviar algún dato para filtrar"  });
 
     } catch (error) {
