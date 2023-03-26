@@ -162,6 +162,7 @@ export async function getReporteTransaccion(req: Request, res: Response): Promis
                 ]);
             await conn.end();
             const transaccionRes = responseProcedure as RowDataPacket;
+            console.log("transaccionRes", transaccionRes);
             if(!transaccionRes[0][0]) {
                 return res.status(200).json({message: "No se encontró transacciones" });
             }

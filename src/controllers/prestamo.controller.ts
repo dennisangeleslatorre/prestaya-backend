@@ -628,3 +628,28 @@ export async function obtenerDatosActaEntrega(req: Request, res: Response): Prom
         return res.status(500).send(error)
     }
 }
+
+export async function getValidaSufijoProducto(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania	= body.c_compania ? body.c_compania : null;
+        body.c_agencia	= body.c_agencia ? body.c_agencia : null;
+
+        if(body.c_compania && body.c_agencia) {
+            const conn = await connect();
+            const [responseProcedure, response] = await conn.query(`CALL sp_valida_sufijo_producto(?,?)`,
+            [ body.c_compania, body.c_agencia ]);
+            await conn.end();
+            const transaccionRes = responseProcedure as RowDataPacket;
+            console.log(transaccionRes[0][0].cin_sufijoproducto);
+            if(!transaccionRes[0][0].cin_sufijoproducto) {
+                return res.status(200).json({message: "ERROR" });
+            }
+            return res.status(200).json({data:transaccionRes[0], message: "Se obtuvo sufijo" });
+        } return res.status(200).json({ message: "Se debe enviar compañía y agencia"  });
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}

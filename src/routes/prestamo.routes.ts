@@ -2,7 +2,7 @@ import { Router } from "express"
 import { registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo, anularPrestamo, validarRetornarPendiente, retornarPendiente,
         validarEstadoRemate, cambiarEstadoRemate,updtVigentePrestamo, cambiarEstadoEntregar, cancelarPrestamo, anularCancelacion, getCancelacionesByCodigoPrestamo, validarFechaRemate,
         obtenerDatosFormatoPrestamo, retornarEntrega, retornarRemate, getPrestamoByCodigoPrestamoParaTicket, getCancelacionesByNLinea, obtenerSaldoPrestamo, obtenerDatosTicketVentaTercero,
-        obtenerDatosActaEntrega } from '../controllers/prestamo.controller'
+        obtenerDatosActaEntrega, getValidaSufijoProducto } from '../controllers/prestamo.controller'
 import passport from 'passport'
 
 
@@ -35,5 +35,6 @@ router.put('/retornarRemate',passport.authenticate('jwt', { session: false }), r
 router.post('/obtenerSaldoPrestamo',passport.authenticate('jwt', { session: false }), obtenerSaldoPrestamo);
 router.post('/obtenerDatosTicketVentaTercero',passport.authenticate('jwt', { session: false }), obtenerDatosTicketVentaTercero);
 router.post('/obtenerDatosActaEntrega',passport.authenticate('jwt', { session: false }), obtenerDatosActaEntrega);
+router.post('/getValidaSufijoProducto',passport.authenticate('jwt', { session: false }),getValidaSufijoProducto);
 
 export default router;

@@ -1,6 +1,7 @@
 import { Router } from "express"
 
-import { getTransaccionDinamico, getTransaccionDetalle, getTransaccionCabecera, registerTransaccion,updateTransaccionAnular,getReporteTransaccion } from '../controllers/transaccion.controller'
+import { getTransaccionDinamico, getTransaccionDetalle, getTransaccionCabecera, registerTransaccion,updateTransaccionAnular,
+         getReporteTransaccion } from '../controllers/transaccion.controller'
 
 import passport from 'passport'
 
