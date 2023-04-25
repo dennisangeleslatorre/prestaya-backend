@@ -418,7 +418,7 @@ export async function getPrestamosDetalladoPeriodo(req: Request, res: Response):
         body.c_agencia			  		 = body.c_agencia				   ? body.c_agencia			  	    : null;
         body.c_prestamo			  		 = body.c_prestamo				   ? body.c_prestamo			  	: null;
         body.c_estado			  		 = body.c_estado				   ? body.c_estado			    	: null;
-        body.n_cliente			  		 = body.n_cliente			       ? body.n_cliente			  		: '0';
+        body.n_cliente			  		 = body.n_cliente			       ? body.n_cliente			  		: null;
         body.n_diasvencido_inicio        = body.n_diasvencido_inicio       ? body.body.n_diasvencido_inicio : null;
         body.n_diasvencido_fin           = body.n_diasvencido_fin          ? body.body.n_diasvencido_fin    : null;
         body.c_vencido                    = body.c_vencido                 ? body.c_vencido                 : null;
@@ -441,15 +441,20 @@ export async function getPrestamosDetalladoPeriodo(req: Request, res: Response):
         body.d_fvencimientoreproinicio	 = body.d_fvencimientoreproinicio  ? body.d_fvencimientoreproinicio	: null;
         body.d_fvencimientoreprofin		 = body.d_fvencimientoreprofin	   ? body.d_fvencimientoreprofin	: null;
 
+        body.d_fechacancelaciondetinicio	 = body.d_fechacancelaciondetinicio     ? body.d_fechacancelaciondetinicio	: null;
+        body.d_fechacancelaciondetfin		 = body.d_fechacancelaciondetfin	    ? body.d_fechacancelaciondetfin	: null;
+
+        body.d_fechaactual		 = body.d_fechaactual	    ? body.d_fechaactual	: null;
+
         if(body) {
             const conn = await connect();
             const [[rows,fields], response] : [any, any] = await conn.query(
-                `CALL sp_Reporte_Prestamos_Detallado_Periodo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                `CALL sp_Reporte_Prestamos_Detallado_Periodo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                 [body.c_compania,body.c_agencia,body.c_prestamo,body.c_estado,body.n_cliente,body.n_diasvencido_inicio,
                 body.n_diasvencido_fin,body.c_vencido,body.c_paiscodigo,body.c_departamentocodigo,body.c_provinciacodigo,
                 body.c_distritocodigo,body.d_fechacancelacioninicio,body.d_fechacancelacionfin,body.d_fechadesembolsoinicio,
                 body.d_fechadesembolsofin,body.d_fechavencimientoinicio,body.d_fechavencimientofin,body.d_fvencimientoreproinicio,
-                body.d_fvencimientoreprofin]);
+                body.d_fvencimientoreprofin,body.d_fechacancelaciondetinicio,body.d_fechacancelaciondetfin,body.d_fechaactual]);
             await conn.end();
             const responseProcedure = rows;
             if(!responseProcedure[0]) {
