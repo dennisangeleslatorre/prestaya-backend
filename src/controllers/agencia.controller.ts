@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
 import { Agencia } from '../interfaces/agencia.interface'
+import { UbicacionAgencia } from '../interfaces/ubicacionagencia.interface'
 import { ResultSetHeader, Result } from "../interfaces/result"
 import moment from 'moment'
 
@@ -144,5 +145,48 @@ export async function deleteAgencia(req: Request, res: Response): Promise<Respon
         let message = "Hubo un error.";
         if(errorAux.errno === 1217) message = "No se puede eliminar la agencia debido a que tiene datos asociados";
         return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function registerUbicacionAgencia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_usuarioregistro) {
+            body.c_ultimousuario = body.c_usuarioregistro;
+            if(body.c_compania && body.c_agencia && body.c_ubicacion && body.c_descripcion) {
+                const ubicacionagencia: UbicacionAgencia = body;
+                const conn = await connect();
+                const data = await conn.query('INSERT INTO prestaya.ma_ubicacionagencia SET ?', [ubicacionagencia]);
+                await conn.end();
+                const parsedRes: ResultSetHeader = data[0] as ResultSetHeader;
+                return res.status(200).json({ success: true, data: ubicacionagencia, message: "Se registró la ubicación de la agencia con éxito." });
+            } return res.status(503).json({message: "Parámetros incompletos. Favor de completar los campos requeridos." });
+        } return res.status(503).json({message: "No se está enviando el usuario que realiza el registro." });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error";
+        if(errorAux.errno === 1062) message = "Existe un registro con esos datos.";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function getAgenciaUbicacion(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const ubicacionagencia: UbicacionAgencia = body;
+        if(ubicacionagencia.c_compania && ubicacionagencia.c_agencia ) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM prestaya.ma_ubicacionagencia where c_estado="A" AND c_compania=? AND c_agencia=?',[ubicacionagencia.c_compania,ubicacionagencia.c_agencia])
+            await conn.end();
+            const ubicacionagenciaRes =rows as [Agencia];
+            if(!ubicacionagenciaRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró ubiación para esa agencia" });
+            }
+            return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
+        }return res.status(200).json({ message: "Se debe enviar la compañía y agencia para listar la ubicación" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
     }
 }
