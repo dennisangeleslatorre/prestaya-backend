@@ -190,3 +190,45 @@ export async function getAgenciaUbicacion(req: Request, res: Response): Promise<
         return res.status(500).send(error)
     }
 }
+
+
+export async function updateUbicacionAgencia(req: Request, res: Response): Promise<Response> {
+    try {
+        //Obtener datos
+        const body = req.body;
+        const c_compania = body.c_compania;
+        const c_agencia = body.c_agencia;
+        const c_ubicacion = body.c_ubicacion;
+        body.d_ultimafechamodificacion = moment().format('YYYY-MM-DD HH:MM:ss');
+        const ubicacionagencia: UbicacionAgencia = req.body;
+        const conn = await connect();
+        await conn.query('UPDATE prestaya.ma_ubicacionagencia SET ? WHERE c_compania = ? AND c_agencia = ? AND c_ubicacion = ?', [ubicacionagencia, c_compania, c_agencia,c_ubicacion]);
+        await conn.end();
+        return res.status(200).json({ data: {...ubicacionagencia}, message: "Se actualizó el registro de la ubicacion de la agencia con éxito"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1062) message = "Exite una ubicacion de agencia con esos datos";
+        return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function deleteUbiacionAgencia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const ubicacionagencia: UbicacionAgencia = body;
+        if(ubicacionagencia.c_compania && ubicacionagencia.c_agencia && ubicacionagencia.c_ubicacion ) {
+            const conn = await connect();
+            await conn.query('DELETE FROM prestaya.ma_ubicacionagencia WHERE c_compania = ? AND c_agencia = ? AND c_ubicacion = ?', [ubicacionagencia.c_compania,ubicacionagencia.c_agencia,ubicacionagencia.c_ubicacion ]);
+            await conn.end();
+            return res.status(200).json({ message: "Se eliminó la ubicación de la agencia con éxito"  });
+        }return res.status(200).json({ message: "Se debe enviar el código de la compañía, agencia y ubicación"  });
+    } catch (error) {
+        console.error(error);
+        const errorAux = JSON.parse(JSON.stringify(error));
+        let message = "Hubo un error.";
+        if(errorAux.errno === 1217) message = "No se puede eliminar la ubicación debido a que tiene datos asociados";
+        return res.status(500).send({error: error, message: message});
+    }
+}

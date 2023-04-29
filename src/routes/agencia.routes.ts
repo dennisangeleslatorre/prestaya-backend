@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { getAgencia,getAgenciaAdmin,registerAgencia,getAgenciaByCodigoAgencia,deleteAgencia,updateAgencia,getAgenciaAndCompaniaByCodigo,registerUbicacionAgencia,
-getAgenciaUbicacion} from '../controllers/agencia.controller'
+getAgenciaUbicacion,updateUbicacionAgencia,deleteUbiacionAgencia} from '../controllers/agencia.controller'
 import passport from 'passport'
 
 const router = Router();
@@ -14,7 +14,8 @@ router.post('/getAgenciaByCodigoAgencia',passport.authenticate('jwt', { session:
 router.post('/getAgenciaAndCompaniaByCodigo',passport.authenticate('jwt', { session: false }), getAgenciaAndCompaniaByCodigo);
 router.post('/registerUbicacion',passport.authenticate('jwt', { session: false }), registerUbicacionAgencia);
 router.post('/listUbicacion',passport.authenticate('jwt', { session: false }), getAgenciaUbicacion);
-
+router.put('/updateUbicacion',  passport.authenticate('jwt', { session: false }), updateUbicacionAgencia);
+router.post('/deleteUbicacion', passport.authenticate('jwt', { session: false }), deleteUbiacionAgencia );
 
 
 export default router;
