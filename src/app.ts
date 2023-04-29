@@ -27,6 +27,7 @@ import TipoMovimientoCaja from './routes/tipoMovimientoCaja.routes'
 import FlujoCaja from './routes/flujoCaja.routes'
 import Producto from './routes/producto.routes'
 import Transaccion from './routes/transaccion.routes'
+import Ubicacion from './routes/ubicacion.routes'
 
 
 export class App {
@@ -77,6 +78,7 @@ export class App {
         this.app.use('/flujocaja', FlujoCaja);
         this.app.use('/producto', Producto);
         this.app.use('/transaccion', Transaccion);
+        this.app.use('/ubicacion', Ubicacion);
     }
 
     async listen() {
