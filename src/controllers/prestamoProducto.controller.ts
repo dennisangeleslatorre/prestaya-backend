@@ -96,3 +96,27 @@ export async function insertProductoGarantia(c_compania:string, c_prestamo:strin
         return Promise.reject({ success: false, error });
     }
 }
+
+export async function updateProductoUbicacion(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_usuarioubicacion) {
+            if(body.c_compania && body.c_prestamo && body.n_linea && body.c_ubicacion && body.c_observacionubicacion) {
+                const conn = await connect();
+                const [response, column] = await conn.query(`CALL prestaya.sp_Update_PrestamoProducto_Ubicacion(?,?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.n_linea,body.c_ubicacion,body.c_observacionubicacion,body.c_usuarioubicacion]);
+                await conn.end();
+                const responseProcedure = response as RowDataPacket;
+                const responseMessage = responseProcedure[0][0];
+                console.log("resposne",responseMessage )
+                if(responseMessage && responseMessage.respuesta === "OK") {
+                    return res.status(200).json({message: "Se actualizó con éxito el registro de préstamo producto" });
+                } else {
+                    return res.status(503).json({message: responseMessage.respuesta });
+                }
+            }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
+        } return res.status(503).json({message: "No se está enviando el usuario que realiza el cambio de estado." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
