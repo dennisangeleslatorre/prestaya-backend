@@ -495,7 +495,6 @@ export async function getPrestamosUbicacionProducto(req: Request, res: Response)
         body.d_fechavencimientoinicio	 = body.d_fechavencimientoinicio   ? body.d_fechavencimientoinicio	: null;
         body.d_fechavencimientofin		 = body.d_fechavencimientofin 	   ? body.d_fechavencimientofin		: null;
 
-
         body.d_fvencimientoreproinicio	 = body.d_fvencimientoreproinicio  ? body.d_fvencimientoreproinicio	: null;
         body.d_fvencimientoreprofin		 = body.d_fvencimientoreprofin	   ? body.d_fvencimientoreprofin	: null;
 

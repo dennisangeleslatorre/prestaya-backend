@@ -10,10 +10,11 @@ export async function getProductosByPrestamo(req: Request, res: Response): Promi
         const c_compania = req.body.c_compania;
         const c_prestamo = req.body.c_prestamo;
         const conn = await connect();
-        const [rows, fields] = await conn.query(`SELECT pp.*, mt.c_descripcion as tipoProducto, mu.c_descripcion as unidadmedidadesc, mc.c_nombrescompleto
+        const [rows, fields] = await conn.query(`SELECT pp.*, mt.c_descripcion as tipoProducto, mu.c_descripcion as unidadmedidadesc, mc.c_nombrescompleto, mua.c_descripcion as c_ubicaciondesc
         FROM co_prestamosproductos pp
         INNER JOIN ma_tipoproducto mt ON pp.c_tipoproducto = mt.c_tipoproducto
         INNER JOIN ma_unidadmedida mu ON  pp.c_unidadmedida = mu.c_unidadmedida
+        LEFT JOIN ma_ubicacionagencia mua ON pp.c_ubicacion = mua.c_ubicacion
         LEFT JOIN prestaya.ma_clientes mc ON pp.n_cliente=mc.n_cliente
         where pp.c_compania=? AND pp.c_prestamo=?`,[c_compania, c_prestamo]);
         await conn.end();
@@ -86,6 +87,7 @@ export async function insertProductoGarantia(c_compania:string, c_prestamo:strin
         const [responseProducts, column2] = await conn.query(`CALL sp_Registrar_Producto('${c_compania}','${c_prestamo}','${c_usuarioregistro}','${c_usuarioregistro}',"${productos}",@respuesta)`)
         await conn.end();
         const responseProcedure = responseProducts as RowDataPacket;
+        console.log("responseProducts", responseProducts);
         const responseMessage = responseProcedure[0][0];
         if(!responseMessage || responseMessage.respuesta === "ERROR") {
             return Promise.reject({ success: false, message:"No se pudo crear los productos" });
