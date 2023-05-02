@@ -468,3 +468,66 @@ export async function getPrestamosDetalladoPeriodo(req: Request, res: Response):
         return res.status(500).send(error)
     }
 }
+
+export async function getPrestamosUbicacionProducto(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania			  		 = body.c_compania				   ? body.c_compania			  	: null;
+        body.c_agencia			  		 = body.c_agencia				   ? body.c_agencia			  	    : null;
+        body.c_prestamo			  		 = body.c_prestamo				   ? body.c_prestamo			  	: null;
+        body.c_estado			  		 = body.c_estado				   ? body.c_estado			    	: null;
+        body.n_cliente			  		 = body.n_cliente			       ? body.n_cliente			  		: null;
+        body.n_diasvencido_inicio        = body.n_diasvencido_inicio       ? body.body.n_diasvencido_inicio : null;
+        body.n_diasvencido_fin           = body.n_diasvencido_fin          ? body.body.n_diasvencido_fin    : null;
+        body.c_vencido                    = body.c_vencido                 ? body.c_vencido                 : null;
+
+        body.c_paiscodigo		  		 = body.c_paiscodigo		       ? body.c_paiscodigo		  		: null;
+        body.c_departamentocodigo 		 = body.c_departamentocodigo  	   ? body.c_departamentocodigo  	: null;
+        body.c_provinciacodigo	  		 = body.c_provinciacodigo	       ? body.c_provinciacodigo	  		: null;
+        body.c_distritocodigo	  		 = body.c_distritocodigo	       ? body.c_distritocodigo	  		: null;
+
+        body.d_fechacancelacioninicio	 = body.d_fechacancelacioninicio   ? body.d_fechacancelacioninicio	: null;
+        body.d_fechacancelacionfin		 = body.d_fechacancelacionfin	   ? body.d_fechacancelacionfin		: null;
+
+        body.d_fechadesembolsoinicio	 = body.d_fechadesembolsoinicio	   ? body.d_fechadesembolsoinicio	: null;
+        body.d_fechadesembolsofin		 = body.d_fechadesembolsofin	   ? body.d_fechadesembolsofin	  	: null;
+
+        body.d_fechavencimientoinicio	 = body.d_fechavencimientoinicio   ? body.d_fechavencimientoinicio	: null;
+        body.d_fechavencimientofin		 = body.d_fechavencimientofin 	   ? body.d_fechavencimientofin		: null;
+
+
+        body.d_fvencimientoreproinicio	 = body.d_fvencimientoreproinicio  ? body.d_fvencimientoreproinicio	: null;
+        body.d_fvencimientoreprofin		 = body.d_fvencimientoreprofin	   ? body.d_fvencimientoreprofin	: null;
+
+        body.d_fechacancelaciondetinicio	 = body.d_fechacancelaciondetinicio     ? body.d_fechacancelaciondetinicio	: null;
+        body.d_fechacancelaciondetfin		 = body.d_fechacancelaciondetfin	    ? body.d_fechacancelaciondetfin	: null;
+
+        body.d_fechaactual		 = body.d_fechaactual	    ? body.d_fechaactual	: null;
+
+        body.c_ubicacion	 = body.c_ubicacion	    ? body.c_ubicacion	: null;
+        body.c_descripcionproducto		 = body.c_descripcionproducto	    ? body.c_descripcionproducto	: null;
+        body.c_tipoproducto		 = body.c_tipoproducto	    ? body.c_tipoproducto	: null;
+
+        if(body) {
+            const conn = await connect();
+            const [[rows,fields], response] : [any, any] = await conn.query(
+                `CALL sp_Reporte_Prestamos_Detallado_Periodo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                [body.c_compania,body.c_agencia,body.c_prestamo,body.c_estado,body.n_cliente,body.n_diasvencido_inicio,
+                body.n_diasvencido_fin,body.c_vencido,body.c_paiscodigo,body.c_departamentocodigo,body.c_provinciacodigo,
+                body.c_distritocodigo,body.d_fechacancelacioninicio,body.d_fechacancelacionfin,body.d_fechadesembolsoinicio,
+                body.d_fechadesembolsofin,body.d_fechavencimientoinicio,body.d_fechavencimientofin,body.d_fvencimientoreproinicio,
+                body.d_fvencimientoreprofin,body.d_fechacancelaciondetinicio,body.d_fechacancelaciondetfin,body.d_fechaactual,body.c_ubicacion,
+                body.c_descripcionproducto,body.c_tipoproducto]);
+            await conn.end();
+            const responseProcedure = rows;
+            if(!responseProcedure[0]) {
+                return res.status(200).json({message: "No se encontró préstamos" });
+            }
+            return res.status(200).json({data:responseProcedure, message: "Se obtuvo préstamos" });
+        }
+        return res.status(503).json({message: "No se está enviando el cuerpo de la consulta." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
