@@ -511,7 +511,7 @@ export async function getPrestamosUbicacionProducto(req: Request, res: Response)
         if(body) {
             const conn = await connect();
             const [[rows,fields], response] : [any, any] = await conn.query(
-                `CALL sp_Reporte_Prestamos_Detallado_Periodo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                `CALL sp_Reporte_Prestamos_Ubicaciones_Producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                 [body.c_compania,body.c_agencia,body.c_prestamo,body.c_estado,body.n_cliente,body.n_diasvencido_inicio,
                 body.n_diasvencido_fin,body.c_vencido,body.c_paiscodigo,body.c_departamentocodigo,body.c_provinciacodigo,
                 body.c_distritocodigo,body.d_fechacancelacioninicio,body.d_fechacancelacionfin,body.d_fechadesembolsoinicio,
