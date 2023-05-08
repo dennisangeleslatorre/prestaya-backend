@@ -288,3 +288,31 @@ export async function confirmarMovimiento(req: Request, res: Response): Promise<
         return res.status(500).send(error);
     }
 }
+
+export async function getCajaUsuarioByAgenciaAndUsuario(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania && body.c_agencia && body.c_usuariofcu) {
+            const conn = await connect();
+            const [rows, fields] =
+                await conn.query(`
+                    SELECT * FROM prestaya.co_flujocu
+                    where c_compania = ?
+                    AND c_agencia = ?
+                    AND c_usuariofcu = ?
+                    AND c_estado = 'A';
+                `,
+                [body.c_compania, body.c_agencia, body.c_usuariofcu])
+            await conn.end();
+            const movimientosRes = rows as [any];
+            if(!movimientosRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró caja usuario" });
+            }
+            return res.status(200).json({ data:movimientosRes, message: "Se obtuvo registros" });
+        }
+        return res.status(503).json({ message: "Se debe enviar compañía, agencia y usuario." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error);
+    }
+}

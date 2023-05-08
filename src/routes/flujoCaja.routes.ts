@@ -1,6 +1,7 @@
 import { Router } from "express"
 import { registerFllujoCaja, updateFlujoCaja, getFlujoCajaDinamico, getFlujoCajaByCodigo, getFlujoCajaDiasByCodigo,
-    getFlujoCajaMovimientosByCodigo, getMovimientosCajaUsuarioxConfirmar, confirmarMovimiento } from '../controllers/flujoCaja.controller'
+    getFlujoCajaMovimientosByCodigo, getMovimientosCajaUsuarioxConfirmar, confirmarMovimiento,
+    getCajaUsuarioByAgenciaAndUsuario } from '../controllers/flujoCaja.controller'
 import passport from 'passport'
 
 const router = Router();
@@ -12,5 +13,6 @@ router.post('/getFlujoCajaDiasByCodigo',passport.authenticate('jwt', { session: 
 router.post('/getFlujoCajaMovimientosByCodigo',passport.authenticate('jwt', { session: false }), getFlujoCajaMovimientosByCodigo);
 router.post('/getMovimientosCajaUsuarioxConfirmar',passport.authenticate('jwt', { session: false }), getMovimientosCajaUsuarioxConfirmar);
 router.post('/confirmarMovimiento',passport.authenticate('jwt', { session: false }), confirmarMovimiento);
+router.post('/getCajaUsuarioByAgenciaAndUsuario',passport.authenticate('jwt', { session: false }), getCajaUsuarioByAgenciaAndUsuario);
 
 export default router;

@@ -42,10 +42,6 @@ export async function registerTipoMovimientoCaja(req: Request, res: Response): P
         const body = req.body;
         if(body.c_usuarioregistro) {
             body.c_ultimousuario = body.c_usuarioregistro;
-            console.log(body.c_tipomovimientocc);
-            console.log(body.c_descricpion);
-            console.log(body.c_clasetipomov);
-            console.log(body.c_flagusuario);
             if(body.c_tipomovimientocc && body.c_descricpion && body.c_clasetipomov && body.c_flagusuario) {
                 const tipoMovimientoCaja: TipoMovimientoCaja = body;
                 const conn = await connect();
