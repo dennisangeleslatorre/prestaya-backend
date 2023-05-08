@@ -15,7 +15,7 @@ export async function registerFllujoCaja(req: Request, res: Response): Promise<R
             const [responseValida, column] = await conn.query(`CALL sp_Valida_Datos_FC('${flujoCaja.c_compania}','${flujoCaja.c_agencia}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}',@respuesta)`)
             const messageValida = responseValida as RowDataPacket;
             if(messageValida[0][0].respuesta === "OK") {
-                const [responseFlujo, column2] = await conn.query(`CALL sp_Registrar_Flujo('${flujoCaja.c_compania}','${flujoCaja.c_agencia}','${flujoCaja.c_tipofcu}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}','${flujoCaja.c_monedafcu}','${flujoCaja.c_estado}','${flujoCaja.c_observaciones}','${flujoCaja.c_usuarioregistro}','${flujoCaja.c_flagsaldoxdia}',"${detalles}",@respuesta)`);
+                const [responseFlujo, column2] = await conn.query(`CALL sp_Registrar_Flujo('${flujoCaja.c_compania}','${flujoCaja.c_agencia}','${flujoCaja.c_tipofcu}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}','${flujoCaja.c_monedafcu}','${flujoCaja.c_estado}','${flujoCaja.c_observaciones}','${flujoCaja.c_usuarioregistro}','${flujoCaja.c_flagsaldoxdia}','${flujoCaja.n_montomaximofc}','${flujoCaja.c_flagrestringexmtomax}',"${detalles}",@respuesta)`);
                 await conn.end();
                 const responseProcedure = responseFlujo as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];

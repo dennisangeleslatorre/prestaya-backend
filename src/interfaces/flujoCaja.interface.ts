@@ -10,6 +10,8 @@ export interface FlujoCajaUsuario {
     c_estado:string,
     c_observaciones?:string,
     c_flagsaldoxdia?:string,
+    n_montomaximofc?:string,
+    c_flagrestringexmtomax?:string,
     c_usuarioregistro?:string,
     d_fecharegistro?:Date,
     c_ultimousuario?:string,
