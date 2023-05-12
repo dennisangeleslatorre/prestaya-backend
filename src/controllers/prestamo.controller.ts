@@ -653,3 +653,29 @@ export async function getValidaSufijoProducto(req: Request, res: Response): Prom
         return res.status(500).send(error)
     }
 }
+
+export async function getValidarAlertaMontoMaximo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania	= body.c_compania ? body.c_compania : null;
+        body.n_correlativo	= body.n_correlativo ? body.n_correlativo : null;
+        body.d_fechamov	= body.d_fechamov ? body.d_fechamov : null;
+        body.n_montocons = body.n_montocons ? body.n_montocons : null;
+
+        if(body.c_compania && body.n_correlativo && body.d_fechamov && body.n_montocons) {
+            const conn = await connect();
+            const [responseProcedure, response] = await conn.query(`CALL sp_Validar_Alerta_MontoMaximo(?,?,?,?,@respuesta)`,[ body.c_compania,  body.n_correlativo, body.d_fechamov, body.n_montocons]);
+            await conn.end();
+            const transaccionRes = responseProcedure as RowDataPacket;
+            console.log(transaccionRes[0][0].cin_sufijoproducto);
+            if(!transaccionRes[0][0].cin_sufijoproducto) {
+                return res.status(200).json({message: "ERROR" });
+            }
+            return res.status(200).json({data:transaccionRes[0], message: "Se obtuvo validación" });
+        } return res.status(200).json({ message: "Se debe enviar compañía, correlativo, fecha movimiento y monto"  });
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
