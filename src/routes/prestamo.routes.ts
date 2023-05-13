@@ -2,7 +2,7 @@ import { Router } from "express"
 import { registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo, anularPrestamo, validarRetornarPendiente, retornarPendiente,
         validarEstadoRemate, cambiarEstadoRemate,updtVigentePrestamo, cambiarEstadoEntregar, cancelarPrestamo, anularCancelacion, getCancelacionesByCodigoPrestamo, validarFechaRemate,
         obtenerDatosFormatoPrestamo, retornarEntrega, retornarRemate, getPrestamoByCodigoPrestamoParaTicket, getCancelacionesByNLinea, obtenerSaldoPrestamo, obtenerDatosTicketVentaTercero,
-        obtenerDatosActaEntrega, getValidaSufijoProducto } from '../controllers/prestamo.controller'
+        obtenerDatosActaEntrega, getValidaSufijoProducto,getValidarAlertaMontoMaximo } from '../controllers/prestamo.controller'
 import passport from 'passport'
 
 
@@ -36,5 +36,6 @@ router.post('/obtenerSaldoPrestamo',passport.authenticate('jwt', { session: fals
 router.post('/obtenerDatosTicketVentaTercero',passport.authenticate('jwt', { session: false }), obtenerDatosTicketVentaTercero);
 router.post('/obtenerDatosActaEntrega',passport.authenticate('jwt', { session: false }), obtenerDatosActaEntrega);
 router.post('/getValidaSufijoProducto',passport.authenticate('jwt', { session: false }),getValidaSufijoProducto);
+router.post('/getValidarAlertaMontoMaximo',passport.authenticate('jwt', { session: false }),getValidarAlertaMontoMaximo);
 
 export default router;

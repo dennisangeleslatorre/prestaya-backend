@@ -653,3 +653,29 @@ export async function getValidaSufijoProducto(req: Request, res: Response): Prom
         return res.status(500).send(error)
     }
 }
+
+export async function getValidarAlertaMontoMaximo(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania	= body.c_compania ? body.c_compania : null;
+        body.n_correlativo	= body.n_correlativo ? body.n_correlativo : null;
+        body.d_fechamov	= body.d_fechamov ? body.d_fechamov : null;
+        body.n_montocons = body.n_montocons ? body.n_montocons : null;
+
+        if(body.c_compania && body.n_correlativo && body.d_fechamov && body.n_montocons) {
+            const conn = await connect();
+            const [response] = await conn.query(`CALL sp_Validar_Alerta_MontoMaximo(?,?,?,?,@respuesta)`,[ body.c_compania,  body.n_correlativo, body.d_fechamov, body.n_montocons]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0];
+            if(responseMessage[0]) {
+                return res.status(200).json({message: responseMessage[0]});
+            }
+            return res.status(200).json({ message: "No se encontraron datos" });
+        } return res.status(200).json({ message: "Se debe enviar compañía, correlativo, fecha movimiento y monto"  });
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
