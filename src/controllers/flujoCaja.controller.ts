@@ -43,14 +43,15 @@ export async function updateFlujoCaja(req: Request, res: Response): Promise<Resp
         const eliminarDetalles = req.body.eliminarDetalles ? req.body.eliminarDetalles : null;
         const eliminarMovimientos = req.body.eliminarMovimientos ? req.body.eliminarMovimientos : null;
         if (flujoCaja.c_compania && flujoCaja.c_agencia && flujoCaja.c_tipofcu && flujoCaja.c_usuariofcu && flujoCaja.d_fechaInicioMov && flujoCaja.n_correlativo
-            && flujoCaja.d_fechaFinMov && flujoCaja.c_monedafcu && flujoCaja.c_estado && flujoCaja.c_observaciones && flujoCaja.c_ultimousuario) {
+            && flujoCaja.d_fechaFinMov && flujoCaja.c_monedafcu && flujoCaja.c_estado && flujoCaja.c_observaciones && flujoCaja.c_ultimousuario
+            && flujoCaja.n_montomaximofc && flujoCaja.c_flagrestringexmtomax) {
             const conn = await connect();
 
             const [responseValida, column] = await conn.query(`CALL sp_Valida_Datos_FC_Actualizar('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_agencia}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}',@respuesta)`)
             const messageValida = responseValida as RowDataPacket;
             if(messageValida[0][0].respuesta === "OK") {
 
-                const [responseFlujo, column2] = await conn.query(`CALL sp_Actualizar_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_agencia}','${flujoCaja.c_tipofcu}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}','${flujoCaja.c_monedafcu}','${flujoCaja.c_estado}','${flujoCaja.c_observaciones}','${flujoCaja.c_flagsaldoxdia}','${flujoCaja.c_ultimousuario}',@respuesta)`)
+                const [responseFlujo, column2] = await conn.query(`CALL sp_Actualizar_FlujoCaja('${flujoCaja.c_compania}','${flujoCaja.n_correlativo}','${flujoCaja.c_agencia}','${flujoCaja.c_tipofcu}','${flujoCaja.c_usuariofcu}','${flujoCaja.d_fechaInicioMov}','${flujoCaja.d_fechaFinMov}','${flujoCaja.c_monedafcu}','${flujoCaja.c_estado}','${flujoCaja.c_observaciones}','${flujoCaja.c_flagsaldoxdia}','${flujoCaja.c_ultimousuario}','${flujoCaja.n_montomaximofc}','${flujoCaja.c_flagrestringexmtomax}',@respuesta)`)
                 const responseProcedure = responseFlujo as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
 
@@ -153,7 +154,13 @@ export async function getFlujoCajaMovimientosByCodigo(req: Request, res: Respons
         if(body.c_compania && body.n_correlativo && body.d_fechamov) {
             const conn = await connect();
             const [rows, fields] =
-                await conn.query('SELECT mov.*, tipo.c_descricpion as c_tipomovimientoccdesc FROM co_flujocudiamov mov INNER JOIN ma_tipomovimientocaja tipo ON mov.c_tipomovimientocc = tipo.c_tipomovimientocc where mov.c_compania=? AND mov.n_correlativo=? AND mov.d_fechamov=?',
+                await conn.query(`
+                    SELECT mov.*, tipo.c_descricpion as c_tipomovimientoccdesc, agencia.c_descripcion as otraagenciadesc
+                    FROM co_flujocudiamov mov
+                    INNER JOIN ma_tipomovimientocaja tipo ON mov.c_tipomovimientocc = tipo.c_tipomovimientocc
+                    LEFT JOIN ma_agencia agencia ON mov.c_compania = agencia.c_compania AND mov.c_agenciaotra = agencia.c_agencia
+                    where mov.c_compania=? AND mov.n_correlativo=? AND mov.d_fechamov=?
+                    `,
                 [body.c_compania, body.n_correlativo, body.d_fechamov])
             await conn.end();
             const movimientosRes = rows as [any];
@@ -190,7 +197,9 @@ export async function getFlujoCajaByCodigo(req: Request, res: Response): Promise
                             c_usuarioregistro: item.usuarioregistrodetalle,
                             d_fecharegistro: item.fecharegistrodetalle,
                             c_ultimousuario: item.usuariomodificaciondetalle,
-                            d_ultimafechamodificacion: item.fechamodificaciondetalle
+                            d_ultimafechamodificacion: item.fechamodificaciondetalle,
+                            n_montomaximofc: item.montomaximofcdia,
+                            c_flagrestringexmtomax: item.flagrestringexmtomax
                         }
                     };
                     if(item.n_secuencia) {
@@ -209,7 +218,8 @@ export async function getFlujoCajaByCodigo(req: Request, res: Response): Promise
                             c_flagxconfirmar: item.c_flagxconfirmar,
                             c_flagconfirmado: item.c_flagconfirmado,
                             c_usuarioconfirmado: item.c_usuarioconfirmado,
-                            d_fechaconfirmado:item.d_fechaconfirmado
+                            d_fechaconfirmado:item.d_fechaconfirmado,
+                            c_agenciaotra: item.c_agenciaotra
                         };
                         flujosDetallesTemporal = flujosDetallesNuevo.filter((detalle : FlujoCajaUsuarioDia) => detalle["general"]["d_fechamov"] === fechaFormat);
                         if(flujosDetallesTemporal.length>0){
@@ -239,6 +249,8 @@ export async function getFlujoCajaByCodigo(req: Request, res: Response): Promise
                     c_ultimousuario: flujosCajaUsuario[0].c_ultimousuario,
                     d_ultimafechamodificacion: flujosCajaUsuario[0].d_ultimafechamodificacion,
                     c_flagsaldoxdia: flujosCajaUsuario[0].c_flagsaldoxdia,
+                    n_montomaximofc: flujosCajaUsuario[0].n_montomaximofc,
+                    c_flagrestringexmtomax: flujosCajaUsuario[0].c_flagrestringexmtomax
                 }, detalles: flujosDetallesNuevo}, message: "Se obtuvo registros." });
             }
             return res.status(503).json({data:[], message: "No se encontraron registros." });
@@ -255,8 +267,10 @@ export async function getMovimientosCajaUsuarioxConfirmar(req: Request, res: Res
         const body = req.body;
         if(body.c_compania) {
             body.c_usuariofcu = body.c_usuariofcu ? body.c_usuariofcu : null;
+            body.c_agencia = body.c_agencia ? body.c_agencia : null;
+            body.c_agenciaotra = body.c_agenciaotra ? body.c_agenciaotra : null;
             const conn = await connect();
-            const [response, column2] : [any, any] = await conn.query(`CALL sp_Obtener_Movimientos_Por_Confirmar(?,?)`, [body.c_compania,body.c_usuariofcu]);
+            const [response, column2] : [any, any] = await conn.query(`CALL sp_Obtener_Movimientos_Por_Confirmar(?,?,?,?)`, [body.c_compania,body.c_usuariofcu,body.c_agencia,body.c_agenciaotra]);
             await conn.end();
             const movimientosRes = response as RowDataPacket;
             return res.status(200).json({ data:movimientosRes[0], message: "Se obtuvo registros." });
@@ -275,9 +289,9 @@ export async function confirmarMovimiento(req: Request, res: Response): Promise<
             body.c_usuariomovimiento, body.n_montoxdiamov, body.c_tipomovimientoccinverso, body.c_observacionesmov) {
             const conn = await connect();
             const [response, column2] : [any, any] = await conn.query(
-                `CALL sp_Confirmar_Movimiento(?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,
+                `CALL sp_Confirmar_Movimiento(?,?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,
             [ body.c_compania, body.n_correlativo, body.d_fechamov, body.n_secuencia, body.c_agencia, body.usuario_confirma, body.c_usuariofcu,
-              body.c_usuariomovimiento, body.n_montoxdiamov, body.c_tipomovimientoccinverso, body.c_observacionesmov ]);
+              body.c_usuariomovimiento, body.n_montoxdiamov, body.c_tipomovimientoccinverso, body.c_observacionesmov, body.c_agenciaotra ]);
             await conn.end();
             const movimientosRes = response as RowDataPacket;
             return res.status(200).json({ message: movimientosRes[0][0].respuesta });
@@ -300,6 +314,7 @@ export async function getCajaUsuarioByAgenciaAndUsuario(req: Request, res: Respo
                     where c_compania = ?
                     AND c_agencia = ?
                     AND c_usuariofcu = ?
+                    AND c_tipofcu = 'B'
                     AND c_estado = 'A';
                 `,
                 [body.c_compania, body.c_agencia, body.c_usuariofcu])

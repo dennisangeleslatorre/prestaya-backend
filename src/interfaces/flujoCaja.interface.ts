@@ -52,10 +52,13 @@ export interface FlujoCajaUsuarioDiaMovimiento {
     c_flagxconfirmar?: string,
     c_flagconfirmado?: string,
     c_usuarioconfirmado?: string,
-    d_fechaconfirmado?: string
+    d_fechaconfirmado?: string,
+    c_agenciaotra?: string
 }
 
 export interface FlujoCajaUsuarioDiaMovimientoProcedure {
+    montomaximofcdia: string,
+    flagrestringexmtomax:string,
     c_compania: string,
     n_correlativo: number,
     c_agencia: string,
@@ -92,4 +95,5 @@ export interface FlujoCajaUsuarioDiaMovimientoProcedure {
     c_flagconfirmado?: string,
     c_usuarioconfirmado?: string,
     d_fechaconfirmado?: string
+    c_agenciaotra?: string
 }
