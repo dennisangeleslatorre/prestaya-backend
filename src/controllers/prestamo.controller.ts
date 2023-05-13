@@ -680,3 +680,30 @@ export async function getValidarAlertaMontoMaximo(req: Request, res: Response): 
         return res.status(500).send(error)
     }
 }
+
+export async function getValidarMontoMaximoConfirMov(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania	= body.c_compania ? body.c_compania : null;
+        body.c_agencia	= body.c_agencia ? body.c_agencia : null;
+        body.d_fechamov	= body.d_fechamov ? body.d_fechamov : null;
+        body.n_montocons = body.n_montocons ? body.n_montocons : null;
+        body.c_usuariooperacion = body.c_usuariooperacion ? body.c_usuariooperacion : null;
+
+        if(body.c_compania && body.c_agencia && body.d_fechamov && body.n_montocons && body.c_usuariooperacion) {
+            const conn = await connect();
+            const [response] = await conn.query(`CALL sp_Validar_Alerta_MontoMaximo(?,?,?,?,@respuesta)`,[ body.c_compania,  body.c_agencia, body.d_fechamov, body.n_montocons,body.c_usuariooperacion]);
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0];
+            if(responseMessage[0]) {
+                return res.status(200).json({message: responseMessage[0]});
+            }
+            return res.status(200).json({ message: "No se encontraron datos" });
+        } return res.status(200).json({ message: "Se debe enviar compañía, prestamo, fecha movimiento y monto"  });
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
