@@ -2,7 +2,7 @@ import { Router } from "express"
 import { registerPrestamo, getPrestamoDinamico, validateTipos, validateUnidades, getPrestamoByCodigoPrestamo, updatePrestamo, anularPrestamo, validarRetornarPendiente, retornarPendiente,
         validarEstadoRemate, cambiarEstadoRemate,updtVigentePrestamo, cambiarEstadoEntregar, cancelarPrestamo, anularCancelacion, getCancelacionesByCodigoPrestamo, validarFechaRemate,
         obtenerDatosFormatoPrestamo, retornarEntrega, retornarRemate, getPrestamoByCodigoPrestamoParaTicket, getCancelacionesByNLinea, obtenerSaldoPrestamo, obtenerDatosTicketVentaTercero,
-        obtenerDatosActaEntrega, getValidaSufijoProducto,getValidarAlertaMontoMaximo } from '../controllers/prestamo.controller'
+        obtenerDatosActaEntrega, getValidaSufijoProducto,getValidarAlertaMontoMaximo,getValidarMontoMaximoConfirMov } from '../controllers/prestamo.controller'
 import passport from 'passport'
 
 
@@ -37,5 +37,5 @@ router.post('/obtenerDatosTicketVentaTercero',passport.authenticate('jwt', { ses
 router.post('/obtenerDatosActaEntrega',passport.authenticate('jwt', { session: false }), obtenerDatosActaEntrega);
 router.post('/getValidaSufijoProducto',passport.authenticate('jwt', { session: false }),getValidaSufijoProducto);
 router.post('/getValidarAlertaMontoMaximo',passport.authenticate('jwt', { session: false }),getValidarAlertaMontoMaximo);
-
+router.post('/getValidarMontoMaximoConfirMov',passport.authenticate('jwt', { session: false }),getValidarMontoMaximoConfirMov);
 export default router;
