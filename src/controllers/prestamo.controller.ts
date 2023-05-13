@@ -665,7 +665,7 @@ export async function getValidarAlertaMontoMaximo(req: Request, res: Response): 
 
         if(body.c_compania && body.c_prestamo && body.d_fechamov && body.n_montocons && body.c_usuariooperacion) {
             const conn = await connect();
-            const [response] = await conn.query(`CALL sp_Validar_Alerta_MontoMaximo(?,?,?,?,@respuesta)`,[ body.c_compania,  body.c_prestamo, body.d_fechamov, body.n_montocons,body.c_usuariooperacion]);
+            const [response] = await conn.query(`CALL sp_Validar_Alerta_MontoMaximo(?,?,?,?,?,@respuesta)`,[ body.c_compania,  body.c_prestamo, body.d_fechamov, body.n_montocons,body.c_usuariooperacion]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
             const responseMessage = responseProcedure[0];
@@ -692,7 +692,7 @@ export async function getValidarMontoMaximoConfirMov(req: Request, res: Response
 
         if(body.c_compania && body.c_agencia && body.d_fechamov && body.n_montocons && body.c_usuariooperacion) {
             const conn = await connect();
-            const [response] = await conn.query(`CALL sp_Validar_Alerta_MontoMaximo(?,?,?,?,@respuesta)`,[ body.c_compania,  body.c_agencia, body.d_fechamov, body.n_montocons,body.c_usuariooperacion]);
+            const [response] = await conn.query(`CALL sp_Validar_MontoMaximo_ConfirMov(?,?,?,?,?,@respuesta)`,[ body.c_compania,  body.c_agencia, body.d_fechamov, body.n_montocons, body.c_usuariooperacion]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
             const responseMessage = responseProcedure[0];
