@@ -326,6 +326,7 @@ export async function getDataReporteFlujoCaja(req: Request, res: Response): Prom
         body.c_fuente = body.c_fuente ? body.c_fuente : null;
         body.c_tipomovimientocc = body.c_tipomovimientocc ? body.c_tipomovimientocc : null;
         body.c_clasetipomov = body.c_clasetipomov ? body.c_clasetipomov : null;
+        body.in_flaglistaadmin = body.in_flaglistaadmin ? body.in_flaglistaadmin : null;
 
         if(body.c_compania) {
             let movimientosCajaUsuario = [];
@@ -333,9 +334,9 @@ export async function getDataReporteFlujoCaja(req: Request, res: Response): Prom
             let movimientosCancelaciones:any = [];
             const conn = await connect();
 
-            const [responseFlujo, column2] : [any, any] = await conn.query(`CALL sp_Reporte_FLujoCaja_Movimientos(?,?,?,?,?,?,?,?,?,?,?)`,
+            const [responseFlujo, column2] : [any, any] = await conn.query(`CALL sp_Reporte_FLujoCaja_Movimientos(?,?,?,?,?,?,?,?,?,?,?,?)`,
             [   body.c_compania, body.c_agencia, body.c_monedafcu, body.c_tipofcu, body.c_usuariofcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin,
-                body.c_estado, body.c_fuente, body.c_tipomovimientocc, body.c_clasetipomov
+                body.c_estado, body.c_fuente, body.c_tipomovimientocc, body.c_clasetipomov, body.in_flaglistaadmin
             ]);
             movimientosCajaUsuario = responseFlujo[0] as [any];
             //console.log(movimientosCajaUsuario)
