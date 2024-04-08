@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import { Agencia } from '../interfaces/agencia.interface'
+import { Agencia, RequestAgenciaByRole } from '../interfaces/agencia.interface'
 import { ResultSetHeader, Result } from "../interfaces/result"
 import moment from 'moment'
 
@@ -144,5 +144,35 @@ export async function deleteAgencia(req: Request, res: Response): Promise<Respon
         let message = "Hubo un error.";
         if(errorAux.errno === 1217) message = "No se puede eliminar la agencia debido a que tiene datos asociados";
         return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function getAgenciaXPerfil(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const request: RequestAgenciaByRole = body;
+        console.log(request);
+        const conn = await connect();
+        let agenciaRes = [];
+        if ( request.flagencia ) {
+            const [rows, fields] = await conn.query(
+                'SELECT ma.c_compania, ma.c_agencia, ma.c_descripcion, ma.c_estado FROM prestaya.ma_agencia ma')
+            await conn.end();
+            agenciaRes = rows as [Agencia];
+        }
+        else {
+            const [rows, fields] = await conn.query(
+                'SELECT ma.c_compania, ma.c_agencia, ma.c_descripcion, ma.c_estado FROM prestaya.ma_agencia ma where concat(ma.c_compania,"-",ma.c_agencia) in (?)',
+                [request.lstagencia])
+            await conn.end();
+            agenciaRes = rows as [Agencia];
+        }
+        if(!agenciaRes[0]) {
+            return res.status(200).json({ data:[], message: "No se encontró agencias" });
+        }
+        return res.status(200).json({ data:agenciaRes, message: "Se obtuvo registros" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
     }
 }

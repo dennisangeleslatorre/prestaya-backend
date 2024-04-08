@@ -11,3 +11,7 @@ export interface Agencia {
 }
 
 
+export interface RequestAgenciaByRole{
+    flagencia:	string,
+    lstagencia:	string
+}
