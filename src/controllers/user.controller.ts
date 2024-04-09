@@ -90,7 +90,7 @@ export async function getUserByCodigoUsuario(req: Request, res: Response): Promi
 export async function getByUsername(c_codigousuario:string): Promise<Result> {
     try {
         const conn = await connect();
-        const res = await conn.query('SELECT u.c_nombres, u.c_codigousuario, u.c_estado, u.c_clave, r.c_codigoperfil, r.n_perfil, r.c_paginas, r.c_botones FROM ma_usuarios u INNER JOIN ma_perfil r on u.n_perfil = r.n_perfil WHERE u.c_codigousuario = ?', c_codigousuario);
+        const res = await conn.query('SELECT u.c_nombres, u.c_codigousuario, u.c_estado, u.c_clave, r.c_codigoperfil, r.n_perfil, r.c_paginas, r.c_botones, r.b_todas_agencias, r.c_perfilxagencias FROM ma_usuarios u INNER JOIN ma_perfil r on u.n_perfil = r.n_perfil WHERE u.c_codigousuario = ?', c_codigousuario);
         await conn.end();
         return Promise.resolve({ success: true, data: res[0] });
     } catch (error) {

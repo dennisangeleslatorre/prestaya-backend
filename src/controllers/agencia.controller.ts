@@ -151,26 +151,26 @@ export async function getAgenciaXPerfil(req: Request, res: Response): Promise<Re
     try {
         const body = req.body;
         const request: RequestAgenciaByRole = body;
-        console.log(request);
         const conn = await connect();
         let agenciaRes = [];
-        if ( request.flagencia ) {
-            const [rows, fields] = await conn.query(
-                'SELECT ma.c_compania, ma.c_agencia, ma.c_descripcion, ma.c_estado FROM prestaya.ma_agencia ma')
-            await conn.end();
-            agenciaRes = rows as [Agencia];
-        }
-        else {
-            const [rows, fields] = await conn.query(
-                'SELECT ma.c_compania, ma.c_agencia, ma.c_descripcion, ma.c_estado FROM prestaya.ma_agencia ma where concat(ma.c_compania,"-",ma.c_agencia) in (?)',
-                [request.lstagencia])
-            await conn.end();
-            agenciaRes = rows as [Agencia];
-        }
-        if(!agenciaRes[0]) {
-            return res.status(200).json({ data:[], message: "No se encontró agencias" });
-        }
-        return res.status(200).json({ data:agenciaRes, message: "Se obtuvo registros" });
+        if(body.c_compania) {
+            if ( request.flagencia ) {
+                const [rows, fields] = await conn.query('SELECT * FROM ma_agencia where c_estado="A" AND c_compania=?',[body.c_compania])
+                await conn.end();
+                agenciaRes = rows as [Agencia];
+            }
+            else {
+                const [rows, fields] = await conn.query(
+                    'SELECT ma.c_compania, ma.c_agencia, ma.c_descripcion, ma.c_estado FROM prestaya.ma_agencia ma where ma.c_estado="A" AND c_compania=? AND concat(ma.c_compania,"-",ma.c_agencia) in (?)',
+                    [body.c_compania, request.listagencia])
+                await conn.end();
+                agenciaRes = rows as [Agencia];
+            }
+            if(!agenciaRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró agencias" });
+            }
+            return res.status(200).json({ data:agenciaRes, message: "Se obtuvo registros" });
+        } return res.status(200).json({ message: "Se debe enviar la compañía para listar los agencias" });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)

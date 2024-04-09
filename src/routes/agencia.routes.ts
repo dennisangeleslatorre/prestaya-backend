@@ -11,7 +11,7 @@ router.put('/update',  passport.authenticate('jwt', { session: false }), updateA
 router.post('/delete', passport.authenticate('jwt', { session: false }), deleteAgencia );
 router.post('/getAgenciaByCodigoAgencia',passport.authenticate('jwt', { session: false }), getAgenciaByCodigoAgencia);
 router.post('/getAgenciaAndCompaniaByCodigo',passport.authenticate('jwt', { session: false }), getAgenciaAndCompaniaByCodigo);
-router.post('/getAgenciaXPerfil', getAgenciaXPerfil);
+router.post('/getAgenciaXPerfil',passport.authenticate('jwt', { session: false }), getAgenciaXPerfil);
 
 
 export default router;
