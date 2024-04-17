@@ -5,6 +5,7 @@ import { ResultSetHeader, Result } from "../interfaces/result"
 import moment from 'moment'
 import * as bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { RowDataPacket } from 'mysql2'
 
 export async function getUsers(req: Request, res: Response) {
     try {
@@ -183,5 +184,23 @@ export async function changePassword(req: Request, res: Response): Promise<Respo
         let message = "";
         if(errorAux.errno === 1062) message = "Existe un usuario con esos datos.";
         return res.status(500).send({error: error, message: message});
+    }
+}
+
+export async function getAgenciaXUsuario(req: Request, res: Response) {
+    try {
+        const c_codigousuario = req.body.c_codigousuario;
+        const c_compania = req.body.c_compania;
+        let listUsuarioxAgencia = []
+        const conn = await connect();
+        const [responseProcedure, column] : [any, any]  = await conn.query('CALL prestaya.sp_ListarDinamico_UsuarioxAgencia(?,?)',[c_compania, c_codigousuario]);
+        await conn.end();
+        listUsuarioxAgencia = responseProcedure[0] as [any];
+        if (listUsuarioxAgencia && listUsuarioxAgencia.length > 0)
+            return res.status(200).json({data:listUsuarioxAgencia, message: "Se obtuvieron registros." });
+        return  res.status(200).json({data:[], message: "No se encontró registros." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error);
     }
 }
