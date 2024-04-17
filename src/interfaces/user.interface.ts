@@ -13,3 +13,9 @@ export interface User {
     a_paginas?: Array<string>,
     c_paginas: string
 }
+
+export interface RequestAgenciaByUsuario{
+    c_codigousuario:	string
+    c_codigousuarioconsultado:	string
+    listagencia:	string
+}

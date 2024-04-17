@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import { User } from '../interfaces/user.interface'
+import { RequestAgenciaByUsuario, User } from '../interfaces/user.interface'
 import { ResultSetHeader, Result } from "../interfaces/result"
 import moment from 'moment'
 import * as bcrypt from 'bcrypt'
@@ -202,5 +202,30 @@ export async function getAgenciaXUsuario(req: Request, res: Response) {
     } catch (error) {
         console.error(error)
         return res.status(500).send(error);
+    }
+}
+
+export async function assignAgentXUsers(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        const request: RequestAgenciaByUsuario = body;
+        if(request.c_codigousuario && request.c_codigousuarioconsultado) {
+            const conn = await connect();
+            const [response, fields] = await conn.query(
+                'call prestaya.sp_Asignar_UsuarioxAgencias(?,?,?,@respuesta);',[request.c_codigousuario,request.c_codigousuarioconsultado, request.listagencia])
+            await conn.end();
+            const responseProcedure = response as RowDataPacket;
+            const responseMessage = responseProcedure[0][0];
+            console.log(responseMessage);
+            if(!responseMessage || responseMessage.respuesta !== "OK") {
+                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al asignar."
+                return res.status(503).json({message: message});
+            } else {
+                return res.status(200).json({message: "Se asignó con éxito." });
+            }
+        }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
     }
 }
