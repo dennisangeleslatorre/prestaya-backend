@@ -187,7 +187,7 @@ export async function changePassword(req: Request, res: Response): Promise<Respo
     }
 }
 
-export async function getAgenciaXUsuario(req: Request, res: Response) {
+export async function getAgenciaXUsuarioAndCompany(req: Request, res: Response) {
     try {
         const c_codigousuario = req.body.c_codigousuario;
         const c_compania = req.body.c_compania;
@@ -224,6 +224,28 @@ export async function assignAgentXUsers(req: Request, res: Response): Promise<Re
                 return res.status(200).json({message: "Se asignó con éxito." });
             }
         }return res.status(503).json({ message: "Se debe enviar los datos obligatorios" });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+
+export async function getAllAgenciesOfUser(req: Request, res: Response) {
+    try {
+        const body = req.body;
+        const conn = await connect();
+        const data = await conn.query(`
+            select * from prestaya.usuario_compania_agencia uca
+            inner join prestaya.ma_agencia ma on uca.c_compania = ma.c_compania and uca.c_agencia = ma.c_agencia
+			where uca.c_estado='A' AND uca.c_codigousuario = ?
+        `, [body.c_codigousuario]);
+        await conn.end();
+        const agenciesRes = data[0] as [any];
+        if(!agenciesRes[0]) {
+            return res.status(200).json({ success: false, data:[], message: "No se encontró agencias." });
+        }
+        return res.status(200).json({ success: true, data:data[0], message: "Se obtuvo agencias." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)

@@ -1,5 +1,7 @@
 import { Router } from "express"
-import { getUsers, registerUser, updateUser, getUserByCodigoUsuario, login, deleteUser, changePassword,getAgenciaXUsuario,assignAgentXUsers } from '../controllers/user.controller'
+import { getUsers, registerUser, updateUser, getUserByCodigoUsuario, login, deleteUser,
+  changePassword,getAgenciaXUsuarioAndCompany,assignAgentXUsers, getAllAgenciesOfUser
+} from '../controllers/user.controller'
 import passport from 'passport'
 
 const router = Router();
@@ -11,7 +13,8 @@ router.put('/:c_codigousuario/update',passport.authenticate('jwt', { session: fa
 router.get('/:c_codigousuario/getUserByCodigoUsuario',passport.authenticate('jwt', { session: false }), getUserByCodigoUsuario);
 router.post('/:c_codigousuario/delete',passport.authenticate('jwt', { session: false }), deleteUser);
 router.put('/:c_codigousuario/changePassword',passport.authenticate('jwt', { session: false }), changePassword);
-router.post('/getAgenciaXUsuario', getAgenciaXUsuario);
-router.post('/assignAgentXUsers', assignAgentXUsers);
+router.post('/getAllAgenciesOfUser', passport.authenticate('jwt', { session: false }), getAllAgenciesOfUser);
+router.post('/getAgenciaXUsuarioAndCompany', passport.authenticate('jwt', { session: false }), getAgenciaXUsuarioAndCompany);
+router.post('/assignAgentXUsers', passport.authenticate('jwt', { session: false }), assignAgentXUsers);
 
 export default router;
