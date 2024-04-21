@@ -125,12 +125,16 @@ export async function getDataReporteResumidos(req: Request, res: Response): Prom
     }
 }
 
-export async function functionGetDataReporteDetallado(c_compania: string, c_prestamo: string, n_cliente: string, esvencido: string, c_paiscodigo: string, c_departamentocodigo: string,
-    c_provinciacodigo: string, c_distritocodigo: string, c_estado: string, excluiranulados: boolean, solovalidos: boolean, d_fechadesembolsoinicio: string, d_fechadesembolsofin: string,
-    d_fechacancelacioninicio: string, d_fechacancelacionfin: string, d_fechavencimientoinicio: string, d_fechavencimientofin: string, d_fechavencimientoreprogramadainicio: string,
-    d_fechavencimientoreprogramadafin: string): Promise<Result> {
+export async function functionGetDataReporteDetallado(
+    c_compania: string, c_prestamo: string, n_cliente: string, esvencido: string, c_paiscodigo: string, c_departamentocodigo: string,
+    c_provinciacodigo: string, c_distritocodigo: string, c_estado: string, excluiranulados: boolean, solovalidos: boolean,
+    d_fechadesembolsoinicio: string, d_fechadesembolsofin: string, d_fechacancelacioninicio: string,
+    d_fechacancelacionfin: string, d_fechavencimientoinicio: string, d_fechavencimientofin: string,
+    d_fechavencimientoreprogramadainicio: string, d_fechavencimientoreprogramadafin: string,
+    agenciesString: string
+): Promise<Result> {
     try {
-        let queryWherePrestamo = `WHERE p.c_compania = '${c_compania}'`;
+        let queryWherePrestamo = `WHERE p.c_compania = '${c_compania}' AND p.c_agencia IN (${agenciesString})`;
         let queryWhereCancelacion = `WHERE c.c_compania = '${c_compania}'`;
         let queryWhereJoin = `WHERE pres.c_compania = '${c_compania}'`;
         //Filtros de prestamo
@@ -216,6 +220,7 @@ export async function getDataReporteDetallado(req: Request, res: Response): Prom
         const c_distritocodigo = req.body.c_distritocodigo;
         const c_estado = req.body.c_estado;
         const c_prestamo = req.body.c_prestamo;
+        const c_codigousuario = req.body.c_codigousuario;
         //booleans
         const excluiranulados = req.body.excluiranulados;
         const solovalidos = req.body.solovalidos;
@@ -228,9 +233,18 @@ export async function getDataReporteDetallado(req: Request, res: Response): Prom
         const d_fechavencimientofin = req.body.d_fechavencimientofin;
         const d_fechavencimientoreprogramadainicio = req.body.d_fechavencimientoreprogramadainicio;
         const d_fechavencimientoreprogramadafin = req.body.d_fechavencimientoreprogramadafin;
-        const responseDataReporteDetallado = await functionGetDataReporteDetallado(c_compania, c_prestamo, n_cliente, esvencido, c_paiscodigo, c_departamentocodigo, c_provinciacodigo, c_distritocodigo,
-            c_estado, excluiranulados, solovalidos, d_fechadesembolsoinicio, d_fechadesembolsofin, d_fechacancelacioninicio, d_fechacancelacionfin, d_fechavencimientoinicio, d_fechavencimientofin,
-            d_fechavencimientoreprogramadainicio, d_fechavencimientoreprogramadafin);
+        //Obtener agencias
+        const agencies = await getAgenciesOfUserFunction(c_compania, c_codigousuario);
+        const agenciesString = agencies.map((item) => `'${item.c_agencia}'`).join(',');
+        //Obtener datos
+        const responseDataReporteDetallado = await functionGetDataReporteDetallado(
+            c_compania, c_prestamo, n_cliente, esvencido, c_paiscodigo, c_departamentocodigo,
+            c_provinciacodigo, c_distritocodigo, c_estado, excluiranulados, solovalidos,
+            d_fechadesembolsoinicio, d_fechadesembolsofin, d_fechacancelacioninicio,
+            d_fechacancelacionfin, d_fechavencimientoinicio, d_fechavencimientofin,
+            d_fechavencimientoreprogramadainicio, d_fechavencimientoreprogramadafin,
+            agenciesString
+        );
 
         const dataReporteDetallado = responseDataReporteDetallado.success ? responseDataReporteDetallado.data as [Object] : [];
 
