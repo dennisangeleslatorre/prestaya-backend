@@ -230,6 +230,15 @@ export async function assignAgentXUsers(req: Request, res: Response): Promise<Re
     }
 }
 
+export async function getAgenciesOfUserFunction(c_compania: string, c_codigousuario: string) {
+    const conn = await connect();
+    const [responseProcedure, column] : [any, any]  = await conn.query('CALL prestaya.sp_ListarDinamico_UsuarioxAgencia(?,?)',
+    [c_compania, c_codigousuario]);
+    await conn.end();
+    const agenciesRes = responseProcedure[0] as [any];
+    return agenciesRes && agenciesRes.length > 0 ? agenciesRes : [];
+}
+
 
 export async function getAllAgenciesOfUser(req: Request, res: Response) {
     try {

@@ -5,6 +5,7 @@ import { Prestamo } from 'interfaces/prestamo.inteface';
 import { PerfilReporte } from 'interfaces/perfilReporte.interface';
 import { Result } from 'interfaces/result';
 import moment from 'moment'
+import { getAgenciesOfUserFunction } from './user.controller';
 
 export async function getReportes(req: Request, res: Response): Promise<Response> {
     try {
@@ -39,9 +40,15 @@ export async function getReportesByPerfil(req: Request, res: Response): Promise<
     }
 }
 
-export async function functionGetDataReporteResumidoPrestamo(c_compania: string, periodo_inicio: string, periodo_fin: string, n_cliente: string): Promise<Result> {
+export async function functionGetDataReporteResumidoPrestamo(
+    c_compania: string,
+    periodo_inicio: string,
+    periodo_fin: string,
+    n_cliente: string,
+    agenciesString: string
+): Promise<Result> {
     try {
-        let queryWhere = `WHERE p.c_compania = ${c_compania} AND p.c_estado IN ('VI', 'CA', 'EN', 'RE')`;
+        let queryWhere = `WHERE p.c_compania = ${c_compania} AND p.c_estado IN ('VI', 'CA', 'EN', 'RE') AND p.c_agencia IN (${agenciesString})`;
         if(periodo_inicio && periodo_fin) queryWhere = `${queryWhere} AND ( DATE_FORMAT(p.d_fechadesembolso, '%Y%m') BETWEEN ${periodo_inicio} AND ${periodo_fin} )`
         if(n_cliente) queryWhere = `${queryWhere} AND p.n_cliente = ${n_cliente}`
         const conn = await connect();
@@ -65,9 +72,15 @@ export async function functionGetDataReporteResumidoPrestamo(c_compania: string,
     }
 }
 
-export async function functionGetDataReporteResumidoCancelaciones(c_compania: string, periodo_inicio: string, periodo_fin: string, n_cliente: string): Promise<Result> {
+export async function functionGetDataReporteResumidoCancelaciones(
+    c_compania: string,
+    periodo_inicio: string,
+    periodo_fin: string,
+    n_cliente: string,
+    agenciesString: string
+): Promise<Result> {
     try {
-        let queryWhere = `WHERE p.c_compania = ${c_compania}`;
+        let queryWhere = `WHERE p.c_compania = ${c_compania} AND p.c_agencia IN (${agenciesString})`;
         if(periodo_inicio && periodo_fin) queryWhere = `${queryWhere} AND ( DATE_FORMAT(pc.d_fechacancelacion, '%Y%m') BETWEEN ${periodo_inicio} AND ${periodo_fin} )`
         else queryWhere = `${queryWhere} AND DATE_FORMAT(pc.d_fechacancelacion, '%Y%m') IS NOT NULL`
         if(n_cliente) queryWhere = `${queryWhere} AND p.n_cliente = ${n_cliente}`
@@ -98,9 +111,12 @@ export async function getDataReporteResumidos(req: Request, res: Response): Prom
         const periodo_inicio = req.body.periodo_inicio;
         const periodo_fin = req.body.periodo_fin;
         const n_cliente = req.body.n_cliente;
-        const responseDataPrestamos = await functionGetDataReporteResumidoPrestamo(c_compania, periodo_inicio, periodo_fin, n_cliente);
+        const c_codigousuario = req.body.c_codigousuario;
+        const agencies = await getAgenciesOfUserFunction(c_compania, c_codigousuario);
+        const agenciesString = agencies.map((item) => `'${item.c_agencia}'`).join(',');
+        const responseDataPrestamos = await functionGetDataReporteResumidoPrestamo(c_compania, periodo_inicio, periodo_fin, n_cliente, agenciesString);
         const dataPrestamos = responseDataPrestamos.success ? responseDataPrestamos.data as [Object] : [];
-        const responseDataCancelaciones = await functionGetDataReporteResumidoCancelaciones(c_compania, periodo_inicio, periodo_fin, n_cliente);
+        const responseDataCancelaciones = await functionGetDataReporteResumidoCancelaciones(c_compania, periodo_inicio, periodo_fin, n_cliente, agenciesString);
         const dataCancelaciones = responseDataCancelaciones.success ? responseDataCancelaciones.data as [Object] : [];
         return res.status(200).json({data:[...dataPrestamos, ...dataCancelaciones]});
     } catch (error) {
