@@ -17,8 +17,9 @@ export async function getProductoDinamico(req: Request, res: Response): Promise<
 
         if(body) {
             const conn = await connect();
-            const [responseProcedure, response] = await conn.query(`CALL sp_ListarDinamico_Producto(?,?,?,?,?,?)`,
-            [body.c_compania,body.c_agencia, body.c_estado, body.c_item, body.c_tipoproducto, body.c_descripcionproducto ]);
+            const [responseProcedure, response] = await conn.query(`CALL sp_ListarDinamico_Producto(?,?,?,?,?,?,?)`,
+            [ body.c_compania,body.c_agencia, body.c_estado, body.c_item, body.c_tipoproducto,
+            body.c_descripcionproducto, body.c_codigousuario ]);
             await conn.end();
             const productoRes = responseProcedure as RowDataPacket;
             if(!productoRes[0][0]) {

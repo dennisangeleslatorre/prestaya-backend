@@ -20,10 +20,10 @@ export async function getTransaccionDinamico(req: Request, res: Response): Promi
 
         if(body) {
             const conn = await connect();
-            const [responseProcedure, response] = await conn.query(`CALL sp_ListarDinamico_TransaccionesTienda(?,?,?,?,?,?,?,?,?,?,?,?)`,
+            const [responseProcedure, response] = await conn.query(`CALL sp_ListarDinamico_TransaccionesTienda(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [ body.c_compania, body.c_agencia, body.d_fechadocumentoInicio, body.d_fechadocumentoFin,
                 body.n_cliente, body.c_tipodocumento, body.c_numerodocumento, body.periodo_inicio,
-                body.periodo_fin, body.c_item, body.c_prestamo, body.c_estado
+                body.periodo_fin, body.c_item, body.c_prestamo, body.c_estado, body.c_codigousuario
                 ]);
             await conn.end();
             const transaccionRes = responseProcedure as RowDataPacket;
@@ -155,14 +155,13 @@ export async function getReporteTransaccion(req: Request, res: Response): Promis
 
         if(body) {
             const conn = await connect();
-            const [responseProcedure, response] = await conn.query(`CALL sp_GetReporte_TransaccionesTienda(?,?,?,?,?,?,?,?,?,?,?,?)`,
+            const [responseProcedure, response] = await conn.query(`CALL sp_GetReporte_TransaccionesTienda(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [ body.c_compania, body.c_agencia, body.d_fechadocumentoInicio, body.d_fechadocumentoFin,
                 body.n_cliente, body.c_tipodocumento, body.c_numerodocumento, body.periodo_inicio,
-                body.periodo_fin, body.c_item, body.c_prestamo, body.c_estado
+                body.periodo_fin, body.c_item, body.c_prestamo, body.c_estado, body.c_codigousuario
                 ]);
             await conn.end();
             const transaccionRes = responseProcedure as RowDataPacket;
-            console.log("transaccionRes", transaccionRes);
             if(!transaccionRes[0][0]) {
                 return res.status(200).json({message: "No se encontró transacciones" });
             }

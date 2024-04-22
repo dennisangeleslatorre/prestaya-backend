@@ -399,6 +399,8 @@ export async function getDataReporteFlujoCaja(req: Request, res: Response): Prom
 export async function getDataReporteVencidosyNoVencidos(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
+        const agencies = await getAgenciesOfUserFunction(body.c_compania, body.c_codigousuario);
+        const agenciesString = agencies.map((item) => `'${item.c_agencia}'`).join(',');
         if(body.c_compania && body.d_fechaactual) {
             //Where
             let queryWherePrestamo = `WHERE p.c_compania = '${body.c_compania}'`;
@@ -406,6 +408,7 @@ export async function getDataReporteVencidosyNoVencidos(req: Request, res: Respo
             let queryWhereJoin = `WHERE pres.c_compania = '${body.c_compania}'`;
             //Prestamos
             if(body.c_agencia) queryWherePrestamo = `${queryWherePrestamo} AND p.c_agencia = '${body.c_agencia}'`;
+            else queryWherePrestamo = `${queryWherePrestamo} AND p.c_agencia IN (${agenciesString})`;
             if(body.n_cliente) queryWherePrestamo = `${queryWherePrestamo} AND p.n_cliente = '${body.n_cliente}'`;
             if(body.c_estado) {queryWherePrestamo = `${queryWherePrestamo} AND p.c_estado = '${body.c_estado}'`}
             else {
@@ -480,12 +483,14 @@ export async function getPrestamosDetalladoPeriodo(req: Request, res: Response):
         if(body) {
             const conn = await connect();
             const [[rows,fields], response] : [any, any] = await conn.query(
-                `CALL sp_Reporte_Prestamos_Detallado_Periodo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                `CALL sp_Reporte_Prestamos_Detallado_Periodo(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                 [body.c_compania,body.c_agencia,body.c_prestamo,body.c_estado,body.n_cliente,body.n_diasvencido_inicio,
                 body.n_diasvencido_fin,body.c_vencido,body.c_paiscodigo,body.c_departamentocodigo,body.c_provinciacodigo,
                 body.c_distritocodigo,body.d_fechacancelacioninicio,body.d_fechacancelacionfin,body.d_fechadesembolsoinicio,
                 body.d_fechadesembolsofin,body.d_fechavencimientoinicio,body.d_fechavencimientofin,body.d_fvencimientoreproinicio,
-                body.d_fvencimientoreprofin,body.d_fechacancelaciondetinicio,body.d_fechacancelaciondetfin,body.d_fechaactual]);
+                body.d_fvencimientoreprofin,body.d_fechacancelaciondetinicio,body.d_fechacancelaciondetfin,body.d_fechaactual,
+                body.c_codigousuario
+            ]);
             await conn.end();
             const responseProcedure = rows;
             if(!responseProcedure[0]) {
@@ -541,13 +546,13 @@ export async function getPrestamosUbicacionProducto(req: Request, res: Response)
         if(body) {
             const conn = await connect();
             const [[rows,fields], response] : [any, any] = await conn.query(
-                `CALL sp_Reporte_Prestamos_Ubicaciones_Producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                `CALL sp_Reporte_Prestamos_Ubicaciones_Producto(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                 [body.c_compania,body.c_agencia,body.c_prestamo,body.c_estado,body.n_cliente,body.n_diasvencido_inicio,
                 body.n_diasvencido_fin,body.c_vencido,body.c_paiscodigo,body.c_departamentocodigo,body.c_provinciacodigo,
                 body.c_distritocodigo,body.d_fechacancelacioninicio,body.d_fechacancelacionfin,body.d_fechadesembolsoinicio,
                 body.d_fechadesembolsofin,body.d_fechavencimientoinicio,body.d_fechavencimientofin,body.d_fvencimientoreproinicio,
-                body.d_fvencimientoreprofin,body.d_fechacancelaciondetinicio,body.d_fechacancelaciondetfin,body.d_fechaactual,body.c_ubicacion,
-                body.c_descripcionproducto,body.c_tipoproducto]);
+                body.d_fvencimientoreprofin,body.d_fechacancelaciondetinicio,body.d_fechacancelaciondetfin,body.d_fechaactual,
+                body.c_ubicacion, body.c_descripcionproducto,body.c_tipoproducto, body.c_codigousuario]);
             await conn.end();
             const responseProcedure = rows;
             if(!responseProcedure[0]) {
