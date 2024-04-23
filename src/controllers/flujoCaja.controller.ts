@@ -269,9 +269,8 @@ export async function getMovimientosCajaUsuarioxConfirmar(req: Request, res: Res
             body.c_usuariofcu = body.c_usuariofcu ? body.c_usuariofcu : null;
             body.c_agencia = body.c_agencia ? body.c_agencia : null;
             body.c_agenciaotra = body.c_agenciaotra ? body.c_agenciaotra : null;
-            body.c_codigousuario = body.c_codigousuario	 ? body.c_codigousuario : null
             const conn = await connect();
-            const [response, column2] : [any, any] = await conn.query(`CALL sp_Obtener_Movimientos_Por_Confirmar(?,?,?,?,?)`, [body.c_compania,body.c_usuariofcu,body.c_agencia,body.c_agenciaotrabody,body.c_codigousuario]);
+            const [response, column2] : [any, any] = await conn.query(`CALL sp_Obtener_Movimientos_Por_Confirmar(?,?,?,?)`, [body.c_compania,body.c_usuariofcu,body.c_agencia,body.c_agenciaotrabody]);
             await conn.end();
             const movimientosRes = response as RowDataPacket;
             return res.status(200).json({ data:movimientosRes[0], message: "Se obtuvo registros." });
