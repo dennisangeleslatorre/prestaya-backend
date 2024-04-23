@@ -373,7 +373,6 @@ export async function getDataReporteFlujoCaja(req: Request, res: Response): Prom
                 body.c_estado, body.c_fuente, body.c_tipomovimientocc, body.c_clasetipomov, body.in_flaglistaadmin,body.c_codigousuario
             ]);
             movimientosCajaUsuario = responseFlujo[0] as [any];
-            //console.log(movimientosCajaUsuario)
 
             if(body.c_clasetipomov != "S" || body.c_tipomovimientocc != "003" ) {
                 const [responseMovPrestamos, columnMP] : [any, any] = await conn.query(`CALL sp_Reporte_Prestamos_Movimientos(?,?,?,?,?,?,?)`,
