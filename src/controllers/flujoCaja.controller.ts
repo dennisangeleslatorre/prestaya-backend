@@ -101,19 +101,19 @@ export async function updateFlujoCaja(req: Request, res: Response): Promise<Resp
 export async function getFlujoCajaDinamico(req: Request, res: Response): Promise<Response> {
     try {
         const body = req.body;
-        body.c_compania	= body.c_compania ? body.c_compania : null;
-        body.c_agencia = body.c_agencia ? body.c_agencia : null;
-        body.c_estado = body.c_estado ? body.c_estado : null;
-        body.c_tipofcu = body.c_tipofcu ? body.c_tipofcu : null;
-        body.c_usuariofcu = body.c_usuariofcu ? body.c_usuariofcu : null;
-        body.d_fecharegistroinicio = body.d_fecharegistroinicio ? body.d_fecharegistroinicio : null;
-        body.d_fecharegistrofin	= body.d_fecharegistrofin ? body.d_fecharegistrofin : null;
+        body.c_compania	             = body.c_compania ? body.c_compania : null;
+        body.c_agencia               = body.c_agencia ? body.c_agencia : null;
+        body.c_estado                = body.c_estado ? body.c_estado : null;
+        body.c_tipofcu               = body.c_tipofcu ? body.c_tipofcu : null;
+        body.c_usuariofcu            = body.c_usuariofcu ? body.c_usuariofcu : null;
+        body.d_fecharegistroinicio   = body.d_fecharegistroinicio ? body.d_fecharegistroinicio : null;
+        body.d_fecharegistrofin	     = body.d_fecharegistrofin ? body.d_fecharegistrofin : null;
         body.d_fechamovimientoinicio = body.d_fechamovimientoinicio ? body.d_fechamovimientoinicio : null;
-        body.d_fechamovimientofin = body.d_fechamovimientofin ? body.d_fechamovimientofin : null;
-
+        body.d_fechamovimientofin    = body.d_fechamovimientofin ? body.d_fechamovimientofin : null;
+        body.c_codigousuario	     = body.c_codigousuario	       ? body.c_codigousuario		        : null
         if(body) {
             const conn = await connect();
-            const [responseFlujo, column2] : [any, any] = await conn.query(`CALL sp_ListarDinamico_FlujoCaja(?,?,?,?,?,?,?,?,?)`, [body.c_compania,body.c_agencia,body.c_estado,body.c_tipofcu,body.c_usuariofcu,body.d_fecharegistroinicio,body.d_fecharegistrofin,body.d_fechamovimientoinicio,body.d_fechamovimientofin]);
+            const [responseFlujo, column2] : [any, any] = await conn.query(`CALL sp_ListarDinamico_FlujoCaja(?,?,?,?,?,?,?,?,?,?)`, [body.c_compania,body.c_agencia,body.c_estado,body.c_tipofcu,body.c_usuariofcu,body.d_fecharegistroinicio,body.d_fecharegistrofin,body.d_fechamovimientoinicio,body.d_fechamovimientofin,body.c_codigousuario]);
             const flujosCajaUsuario = responseFlujo[0] as [any];
             await conn.end();
             if(flujosCajaUsuario[0]) {
@@ -269,8 +269,9 @@ export async function getMovimientosCajaUsuarioxConfirmar(req: Request, res: Res
             body.c_usuariofcu = body.c_usuariofcu ? body.c_usuariofcu : null;
             body.c_agencia = body.c_agencia ? body.c_agencia : null;
             body.c_agenciaotra = body.c_agenciaotra ? body.c_agenciaotra : null;
+            body.c_codigousuario = body.c_codigousuario	 ? body.c_codigousuario : null
             const conn = await connect();
-            const [response, column2] : [any, any] = await conn.query(`CALL sp_Obtener_Movimientos_Por_Confirmar(?,?,?,?)`, [body.c_compania,body.c_usuariofcu,body.c_agencia,body.c_agenciaotra]);
+            const [response, column2] : [any, any] = await conn.query(`CALL sp_Obtener_Movimientos_Por_Confirmar(?,?,?,?,?)`, [body.c_compania,body.c_usuariofcu,body.c_agencia,body.c_agenciaotrabody,body.c_codigousuario]);
             await conn.end();
             const movimientosRes = response as RowDataPacket;
             return res.status(200).json({ data:movimientosRes[0], message: "Se obtuvo registros." });
