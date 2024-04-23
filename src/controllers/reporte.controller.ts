@@ -361,29 +361,29 @@ export async function getDataReporteFlujoCaja(req: Request, res: Response): Prom
         body.c_tipomovimientocc = body.c_tipomovimientocc ? body.c_tipomovimientocc : null;
         body.c_clasetipomov = body.c_clasetipomov ? body.c_clasetipomov : null;
         body.in_flaglistaadmin = body.in_flaglistaadmin ? body.in_flaglistaadmin : null;
-
+        body.c_codigousuario = body.c_codigousuario ? body.c_codigousuario : null;
         if(body.c_compania) {
             let movimientosCajaUsuario = [];
             let movimientosPrestamos:any = [];
             let movimientosCancelaciones:any = [];
             const conn = await connect();
 
-            const [responseFlujo, column2] : [any, any] = await conn.query(`CALL sp_Reporte_FLujoCaja_Movimientos(?,?,?,?,?,?,?,?,?,?,?,?)`,
+            const [responseFlujo, column2] : [any, any] = await conn.query(`CALL sp_Reporte_FLujoCaja_Movimientos(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [   body.c_compania, body.c_agencia, body.c_monedafcu, body.c_tipofcu, body.c_usuariofcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin,
-                body.c_estado, body.c_fuente, body.c_tipomovimientocc, body.c_clasetipomov, body.in_flaglistaadmin
+                body.c_estado, body.c_fuente, body.c_tipomovimientocc, body.c_clasetipomov, body.in_flaglistaadmin,body.c_codigousuario
             ]);
             movimientosCajaUsuario = responseFlujo[0] as [any];
             //console.log(movimientosCajaUsuario)
 
             if(body.c_clasetipomov != "S" || body.c_tipomovimientocc != "003" ) {
-                const [responseMovPrestamos, columnMP] : [any, any] = await conn.query(`CALL sp_Reporte_Prestamos_Movimientos(?,?,?,?,?,?)`,
-                [body.c_compania, body.c_agencia, body.c_monedafcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin, body.c_usuariofcu]);
+                const [responseMovPrestamos, columnMP] : [any, any] = await conn.query(`CALL sp_Reporte_Prestamos_Movimientos(?,?,?,?,?,?,?)`,
+                [body.c_compania, body.c_agencia, body.c_monedafcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin, body.c_usuariofcu,body.c_codigousuario]);
                 movimientosPrestamos = responseMovPrestamos[0] as [any];
             }
 
             if(body.c_clasetipomov != "I" || (body.c_tipomovimientocc != "004" || body.c_tipomovimientocc != "005" || body.c_tipomovimientocc != "006") ) {
-                const [responseMovCancelaciones, columnMC] : [any, any] = await conn.query(`CALL sp_Reporte_Cancelaciones_Movimientos(?,?,?,?,?,?,?)`,
-                [body.c_compania, body.c_agencia, body.c_monedafcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin, body.c_tipomovimientocc, body.c_usuariofcu]);
+                const [responseMovCancelaciones, columnMC] : [any, any] = await conn.query(`CALL sp_Reporte_Cancelaciones_Movimientos(?,?,?,?,?,?,?,?)`,
+                [body.c_compania, body.c_agencia, body.c_monedafcu, body.d_fechamovimientoinicio, body.d_fechamovimientofin, body.c_tipomovimientocc, body.c_usuariofcu,body.c_codigousuario]);
                 movimientosCancelaciones = responseMovCancelaciones[0] as [any];
             }
 
