@@ -247,7 +247,7 @@ export async function getAllAgenciesOfUser(req: Request, res: Response) {
         const data = await conn.query(`
             select * from prestaya.usuario_compania_agencia uca
             inner join prestaya.ma_agencia ma on uca.c_compania = ma.c_compania and uca.c_agencia = ma.c_agencia
-			where uca.c_estado='A' AND uca.c_codigousuario = ?
+			where uca.c_codigousuario = ?
         `, [body.c_codigousuario]);
         await conn.end();
         const agenciesRes = data[0] as [any];

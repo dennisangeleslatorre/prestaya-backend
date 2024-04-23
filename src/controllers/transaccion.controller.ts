@@ -18,7 +18,7 @@ export async function getTransaccionDinamico(req: Request, res: Response): Promi
         body.c_prestamo	= body.c_prestamo ? body.c_prestamo : null;
         body.c_estado	= body.c_estado ? body.c_estado : null;
 
-        if(body) {
+        if(body.c_codigousuario) {
             const conn = await connect();
             const [responseProcedure, response] = await conn.query(`CALL sp_ListarDinamico_TransaccionesTienda(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [ body.c_compania, body.c_agencia, body.d_fechadocumentoInicio, body.d_fechadocumentoFin,
@@ -153,7 +153,7 @@ export async function getReporteTransaccion(req: Request, res: Response): Promis
         body.c_prestamo	= body.c_prestamo ? body.c_prestamo : null;
         body.c_estado	= body.c_estado ? body.c_estado : null;
 
-        if(body) {
+        if(body.c_codigousuario) {
             const conn = await connect();
             const [responseProcedure, response] = await conn.query(`CALL sp_GetReporte_TransaccionesTienda(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [ body.c_compania, body.c_agencia, body.d_fechadocumentoInicio, body.d_fechadocumentoFin,
@@ -166,8 +166,7 @@ export async function getReporteTransaccion(req: Request, res: Response): Promis
                 return res.status(200).json({message: "No se encontró transacciones" });
             }
             return res.status(200).json({data:transaccionRes[0], message: "Se obtuvo transacciones" });
-        } return res.status(200).json({ message: "Se debe enviar algún dato para filtrar"  });
-
+        } return res.status(503).json({ message: "Se debe enviar el código de usuario." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)

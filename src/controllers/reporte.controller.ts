@@ -107,18 +107,21 @@ export async function functionGetDataReporteResumidoCancelaciones(
 
 export async function getDataReporteResumidos(req: Request, res: Response): Promise<Response> {
     try {
-        const c_compania = req.body.c_compania;
-        const periodo_inicio = req.body.periodo_inicio;
-        const periodo_fin = req.body.periodo_fin;
-        const n_cliente = req.body.n_cliente;
-        const c_codigousuario = req.body.c_codigousuario;
-        const agencies = await getAgenciesOfUserFunction(c_compania, c_codigousuario);
-        const agenciesString = agencies.map((item) => `'${item.c_agencia}'`).join(',');
-        const responseDataPrestamos = await functionGetDataReporteResumidoPrestamo(c_compania, periodo_inicio, periodo_fin, n_cliente, agenciesString);
-        const dataPrestamos = responseDataPrestamos.success ? responseDataPrestamos.data as [Object] : [];
-        const responseDataCancelaciones = await functionGetDataReporteResumidoCancelaciones(c_compania, periodo_inicio, periodo_fin, n_cliente, agenciesString);
-        const dataCancelaciones = responseDataCancelaciones.success ? responseDataCancelaciones.data as [Object] : [];
-        return res.status(200).json({data:[...dataPrestamos, ...dataCancelaciones]});
+        if (req.body.c_codigousuario) {
+            const c_compania = req.body.c_compania;
+            const periodo_inicio = req.body.periodo_inicio;
+            const periodo_fin = req.body.periodo_fin;
+            const n_cliente = req.body.n_cliente;
+            const c_codigousuario = req.body.c_codigousuario;
+            const agencies = await getAgenciesOfUserFunction(c_compania, c_codigousuario);
+            const agenciesString = agencies.map((item) => `'${item.c_agencia}'`).join(',');
+            const responseDataPrestamos = await functionGetDataReporteResumidoPrestamo(c_compania, periodo_inicio, periodo_fin, n_cliente, agenciesString);
+            const dataPrestamos = responseDataPrestamos.success ? responseDataPrestamos.data as [Object] : [];
+            const responseDataCancelaciones = await functionGetDataReporteResumidoCancelaciones(c_compania, periodo_inicio, periodo_fin, n_cliente, agenciesString);
+            const dataCancelaciones = responseDataCancelaciones.success ? responseDataCancelaciones.data as [Object] : [];
+            return res.status(200).json({data:[...dataPrestamos, ...dataCancelaciones]});
+        }
+        return res.status(503).json({ message: "Se debe enviar el código de usuario." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -210,45 +213,46 @@ export async function functionGetDataReporteDetallado(
 
 export async function getDataReporteDetallado(req: Request, res: Response): Promise<Response> {
     try {
-        //strings
-        const c_compania = req.body.c_compania;
-        const n_cliente = req.body.n_cliente;
-        const esvencido = req.body.esvencido;
-        const c_paiscodigo = req.body.c_paiscodigo;
-        const c_departamentocodigo = req.body.c_departamentocodigo;
-        const c_provinciacodigo = req.body.c_provinciacodigo;
-        const c_distritocodigo = req.body.c_distritocodigo;
-        const c_estado = req.body.c_estado;
-        const c_prestamo = req.body.c_prestamo;
-        const c_codigousuario = req.body.c_codigousuario;
-        //booleans
-        const excluiranulados = req.body.excluiranulados;
-        const solovalidos = req.body.solovalidos;
-        //Fechas
-        const d_fechadesembolsoinicio = req.body.d_fechadesembolsoinicio;
-        const d_fechadesembolsofin = req.body.d_fechadesembolsofin;
-        const d_fechacancelacioninicio = req.body.d_fechacancelacioninicio;
-        const d_fechacancelacionfin = req.body.d_fechacancelacionfin;
-        const d_fechavencimientoinicio = req.body.d_fechavencimientoinicio;
-        const d_fechavencimientofin = req.body.d_fechavencimientofin;
-        const d_fechavencimientoreprogramadainicio = req.body.d_fechavencimientoreprogramadainicio;
-        const d_fechavencimientoreprogramadafin = req.body.d_fechavencimientoreprogramadafin;
-        //Obtener agencias
-        const agencies = await getAgenciesOfUserFunction(c_compania, c_codigousuario);
-        const agenciesString = agencies.map((item) => `'${item.c_agencia}'`).join(',');
-        //Obtener datos
-        const responseDataReporteDetallado = await functionGetDataReporteDetallado(
-            c_compania, c_prestamo, n_cliente, esvencido, c_paiscodigo, c_departamentocodigo,
-            c_provinciacodigo, c_distritocodigo, c_estado, excluiranulados, solovalidos,
-            d_fechadesembolsoinicio, d_fechadesembolsofin, d_fechacancelacioninicio,
-            d_fechacancelacionfin, d_fechavencimientoinicio, d_fechavencimientofin,
-            d_fechavencimientoreprogramadainicio, d_fechavencimientoreprogramadafin,
-            agenciesString
-        );
-
-        const dataReporteDetallado = responseDataReporteDetallado.success ? responseDataReporteDetallado.data as [Object] : [];
-
-        return res.status(200).json({data:dataReporteDetallado});
+        if (req.body.c_codigousuario) {
+            //strings
+            const c_compania = req.body.c_compania;
+            const n_cliente = req.body.n_cliente;
+            const esvencido = req.body.esvencido;
+            const c_paiscodigo = req.body.c_paiscodigo;
+            const c_departamentocodigo = req.body.c_departamentocodigo;
+            const c_provinciacodigo = req.body.c_provinciacodigo;
+            const c_distritocodigo = req.body.c_distritocodigo;
+            const c_estado = req.body.c_estado;
+            const c_prestamo = req.body.c_prestamo;
+            const c_codigousuario = req.body.c_codigousuario;
+            //booleans
+            const excluiranulados = req.body.excluiranulados;
+            const solovalidos = req.body.solovalidos;
+            //Fechas
+            const d_fechadesembolsoinicio = req.body.d_fechadesembolsoinicio;
+            const d_fechadesembolsofin = req.body.d_fechadesembolsofin;
+            const d_fechacancelacioninicio = req.body.d_fechacancelacioninicio;
+            const d_fechacancelacionfin = req.body.d_fechacancelacionfin;
+            const d_fechavencimientoinicio = req.body.d_fechavencimientoinicio;
+            const d_fechavencimientofin = req.body.d_fechavencimientofin;
+            const d_fechavencimientoreprogramadainicio = req.body.d_fechavencimientoreprogramadainicio;
+            const d_fechavencimientoreprogramadafin = req.body.d_fechavencimientoreprogramadafin;
+            //Obtener agencias
+            const agencies = await getAgenciesOfUserFunction(c_compania, c_codigousuario);
+            const agenciesString = agencies.map((item) => `'${item.c_agencia}'`).join(',');
+            //Obtener datos
+            const responseDataReporteDetallado = await functionGetDataReporteDetallado(
+                c_compania, c_prestamo, n_cliente, esvencido, c_paiscodigo, c_departamentocodigo,
+                c_provinciacodigo, c_distritocodigo, c_estado, excluiranulados, solovalidos,
+                d_fechadesembolsoinicio, d_fechadesembolsofin, d_fechacancelacioninicio,
+                d_fechacancelacionfin, d_fechavencimientoinicio, d_fechavencimientofin,
+                d_fechavencimientoreprogramadainicio, d_fechavencimientoreprogramadafin,
+                agenciesString
+            );
+            const dataReporteDetallado = responseDataReporteDetallado.success ? responseDataReporteDetallado.data as [Object] : [];
+            return res.status(200).json({data:dataReporteDetallado});
+        }
+        return res.status(503).json({ message: "Se debe enviar el código de usuario." });
     } catch (error) {
         console.error(error)
         return res.status(500).send(error)
@@ -401,7 +405,7 @@ export async function getDataReporteVencidosyNoVencidos(req: Request, res: Respo
         const body = req.body;
         const agencies = await getAgenciesOfUserFunction(body.c_compania, body.c_codigousuario);
         const agenciesString = agencies.map((item) => `'${item.c_agencia}'`).join(',');
-        if(body.c_compania && body.d_fechaactual) {
+        if(body.c_compania && body.d_fechaactual && body.c_codigousuario && agencies.length > 0) {
             //Where
             let queryWherePrestamo = `WHERE p.c_compania = '${body.c_compania}'`;
             let queryWhereCancelacion = `WHERE c.c_compania = '${body.c_compania}'`;
