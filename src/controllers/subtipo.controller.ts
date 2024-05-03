@@ -36,6 +36,27 @@ export async function getSubtipoProductoAdmin(req: Request, res: Response) {
   }
 }
 
+export async function getSubtipoByTipoProducto(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_tipoproducto = req.params.c_tipoproducto;
+        if (c_tipoproducto) {
+            const conn = await connect();
+            const [rows, fields] = await conn.query('SELECT * FROM ma_subtipoproducto where c_tipoproducto=?',
+            [c_tipoproducto])
+            await conn.end();
+            const subtipoProductoRes = rows as [SubtipoProducto];
+            if(!subtipoProductoRes[0]) {
+                return res.status(200).json({ data:[], message: "No se encontró el subtipo de producto." });
+            }
+            return res.status(200).json({ data:subtipoProductoRes, message: "Se obtuvo registros." });
+        }
+        return res.status(503).json({ message: "Se debe enviar el código para listar la información del subtipo de producto." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error);
+    }
+}
+
 export async function registerSubtipoProducto(req: Request, res: Response): Promise<Response> {
   try {
       const body = req.body;

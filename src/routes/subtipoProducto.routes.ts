@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getSubtipoProducto,
   getSubtipoProductoAdmin,
+  getSubtipoByTipoProducto,
   registerSubtipoProducto,
   getSubtipoProductoByCodigoSubtipoProducto,
   deleteSubtipoProducto,
@@ -20,6 +21,11 @@ router.get(
   "/listAll",
   passport.authenticate("jwt", { session: false }),
   getSubtipoProductoAdmin
+);
+router.get(
+  "/get/:c_tipoproducto",
+  passport.authenticate("jwt", { session: false }),
+  getSubtipoByTipoProducto
 );
 router.post(
   "/register",
