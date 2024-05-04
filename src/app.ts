@@ -28,6 +28,8 @@ import FlujoCaja from './routes/flujoCaja.routes'
 import Producto from './routes/producto.routes'
 import Transaccion from './routes/transaccion.routes'
 import Ubicacion from './routes/ubicacion.routes'
+import TipoMovimientoCajaTienda from './routes/tipoMovimientoCajaTienda.routes'
+import SubtipoProducto from './routes/subtipoProducto.routes'
 
 
 export class App {
@@ -79,6 +81,8 @@ export class App {
         this.app.use('/producto', Producto);
         this.app.use('/transaccion', Transaccion);
         this.app.use('/ubicacion', Ubicacion);
+        this.app.use('/tipomovimientocajatienda', TipoMovimientoCajaTienda);
+        this.app.use('/subtipoproducto', SubtipoProducto);
     }
 
     async listen() {
