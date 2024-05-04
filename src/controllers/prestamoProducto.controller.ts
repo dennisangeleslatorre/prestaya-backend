@@ -103,9 +103,9 @@ export async function updateProductoUbicacion(req: Request, res: Response): Prom
     try {
         const body = req.body;
         if(body.c_usuarioubicacion) {
-            if(body.c_compania && body.c_prestamo && body.n_linea && body.c_ubicacion && body.c_observacionubicacion) {
+            if(body.c_compania && body.c_prestamo && body.n_linea && body.c_ubicacion && body.c_observacionubicacion && body.c_subtipoproducto) {
                 const conn = await connect();
-                const [response, column] = await conn.query(`CALL prestaya.sp_Update_PrestamoProducto_Ubicacion(?,?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.n_linea,body.c_ubicacion,body.c_observacionubicacion,body.c_usuarioubicacion]);
+                const [response, column] = await conn.query(`CALL prestaya.sp_Update_PrestamoProducto_Ubicacion(?,?,?,?,?,?,?,@respuesta)`,[body.c_compania, body.c_prestamo,body.n_linea,body.c_ubicacion,body.c_observacionubicacion,body.c_usuarioubicacion,body.c_subtipoproducto]);
                 await conn.end();
                 const responseProcedure = response as RowDataPacket;
                 const responseMessage = responseProcedure[0][0];
