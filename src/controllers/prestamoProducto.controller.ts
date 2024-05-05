@@ -50,7 +50,7 @@ export async function getProductosByFormato(req: Request, res: Response): Promis
 export async function updateProductoGarantia(c_compania:string, c_prestamo:string, c_ultimousuario:string, productos:string): Promise<Result> {
     try {
         const conn = await connect();
-        const [responseProducts, column2] = await conn.query(`CALL sp_Actualizar_Producto(?,?,?,?,@respuesta)`,[c_compania, c_prestamo, c_ultimousuario, productos]);
+        const [responseProducts, column2] = await conn.query('CALL sp_Actualizar_Producto(?,?,?,?,@respuesta)',[c_compania, c_prestamo, c_ultimousuario, productos]);
         await conn.end();
         const responseProcedure = responseProducts as RowDataPacket;
         const responseMessage = responseProcedure[0][0];
