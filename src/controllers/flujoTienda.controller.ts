@@ -74,3 +74,25 @@ export async function getFlujoCajaTiendaDiaMovDinamico(req: Request, res: Respon
         return res.status(500).send(error);
     }
 }
+
+export async function registerFlujoTienda(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania && body.c_agencia && body.c_tipofctienda && body.c_usuariofctienda && body.d_fechaInicioMov && body.d_fechaFinMov && body.c_monedafctienda
+            && body.c_estado && body.c_observaciones && body.c_usuarioregistro && body.listdetalledia) {
+            const conn = await connect();
+            const [response, column] : [any, any] = await conn.query(`CALL prestaya.sp_Registrar_FlujoTienda(?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,[body.c_compania,body.c_agencia,body.c_tipofctienda,body.c_usuariofctienda,
+            body.d_fechaInicioMov,body.d_fechaFinMov,body.c_monedafctienda,body.c_estado,body.c_observaciones,body.c_usuarioregistro,body.listdetalledia]);
+            const messageValida = response as RowDataPacket;
+            await conn.end();
+            if(messageValida[0][0].respuesta === "OK") {
+                return res.status(200).json({message: "Se registró con éxito el flujo de caja usuario." });
+            }
+            return res.status(503).json({message: "Campos incompletos." });
+        }
+        return res.status(503).json({ message: "Se debe enviar compañía, los campos obligatorios." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error);
+    }
+}
