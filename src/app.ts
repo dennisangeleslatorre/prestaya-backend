@@ -25,6 +25,7 @@ import PrestamoProducto from './routes/prestamoProducto.routes'
 import Reporte from './routes/reporte.routes'
 import TipoMovimientoCaja from './routes/tipoMovimientoCaja.routes'
 import FlujoCaja from './routes/flujoCaja.routes'
+import FlujoCajaTienda from './routes/flujoTienda.routes'
 import Producto from './routes/producto.routes'
 import Transaccion from './routes/transaccion.routes'
 import Ubicacion from './routes/ubicacion.routes'
@@ -78,6 +79,7 @@ export class App {
         this.app.use('/reporte', Reporte);
         this.app.use('/tipomovimientocaja', TipoMovimientoCaja);
         this.app.use('/flujocaja', FlujoCaja);
+        this.app.use('/flujocajatienda', FlujoCajaTienda);
         this.app.use('/producto', Producto);
         this.app.use('/transaccion', Transaccion);
         this.app.use('/ubicacion', Ubicacion);
