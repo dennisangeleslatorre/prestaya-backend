@@ -8,7 +8,10 @@ import {
 } from "../interfaces/flujoTienda.interface";
 import moment from "moment";
 
-export async function show(req: Request, res: Response): Promise<Response> {
+export async function getFlujoCajaByCodigo(
+  req: Request,
+  res: Response
+): Promise<Response> {
   try {
     const body = req.body;
     if (body.c_compania && body.n_correlativo) {
@@ -75,6 +78,33 @@ export async function show(req: Request, res: Response): Promise<Response> {
             }
           }
         );
+        return res.status(200).json({
+          data: {
+            general: {
+              c_compania: flujosCajaTienda[0].c_compania,
+              n_correlativo: flujosCajaTienda[0].n_correlativo,
+              c_agencia: flujosCajaTienda[0].c_agencia,
+              c_tipofctienda: flujosCajaTienda[0].c_tipofctienda,
+              c_usuariofctienda: flujosCajaTienda[0].c_usuariofctienda,
+              d_fechainiciomov: moment(
+                flujosCajaTienda[0].d_fechainiciomov
+              ).format("yyyy-MM-DD"),
+              d_fechafinmov: moment(flujosCajaTienda[0].d_fechafinmov).format(
+                "yyyy-MM-DD"
+              ),
+              c_monedafctienda: flujosCajaTienda[0].c_monedafctienda,
+              c_estado: flujosCajaTienda[0].c_estado,
+              c_observaciones: flujosCajaTienda[0].c_observaciones,
+              c_usuarioregistro: flujosCajaTienda[0].c_usuarioregistro,
+              d_fecharegistro: flujosCajaTienda[0].d_fecharegistro,
+              c_ultimousuario: flujosCajaTienda[0].c_ultimousuario,
+              d_ultimafechamodificacion:
+                flujosCajaTienda[0].d_ultimafechamodificacion,
+            },
+            detalles: flujosDetallesNuevo,
+          },
+          message: "Se obtuvo registros.",
+        });
       }
       return res
         .status(503)
@@ -224,8 +254,8 @@ export async function registerFlujoTienda(
       body.c_agencia &&
       body.c_tipofctienda &&
       body.c_usuariofctienda &&
-      body.d_fechaInicioMov &&
-      body.d_fechaFinMov &&
+      body.d_fechainiciomov &&
+      body.d_fechafinmov &&
       body.c_monedafctienda &&
       body.c_estado &&
       body.c_observaciones &&
@@ -240,8 +270,8 @@ export async function registerFlujoTienda(
           body.c_agencia,
           body.c_tipofctienda,
           body.c_usuariofctienda,
-          body.d_fechaInicioMov,
-          body.d_fechaFinMov,
+          body.d_fechainiciomov,
+          body.d_fechafinmov,
           body.c_monedafctienda,
           body.c_estado,
           body.c_observaciones,
