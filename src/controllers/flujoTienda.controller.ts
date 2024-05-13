@@ -14,7 +14,7 @@ export async function show(req: Request, res: Response): Promise<Response> {
     if (body.c_compania && body.n_correlativo) {
       const conn = await connect();
       const [responseFlujo, column2]: [any, any] = await conn.query(
-        `CALL sp_Obtener_FlujoCajaUsuario(?,?)`,
+        `CALL sp_Obtener_FlujoCajaTienda(?,?)`,
         [body.c_compania, body.n_correlativo]
       );
       await conn.end();
