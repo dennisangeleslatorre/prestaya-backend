@@ -4,7 +4,7 @@ import {
   getFlujoCajaTiendaDiaMovDinamico,
   getFlujoCajaTiendaDinamico,
   registerFlujoTienda,
-  getFlujoCajaByCodigo
+  getFlujoCajaByCodigo, updateFlujoTienda
 } from "../controllers/flujoTienda.controller";
 import passport from "passport";
 
@@ -33,6 +33,12 @@ router.post(
   "/getFlujoCajaByCodigo",
   passport.authenticate("jwt", { session: false }),
   getFlujoCajaByCodigo
+);
+
+router.post(
+  "/updateFlujoTienda",
+  passport.authenticate("jwt", { session: false }),
+  updateFlujoTienda
 );
 
 export default router;
