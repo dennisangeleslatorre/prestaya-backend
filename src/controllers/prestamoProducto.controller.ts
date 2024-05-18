@@ -3,7 +3,6 @@ import { connect } from '../database'
 import { PrestamoProducto } from 'interfaces/prestamoProducto.interface'
 import { Result } from "../interfaces/result"
 import { RowDataPacket } from 'mysql2';
-import moment from 'moment'
 
 export async function getProductosByPrestamo(req: Request, res: Response): Promise<Response> {
     try {
