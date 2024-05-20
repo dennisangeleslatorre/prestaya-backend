@@ -171,3 +171,41 @@ export async function getReporteTransaccion(req: Request, res: Response): Promis
         return res.status(500).send(error)
     }
 }
+
+
+export async function postTransaccionProductoIngreso(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.d_fechadocumento	= body.d_fechadocumento ? body.d_fechadocumento : null;
+        body.n_cliente	= body.n_cliente ? body.n_cliente : null;
+        body.c_moneda	= body.c_moneda ? body.c_moneda : null;
+        body.c_observaciones	= body.c_observaciones ? body.c_observaciones : null;
+        body.n_montototal	= body.n_montototal ? body.n_montototal : null;
+        body.c_usuariooperacion	= body.c_usuariooperacion ? body.c_usuariooperacion : null;
+        body.c_agenciarelacionado	= body.c_agenciarelacionado ? body.c_agenciarelacionado : null;
+        body.c_usuariofctienda	= body.c_usuariofctienda ? body.c_usuariofctienda : null;
+        body.c_tipomovimientoctd	= body.c_tipomovimientoctd ? body.c_tipomovimientoctd : null;
+        body.c_nombreproveedor	= body.c_nombreproveedor ? body.c_nombreproveedor : null;
+        body.c_tipodocumentorel	= body.c_tipodocumentorel ? body.c_tipodocumentorel : null;
+        body.c_numerodocumentorel	= body.c_numerodocumentorel ? body.c_numerodocumentorel : null;
+        body.c_usuariofctiendarelacionado	= body.c_usuariofctiendarelacionado ? body.c_usuariofctiendarelacionado : null;
+
+        if(body.c_agencia && body.c_compania && body.c_ultimousuario && body.detalles) {
+            const conn = await connect();
+            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Insertar_TransaccionProductoIngreso(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,
+            [ body.c_compania, body.c_agencia, body.d_fechadocumento, body.n_cliente, body.c_moneda, body.c_observaciones, 
+                body.n_montototal, body.c_ultimousuario, body.c_usuariooperacion, body.c_agenciarelacionado, body.c_usuariofctienda, body.c_tipomovimientoctd, 
+                body.c_nombreproveedor, body.c_tipodocumentorel, body.c_numerodocumentorel, body.c_usuariofctiendarelacionado, body.detalles ]);
+            await conn.end();
+            const transaccionRes = responseProcedure as RowDataPacket;
+            if(!transaccionRes[0][0]) {
+                return res.status(200).json({message: "Error" });
+            }
+            return res.status(200).json({data:transaccionRes[0][0], message: transaccionRes[0][0].respuesta });
+        } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
