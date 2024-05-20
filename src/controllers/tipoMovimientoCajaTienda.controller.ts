@@ -123,3 +123,22 @@ export async function deleteTipoMovimientoCajaTienda(req: Request, res: Response
         return res.status(500).send({error: error, message: message});
     }
 }
+
+export async function getTipoMovimientoCajaTiendaParaTransacciones(req: Request, res: Response): Promise<Response> {
+    try {
+        const c_clasetipomov = req.body.c_clasetipomov ? req.body.c_clasetipomov : true;
+        const c_flagtransacciontienda = req.body.c_flagtransacciontienda ? req.body.c_flagtransacciontienda : true;
+        const conn = await connect();
+        const [rows, fields] = await conn.query('SELECT * FROM ma_tipomovimientocajatienda where c_estado="A" AND c_clasetipomov = ? AND c_flagtransacciontienda = ?',
+        [c_clasetipomov, c_flagtransacciontienda]);
+        await conn.end();
+        const tipoMovimientoCajaTiendaRes =rows as [TipoMovimientoCajaTienda];
+        if(!tipoMovimientoCajaTiendaRes[0]) {
+            return res.status(200).json({ data:[], message: "No se encontró tipos de movimientos de caja tienda." });
+        }
+        return res.status(200).json({ data:rows, message: "Se obtuvo registros." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}

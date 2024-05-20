@@ -3,7 +3,8 @@ import { Router } from "express";
 import {
   getProductoDinamico,
   getProductoStockDinamico,
-  actualizarDatosUbicacionSubtipo
+  actualizarDatosUbicacionSubtipo,
+  getProductoDinamicoConPrecio
 } from "../controllers/producto.controller";
 
 import passport from "passport";
@@ -24,6 +25,11 @@ router.put(
   "/actualizarDatosUbicacionSubtipo",
   passport.authenticate("jwt", { session: false }),
   actualizarDatosUbicacionSubtipo
+);
+router.post(
+  "/getProductoDinamicoConPrecio",
+  passport.authenticate("jwt", { session: false }),
+  getProductoDinamicoConPrecio
 );
 
 export default router;

@@ -99,7 +99,6 @@ export async function registerTransaccion(req: Request, res: Response): Promise<
                 [ body.c_compania, body.c_agencia, body.c_usuarioregistro, JSON.stringify(body.productos), JSON.stringify(body.detalles)]);
                 await conn.end();
                 const messageProcedure = responseProcedure as RowDataPacket;
-                console.log(messageProcedure)
                 if(messageProcedure[0][0] && messageProcedure[0][0].respuesta) {
                     return res.status(200).json({ message: messageProcedure[0][0].respuesta});
                 } return res.status(200).json({ message: "Ocurrió un error en el procedimiento"});

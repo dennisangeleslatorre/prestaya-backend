@@ -6,6 +6,7 @@ import {
   getTipoMovimientoCajaTiendaByCodigoTipoMovimientoCajaTienda,
   deleteTipoMovimientoCajaTienda,
   updateTipoMovimientoCajaTienda,
+  getTipoMovimientoCajaTiendaParaTransacciones
 } from "../controllers/tipoMovimientoCajaTienda.controller";
 import passport from "passport";
 
@@ -40,6 +41,11 @@ router.get(
   "/:c_tipomovimientoctd/show",
   passport.authenticate("jwt", { session: false }),
   getTipoMovimientoCajaTiendaByCodigoTipoMovimientoCajaTienda
+);
+router.post(
+  "/getTipoMovimientoCajaTiendaParaTransacciones",
+  passport.authenticate("jwt", { session: false }),
+  getTipoMovimientoCajaTiendaParaTransacciones
 );
 
 export default router;
