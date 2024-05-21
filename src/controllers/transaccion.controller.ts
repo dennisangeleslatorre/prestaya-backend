@@ -198,10 +198,15 @@ export async function postTransaccionProductoIngreso(req: Request, res: Response
                 body.c_nombreproveedor, body.c_tipodocumentorel, body.c_numerodocumentorel, body.c_usuariofctiendarelacionado, JSON.stringify(body.detalles) ]);
             await conn.end();
             const transaccionRes = responseProcedure as RowDataPacket;
-            if(!transaccionRes[0][0]) {
-                return res.status(200).json({message: "Error" });
+            let message = 'OK';
+            if(transaccionRes && transaccionRes[0].length > 0) {
+                transaccionRes.forEach((element: any) => {
+                    if (element[0] && element[0]?.respuesta.includes("ERROR")) message = element[0].respuesta;
+                });
             }
-            return res.status(200).json({data:transaccionRes[0][0], message: transaccionRes[0][0].respuesta });
+            if(message === 'OK')
+                return res.status(200).json({data:transaccionRes[0][0], message: 'OK' });
+            return res.status(200).json({message: message});
         } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
 
     } catch (error) {
