@@ -195,7 +195,7 @@ export async function postTransaccionProductoIngreso(req: Request, res: Response
             const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Insertar_TransaccionProductoIngreso(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,
             [ body.c_compania, body.c_agencia, body.d_fechadocumento, body.n_cliente, body.c_moneda, body.c_observaciones, 
                 body.n_montototal, body.c_ultimousuario, body.c_usuariooperacion, body.c_agenciarelacionado, body.c_usuariofctienda, body.c_tipomovimientoctd, 
-                body.c_nombreproveedor, body.c_tipodocumentorel, body.c_numerodocumentorel, body.c_usuariofctiendarelacionado, body.detalles ]);
+                body.c_nombreproveedor, body.c_tipodocumentorel, body.c_numerodocumentorel, body.c_usuariofctiendarelacionado, JSON.stringify(body.detalles) ]);
             await conn.end();
             const transaccionRes = responseProcedure as RowDataPacket;
             if(!transaccionRes[0][0]) {
