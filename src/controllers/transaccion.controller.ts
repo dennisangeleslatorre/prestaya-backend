@@ -272,16 +272,21 @@ export async function postConfirmarTransaccionProductoSalida(req: Request, res: 
             const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Insertar_TransaccionProductoSalida(?,?,?,?,?,?,?,?,?,?,@respuesta)`,
             [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento, body.c_usuariooperacion, body.c_usuariofctienda, 
                 body.d_fechadocumento, body.in_usuarioconfirmado, body.c_ultimousuario, JSON.stringify(body.detalles) ]);
-            await conn.end();
-            const transaccionRes = responseProcedure as RowDataPacket;
-            if(!transaccionRes[0][0]) {
-                return res.status(200).json({message: "Error" });
-            }
-            return res.status(200).json({data:transaccionRes[0][0], message: transaccionRes[0][0].respuesta });
-        } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
-
-    } catch (error) {
-        console.error(error)
-        return res.status(500).send(error)
+                await conn.end();
+                const transaccionRes = responseProcedure as RowDataPacket;
+                let message = 'OK';
+                if(transaccionRes && transaccionRes[0].length > 0) {
+                    transaccionRes.forEach((element: any) => {
+                        if (element[0] && element[0]?.respuesta.includes("ERROR")) message = element[0].respuesta;
+                    });
+                }
+                if(message === 'OK')
+                    return res.status(200).json({data:transaccionRes[0][0], message: 'OK' });
+                return res.status(200).json({message: message});
+            } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
+    
+        } catch (error) {
+            console.error(error)
+            return res.status(500).send(error)
+        }
     }
-}
