@@ -252,3 +252,31 @@ export async function postTransaccionProductoSalida(req: Request, res: Response)
         return res.status(500).send(error)
     }
 }
+
+export async function postConfirmarTransaccionProductoSalida(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_usuariooperacion	= body.c_usuariooperacion ? body.c_usuariooperacion : null;
+        body.c_usuariofctienda	= body.c_usuariofctienda ? body.c_usuariofctienda : null;
+        body.c_agenciarelacionado	= body.c_agenciarelacionado ? body.c_agenciarelacionado : null;
+        body.in_usuarioconfirmado	= body.in_usuarioconfirmado ? body.in_usuarioconfirmado : null;
+        body.d_fechadocumento	= body.d_fechadocumento ? body.d_fechadocumento : null;
+
+        if(body.c_agencia && body.c_compania && body.c_ultimousuario && body.detalles && body.c_tipodocumento && body.c_numerodocumento) {
+            const conn = await connect();
+            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Insertar_TransaccionProductoSalida(?,?,?,?,?,?,?,?,?,?,@respuesta)`,
+            [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento, body.c_usuariooperacion, body.c_usuariofctienda, 
+                body.d_fechadocumento, body.in_usuarioconfirmado, body.c_ultimousuario, JSON.stringify(body.detalles) ]);
+            await conn.end();
+            const transaccionRes = responseProcedure as RowDataPacket;
+            if(!transaccionRes[0][0]) {
+                return res.status(200).json({message: "Error" });
+            }
+            return res.status(200).json({data:transaccionRes[0][0], message: transaccionRes[0][0].respuesta });
+        } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
