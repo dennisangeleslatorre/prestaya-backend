@@ -232,7 +232,6 @@ export async function postTransaccionProductoSalida(req: Request, res: Response)
         body.c_tipodocumentorel	= body.c_tipodocumentorel ? body.c_tipodocumentorel : null;
         body.c_numerodocumentorel	= body.c_numerodocumentorel ? body.c_numerodocumentorel : null;
         body.c_usuariofctiendarelacionado	= body.c_usuariofctiendarelacionado ? body.c_usuariofctiendarelacionado : null;
-
         if(body.c_agencia && body.c_compania && body.c_ultimousuario && body.detalles) {
                 const conn = await connect();
                 const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Insertar_TransaccionProductoSalida(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@respuesta)`,
@@ -251,12 +250,11 @@ export async function postTransaccionProductoSalida(req: Request, res: Response)
                     return res.status(200).json({data:transaccionRes[0][0], message: 'OK' });
                 return res.status(200).json({message: message});
             } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
-    
-        } catch (error) {
-            console.error(error)
-            return res.status(500).send(error)
-        }
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
     }
+}
 
 export async function postConfirmarTransaccionProductoSalida(req: Request, res: Response): Promise<Response> {
     try {
@@ -265,7 +263,6 @@ export async function postConfirmarTransaccionProductoSalida(req: Request, res: 
         body.c_usuariofctienda	= body.c_usuariofctienda ? body.c_usuariofctienda : null;
         body.in_usuarioconfirmado	= body.in_usuarioconfirmado ? body.in_usuarioconfirmado : null;
         body.d_fechadocumento	= body.d_fechadocumento ? body.d_fechadocumento : null;
-
         if(body.c_agencia && body.c_compania && body.c_ultimousuario && body.n_montototal && body.c_tipodocumento && body.c_numerodocumento) {
             const conn = await connect();
             const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Confirmar_TransaccionFlujoTiendaSalida(?,?,?,?,?,?,?,?,?,?,@respuesta)`,
@@ -282,10 +279,42 @@ export async function postConfirmarTransaccionProductoSalida(req: Request, res: 
                 if(message === 'OK')
                     return res.status(200).json({data:transaccionRes[0][0], message: 'OK' });
                 return res.status(200).json({message: message});
-            } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
-    
-        } catch (error) {
-            console.error(error)
-            return res.status(500).send(error)
-        }
+        } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
     }
+}
+
+export async function getTransaccionesPorConfirmar(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        if(body.c_compania) {
+            body.c_agencia = body.c_agencia ? body.c_agencia : null;
+            body.c_usuariooperacion = body.c_usuariooperacion ? body.c_usuariooperacion : null;
+            body.c_agenciarelacionado = body.c_agenciarelacionado ? body.c_agenciarelacionado : null;
+            body.c_usuariofctiendarelacionado = body.c_usuariofctiendarelacionado ? body.c_usuariofctiendarelacionado : null;
+            body.c_usuariofctienda = body.c_usuariofctienda ? body.c_usuariofctienda : null;
+            body.c_codigousuario = body.c_codigousuario ? body.c_codigousuario : null;
+            const conn = await connect();
+            const [response, column2] : [any, any] =
+                await conn.query('CALL sp_Obtener_Transacciones_Por_Confirmar(?,?,?,?,?,?,?)',
+            [
+                body.c_compania,
+                body.c_agencia,
+                body.c_usuariooperacion,
+                body.c_agenciarelacionado,
+                body.c_usuariofctiendarelacionado,
+                body.c_usuariofctienda,
+                body.c_codigousuario
+            ]);
+            await conn.end();
+            const movimientosRes = response as RowDataPacket;
+            return res.status(200).json({ data:movimientosRes[0], message: "Se obtuvo registros." });
+        }
+        return res.status(503).json({ message: "Se debe enviar compañía y correlativo." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error);
+    }
+}
