@@ -269,7 +269,7 @@ export async function postConfirmarTransaccionProductoSalida(req: Request, res: 
 
         if(body.c_agencia && body.c_compania && body.c_ultimousuario && body.detalles && body.c_tipodocumento && body.c_numerodocumento) {
             const conn = await connect();
-            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Insertar_TransaccionProductoSalida(?,?,?,?,?,?,?,?,?,?,@respuesta)`,
+            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Confirmar_TransaccionFlujoTiendaSalida(?,?,?,?,?,?,?,?,?,?,@respuesta)`,
             [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento, body.c_usuariooperacion, body.c_usuariofctienda, 
                 body.d_fechadocumento, body.in_usuarioconfirmado, body.c_ultimousuario, JSON.stringify(body.detalles) ]);
                 await conn.end();
