@@ -263,15 +263,14 @@ export async function postConfirmarTransaccionProductoSalida(req: Request, res: 
         const body = req.body;
         body.c_usuariooperacion	= body.c_usuariooperacion ? body.c_usuariooperacion : null;
         body.c_usuariofctienda	= body.c_usuariofctienda ? body.c_usuariofctienda : null;
-        body.c_agenciarelacionado	= body.c_agenciarelacionado ? body.c_agenciarelacionado : null;
         body.in_usuarioconfirmado	= body.in_usuarioconfirmado ? body.in_usuarioconfirmado : null;
         body.d_fechadocumento	= body.d_fechadocumento ? body.d_fechadocumento : null;
 
-        if(body.c_agencia && body.c_compania && body.c_ultimousuario && body.detalles && body.c_tipodocumento && body.c_numerodocumento) {
+        if(body.c_agencia && body.c_compania && body.c_ultimousuario && body.n_montototal && body.c_tipodocumento && body.c_numerodocumento) {
             const conn = await connect();
             const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Confirmar_TransaccionFlujoTiendaSalida(?,?,?,?,?,?,?,?,?,?,@respuesta)`,
-            [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento, body.c_usuariooperacion, body.c_usuariofctienda, 
-                body.d_fechadocumento, body.in_usuarioconfirmado, body.c_ultimousuario, JSON.stringify(body.detalles) ]);
+            [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento, body.n_montototal, body.c_usuariooperacion, body.c_usuariofctienda, 
+                body.d_fechadocumento, body.in_usuarioconfirmado, body.c_ultimousuario ]);
                 await conn.end();
                 const transaccionRes = responseProcedure as RowDataPacket;
                 let message = 'OK';
