@@ -318,3 +318,34 @@ export async function getTransaccionesPorConfirmar(req: Request, res: Response):
         return res.status(500).send(error);
     }
 }
+
+
+export async function postConfirmarTransaccionProductoSalidaOtraAgencia(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_usuariooperacion	= body.c_usuariooperacion ? body.c_usuariooperacion : null;
+        body.c_usuariofctienda	= body.c_usuariofctienda ? body.c_usuariofctienda : null;
+        body.in_usuarioconfirmado	= body.in_usuarioconfirmado ? body.in_usuarioconfirmado : null;
+        body.d_fechadocumento	= body.d_fechadocumento ? body.d_fechadocumento : null;
+        if(body.c_agencia && body.c_compania && body.c_ultimousuario && body.n_montototal && body.c_tipodocumento && body.c_numerodocumento) {
+            const conn = await connect();
+            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Confirmar_TransaccionFlujoTiendaSalidaOtraAgencia(?,?,?,?,?,?,?,?,?,?,@respuesta)`,
+            [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento, body.n_montototal, body.c_usuariooperacion, body.c_usuariofctienda, 
+                body.d_fechadocumento, body.in_usuarioconfirmado, body.c_ultimousuario ]);
+                await conn.end();
+                const transaccionRes = responseProcedure as RowDataPacket;
+                let message = 'OK';
+                if(transaccionRes && transaccionRes[0].length > 0) {
+                    transaccionRes.forEach((element: any) => {
+                        if (element[0] && element[0]?.respuesta.includes("ERROR")) message = element[0].respuesta;
+                    });
+                }
+                if(message === 'OK')
+                    return res.status(200).json({data:transaccionRes[0][0], message: 'OK' });
+                return res.status(200).json({message: message});
+        } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
