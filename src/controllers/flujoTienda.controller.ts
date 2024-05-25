@@ -209,18 +209,14 @@ export async function getFlujoCajaTiendaDiaMovDinamico(
   try {
     const body = req.body;
     if (body.c_compania && body.n_correlativo) {
-      body.d_fechamovinicio = body.d_fechamovinicio
-        ? body.d_fechamovinicio
-        : null;
-      body.d_fechamovfin = body.d_fechamovfin ? body.d_fechamovfin : null;
+      body.d_fechamov = body.d_fechamov ? body.d_fechamov : null;
       const conn = await connect();
       const [response, column2]: [any, any] = await conn.query(
-        `CALL prestaya.sp_ListarDinamico_FlujoTiendaDiaMov(?,?,?,?)`,
+        `CALL prestaya.sp_ListarDinamico_FlujoTiendaDiaMov(?,?,?)`,
         [
           body.c_compania,
           body.n_correlativo,
-          body.d_fechamovinicio,
-          body.d_fechamovfin,
+          body.d_fechamov
         ]
       );
       const movimientosRes = response[0] as [any];
