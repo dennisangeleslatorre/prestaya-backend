@@ -11,7 +11,8 @@ import {
   postTransaccionProductoSalida,
   postConfirmarTransaccionProductoSalida,
   getTransaccionesPorConfirmar,
-  postConfirmarTransaccionProductoSalidaOtraAgencia
+  postConfirmarTransaccionProductoSalidaOtraAgencia,
+  postAnularTransaccion
 } from "../controllers/transaccion.controller";
 
 import passport from "passport";
@@ -72,5 +73,10 @@ router.post(
     "/postConfirmarTransaccionProductoSalidaOtraAgencia",
     passport.authenticate("jwt", { session: false }),
     postConfirmarTransaccionProductoSalidaOtraAgencia
+  );
+router.post(
+    "/postAnularTransaccion",
+    passport.authenticate("jwt", { session: false }),
+    postAnularTransaccion
   );
 export default router;

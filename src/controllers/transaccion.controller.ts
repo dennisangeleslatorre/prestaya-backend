@@ -349,3 +349,31 @@ export async function postConfirmarTransaccionProductoSalidaOtraAgencia(req: Req
         return res.status(500).send(error)
     }
 }
+
+export async function postAnularTransaccion(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_observacionesanulacion	= body.c_observacionesanulacion ? body.c_observacionesanulacion : null;
+        if(body.c_agencia && body.c_compania  && body.c_tipodocumento && body.c_numerodocumento && body.d_fechadocumento 
+            && body.c_usuariofctienda && body.c_usuarioanulacion && body.c_ultimousuario ) {
+            const conn = await connect();
+            const [responseProcedure, response] = await conn.query(`CALL prestaya.sp_Anular_TransaccionFlujoTienda(?,?,?,?,?,?,?,?,?,@respuesta)`,
+            [ body.c_compania, body.c_agencia, body.c_tipodocumento, body.c_numerodocumento,body.d_fechadocumento, body.c_usuariofctienda, 
+                body.c_usuarioanulacion, body.c_observacionesanulacion, body.c_ultimousuario ]);
+                await conn.end();
+                const transaccionRes = responseProcedure as RowDataPacket;
+                let message = 'OK';
+                if(transaccionRes && transaccionRes[0].length > 0) {
+                    transaccionRes.forEach((element: any) => {
+                        if (element[0] && element[0]?.respuesta.includes("ERROR")) message = element[0].respuesta;
+                    });
+                }
+                if(message === 'OK')
+                    return res.status(200).json({data:transaccionRes[0][0], message: 'OK' });
+                return res.status(200).json({message: message});
+        } return res.status(200).json({ message: "Se debe enviar los datos aobligatorios"  });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
