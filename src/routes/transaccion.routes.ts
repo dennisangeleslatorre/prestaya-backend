@@ -5,7 +5,6 @@ import {
   getTransaccionDetalle,
   getTransaccionCabecera,
   registerTransaccion,
-  updateTransaccionAnular,
   getReporteTransaccion,
   postTransaccionProductoIngreso,
   postTransaccionProductoSalida,
@@ -38,11 +37,6 @@ router.post(
   "/registerTransaccion",
   passport.authenticate("jwt", { session: false }),
   registerTransaccion
-);
-router.put(
-  "/updateTransaccionAnular",
-  passport.authenticate("jwt", { session: false }),
-  updateTransaccionAnular
 );
 router.post(
   "/getReporteTransaccion",
