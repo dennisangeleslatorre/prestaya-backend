@@ -397,8 +397,8 @@ export async function cambiarEstadoRemate(req: Request, res: Response): Promise<
         if( body.c_compania && body.c_prestamo && body.c_usuarioRemate, body.d_fechaRemate && body.c_observacionesremate ) {
             const conn = await connect();
             const [response, column] = await conn.query(
-            `call sp_Cambiar_Remate(?, ?, ?, ?, ?, ?, ?, @respuesta);`,
-            [body.c_compania, body.c_prestamo, body.d_fechaRemate, body.c_observacionesremate, body.c_usuarioRemate, JSON.stringify(body.productos), body.c_moneda]);
+            `call sp_Cambiar_Remate(?, ?, ?, ?, ?, ?, ?,?, @respuesta);`,
+            [body.c_compania, body.c_prestamo, body.d_fechaRemate, body.c_observacionesremate, body.c_usuarioRemate, JSON.stringify(body.productos), body.c_moneda, JSON.stringify(body.productosValidacion)]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
             const responseMessage = responseProcedure[0][0];
