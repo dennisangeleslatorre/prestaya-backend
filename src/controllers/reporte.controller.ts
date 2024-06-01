@@ -569,3 +569,77 @@ export async function getPrestamosUbicacionProducto(req: Request, res: Response)
         return res.status(500).send(error)
     }
 }
+
+export async function getReporteProductoStockTransaccion(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania			  		 = body.c_compania			   ? body.c_compania			  	: null;
+        body.c_agencia			  		 = body.c_agencia			   ? body.c_agencia			  	    : null;
+        body.c_tipoproducto			  	 = body.c_tipoproducto		   ? body.c_tipoproducto			: null;
+        body.c_producto			  		 = body.c_producto			   ? body.c_producto			    : null;
+        body.c_estado		  		     = body.c_estado			   ? body.c_estado			  	: null;
+        body.subtipoproducto		  	 = body.subtipoproducto		   ? body.subtipoproducto			  	    : null;
+        body.c_prestamo		  	         = body.c_prestamo			   ? body.c_prestamo			: null;
+        body.c_stock		  		     = body.c_stock				   ? body.c_stock			    : null;
+        body.c_ubicacion	  	         = body.c_ubicacion			   ? body.c_ubicacion			: null;
+        body.c_tieneubicacion		 	 = body.c_tieneubicacion	   ? body.c_tieneubicacion			    : null;
+        body.c_codigousuario	 		 = body.c_codigousuario		   ? body.c_codigousuario			    : null;
+
+        body.n_antiguedadinicio	        = body.n_antiguedadinicio      ? body.n_antiguedadinicio	: null;
+        body.n_antiguedadfin		    = body.n_antiguedadfin	       ? body.n_antiguedadfin		: null;
+
+        if(body) {
+            const conn = await connect();
+            const [[rows,fields], response] : [any, any] = await conn.query(
+                `CALL prestaya.sp_Reporte_ProductoStock_Transaccion(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                [body.c_compania,body.c_agencia,body.c_tipoproducto	,body.c_producto,body.c_estado,body.subtipoproducto,body.c_prestamo,body.c_stock,
+                    body.n_antiguedadinicio	,body.n_antiguedadfin, body.c_ubicacion,body.c_tieneubicacion,body.c_codigousuario]);
+            await conn.end();
+            const responseProcedure = rows;
+            if(!responseProcedure[0]) {
+                return res.status(200).json({message: "No se encontró productos" });
+            }
+            return res.status(200).json({data:responseProcedure, message: "Se obtuvo productos  " });
+        }
+        return res.status(503).json({message: "No se está enviando el cuerpo de la consulta." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
+
+
+export async function getReporteFlujoTiendaMovimientos(req: Request, res: Response): Promise<Response> {
+    try {
+        const body = req.body;
+        body.c_compania			  		 = body.c_compania			    ? body.c_compania			  	: null;
+        body.c_agencia			  		 = body.c_agencia			    ? body.c_agencia		 	    : null;
+        body.c_moneda			  	     = body.c_moneda		        ? body.c_moneda			        : null;
+        body.c_tusuariofcu			  	 = body.c_tusuariofcu		    ? body.c_tusuariofcu			: null;
+        body.d_fechamovimientoinicio	 = body.d_fechamovimientoinicio ? body.d_fechamovimientoinicio	: null;
+        body.d_fechamovimientofin		 = body.d_fechamovimientofin    ? body.d_fechamovimientofin		: null;
+        body.c_estado_dia			  	 = body.c_estado_dia		    ? body.c_estado_dia			    : null;
+        body.c_fuente			  		 = body.c_fuente			    ? body.c_fuente			        : null;
+        body.c_tipomovimiento		  	 = body.c_tipomovimiento		? body.c_tipomovimiento			: null;
+        body.c_clasetipomov		  	     = body.c_clasetipomov		    ? body.c_clasetipomov	  	    : null;
+        body.c_codigousuario	  	     = body.c_codigousuario			? body.c_codigousuario			: null;
+
+        if(body) {
+            const conn = await connect();
+            const [[rows,fields], response] : [any, any] = await conn.query(
+                `CALL prestaya.sp_Reporte_FLujoTienda_Movimientos(?,?,?,?,?,?,?,?,?,?,?)`,
+                [body.c_compania,body.c_agencia,body.c_moneda	,body.c_tusuariofcu,body.d_fechamovimientoinicio,body.d_fechamovimientofin,body.c_estado_dia,body.c_fuente,
+                    body.c_tipomovimiento	,body.c_clasetipomov, body.c_codigousuario]);
+            await conn.end();
+            const responseProcedure = rows;
+            if(!responseProcedure[0]) {
+                return res.status(200).json({message: "No se encontró movimientos en la tienda" });
+            }
+            return res.status(200).json({data:responseProcedure, message: "Se obtuvo movimientos." });
+        }
+        return res.status(503).json({message: "No se está enviando el cuerpo de la consulta." });
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(error)
+    }
+}
