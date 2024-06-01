@@ -6,6 +6,7 @@ import {
   registerFlujoTienda,
   getFlujoCajaByCodigo,
   updateFlujoTienda,
+  getUsuariosCajaActiva
 } from "../controllers/flujoTienda.controller";
 import passport from "passport";
 
@@ -41,5 +42,11 @@ router.put(
   passport.authenticate("jwt", { session: false }),
   updateFlujoTienda
 );
+
+router.post(
+  "/getUsuariosCajaActiva",
+  passport.authenticate("jwt", { session: false }),
+  getUsuariosCajaActiva
+)
 
 export default router;

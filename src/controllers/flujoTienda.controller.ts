@@ -383,3 +383,27 @@ export async function updateFlujoTienda(
     return res.status(500).send(error);
   }
 }
+
+export async function getUsuariosCajaActiva(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  try {
+    const body = req.body;
+    if ( body.c_compania && body.c_agencia ) {
+      const conn = await connect();
+      const [rows, fields] = await conn.query(`
+      SELECT distinct mu.* FROM prestaya.co_flujoctienda ft
+      INNER JOIN prestaya.ma_usuarios mu
+      ON ft.c_usuariofctienda = mu.c_codigousuario
+      WHERE ft.c_compania = ? AND ft.c_agencia = ? AND ft.c_estado = 'A'
+      `,[body.c_compania, body.c_agencia])
+      await conn.end();
+      return res.status(200).json({ data:rows, message: "Se obtuvo registros" });
+    }
+    return res.status(503).json({ message: "Campos incompletos al enviar." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send(error);
+  }
+}
