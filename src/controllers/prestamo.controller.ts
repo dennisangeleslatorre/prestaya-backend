@@ -333,12 +333,17 @@ export async function retornarRemate(req: Request, res: Response): Promise<Respo
             const [response, column] = await conn.query(`call sp_Retornar_Remate(?, ?, @respuesta);`,[body.c_compania, body.c_prestamo]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
-            const responseMessage = responseProcedure[0][0];
-            if(!responseMessage || responseMessage.respuesta !== "OK") {
-                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al regresar remate."
-                return res.status(503).json({message: message});
+            const responseMessage = responseProcedure;
+            let message = 'OK';
+            if (responseProcedure && responseProcedure[0].length > 0) {
+                responseProcedure.forEach((element: any) => {
+                if (element[0] && (element[0].respuesta !== "OK" && element[0].respuesta !== "SI" && element[0].respuesta !== "NO"))
+                    message = element[0].respuesta;
+                });
             }
-            return res.status(200).json({message: responseMessage.respuesta });
+            if ( message === 'OK' )
+                return res.status(200).json({message: message });
+            return res.status(503).json({message: message});
         } else
             return res.status(503).json({message: "No se está enviando la compañía o el código del préstamo." });
     } catch (error) {
@@ -401,15 +406,16 @@ export async function cambiarEstadoRemate(req: Request, res: Response): Promise<
             [body.c_compania, body.c_prestamo, body.d_fechaRemate, body.c_observacionesremate, body.c_usuarioRemate, JSON.stringify(body.productos), body.c_moneda, JSON.stringify(body.productosValidacion)]);
             await conn.end();
             const responseProcedure = response as RowDataPacket;
-            const responseMessage = responseProcedure[0][0];
-            if(!responseMessage || responseMessage.respuesta !== "OK") {
-                const message = responseMessage.respuesta ? responseMessage.respuesta : "Error al cambiar el estado del préstamo a remate."
-                return res.status(503).json({message: message});
-            } //Cambiar estado de los productos
-            else {
-                console.log("responseMessage", responseMessage);
+            let message = "OK";
+            if (responseProcedure && responseProcedure[0].length > 0) {
+                responseProcedure.forEach((element: any) => {
+                if (element[0] && (element[0]?.respuesta.includes("ERROR")))
+                    message = element[0].respuesta;
+                });
             }
-            return res.status(200).json({message: responseMessage.respuesta });
+            if (message === "OK")
+                return res.status(200).json({message: message });
+            return res.status(503).json({message: message || "Error al cambiar el estado del préstamo a remate."});
         } else
             return res.status(503).json({message: "No se está enviando la compañía, el código del préstamo, el usuario que realiza el cambio de estado, la fecha de remate o la observación de remate." });
     } catch (error) {

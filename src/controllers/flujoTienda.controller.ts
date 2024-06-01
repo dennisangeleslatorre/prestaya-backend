@@ -31,7 +31,7 @@ export async function getFlujoCajaByCodigo(
             let detalle = {
               general: {
                 d_fechamov: fechaFormat,
-                c_estado: item.c_estado,
+                c_estado: item.c_estado_dia,
                 c_observaciones: item.c_observaciones_dia,
                 c_usuarioregistro: item.c_usuarioregistro_dia,
                 d_fecharegistro: item.d_fecharegistro_dia,
