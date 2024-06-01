@@ -1,6 +1,7 @@
 import { Router } from "express"
 import { getReportesByPerfil, getDataReporteResumidos, getDataReporteDetallado, getReportes, assignReportToProfile,
-        getDataReporteFlujoCaja, getDataReporteVencidosyNoVencidos, getPrestamosDetalladoPeriodo,getPrestamosUbicacionProducto } from '../controllers/reporte.controller'
+        getDataReporteFlujoCaja, getDataReporteVencidosyNoVencidos, getPrestamosDetalladoPeriodo,getPrestamosUbicacionProducto,
+        getReporteFlujoTiendaMovimientos,getReporteProductoStockTransaccion } from '../controllers/reporte.controller'
 import passport from 'passport'
 
 const router = Router();
@@ -14,5 +15,7 @@ router.post('/getDataReporteFlujoCaja', passport.authenticate('jwt', { session: 
 router.post('/getDataReporteVencidosyNoVencidos', passport.authenticate('jwt', { session: false }), getDataReporteVencidosyNoVencidos);
 router.post('/getPrestamosDetalladoPeriodo', passport.authenticate('jwt', { session: false }), getPrestamosDetalladoPeriodo);
 router.post('/getPrestamosUbicacionProducto', passport.authenticate('jwt', { session: false }), getPrestamosUbicacionProducto);
+router.post('/getReporteFlujoTiendaMovimientos', passport.authenticate('jwt', { session: false }), getReporteFlujoTiendaMovimientos);
+router.post('/getReporteProductoStockTransaccion', passport.authenticate('jwt', { session: false }), getReporteProductoStockTransaccion);
 
 export default router;
