@@ -623,13 +623,14 @@ export async function getReporteFlujoTiendaMovimientos(req: Request, res: Respon
         body.c_tipomovimiento		  	 = body.c_tipomovimiento		? body.c_tipomovimiento			: null;
         body.c_clasetipomov		  	     = body.c_clasetipomov		    ? body.c_clasetipomov	  	    : null;
         body.c_codigousuario	  	     = body.c_codigousuario			? body.c_codigousuario			: null;
+        body.c_tipofctienda	  	         = body.c_tipofctienda			? body.c_tipofctienda			: null;
 
         if(body) {
             const conn = await connect();
             const [[rows,fields], response] : [any, any] = await conn.query(
-                `CALL prestaya.sp_Reporte_FLujoTienda_Movimientos(?,?,?,?,?,?,?,?,?,?,?)`,
+                `CALL prestaya.sp_Reporte_FLujoTienda_Movimientos(?,?,?,?,?,?,?,?,?,?,?,?)`,
                 [body.c_compania,body.c_agencia,body.c_moneda	,body.c_tusuariofcu,body.d_fechamovimientoinicio,body.d_fechamovimientofin,body.c_estado_dia,body.c_fuente,
-                    body.c_tipomovimiento	,body.c_clasetipomov, body.c_codigousuario]);
+                    body.c_tipomovimiento	,body.c_clasetipomov, body.c_codigousuario,body.c_tipofctienda]);
             await conn.end();
             const responseProcedure = rows;
             if(!responseProcedure[0]) {
