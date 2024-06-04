@@ -588,12 +588,14 @@ export async function getReporteProductoStockTransaccion(req: Request, res: Resp
         body.n_antiguedadinicio	        = body.n_antiguedadinicio      ? body.n_antiguedadinicio	: null;
         body.n_antiguedadfin		    = body.n_antiguedadfin	       ? body.n_antiguedadfin		: null;
 
+        body.d_fechaactual		        = body.d_fechaactual	       ? body.d_fechaactual		: null;
+
         if(body) {
             const conn = await connect();
             const [[rows,fields], response] : [any, any] = await conn.query(
-                `CALL prestaya.sp_Reporte_ProductoStock_Transaccion(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                `CALL prestaya.sp_Reporte_ProductoStock_Transaccion(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                 [body.c_compania,body.c_agencia,body.c_tipoproducto	,body.c_producto,body.c_estado,body.subtipoproducto,body.c_prestamo,body.c_stock,
-                    body.n_antiguedadinicio	,body.n_antiguedadfin, body.c_ubicacion,body.c_tieneubicacion,body.c_codigousuario]);
+                    body.n_antiguedadinicio	,body.n_antiguedadfin, body.c_ubicacion,body.c_tieneubicacion,body.c_codigousuario,body.d_fechaactual]);
             await conn.end();
             const responseProcedure = rows;
             if(!responseProcedure[0]) {
