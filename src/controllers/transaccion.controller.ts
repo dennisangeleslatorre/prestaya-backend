@@ -232,11 +232,12 @@ export async function getReporteTransaccion(
     body.c_item = body.c_item ? body.c_item : null;
     body.c_prestamo = body.c_prestamo ? body.c_prestamo : null;
     body.c_estado = body.c_estado ? body.c_estado : null;
+    body.c_usuariooperacion = body.c_usuariooperacion ? body.c_usuariooperacion : null;
 
     if (body.c_codigousuario) {
       const conn = await connect();
       const [responseProcedure, response] = await conn.query(
-        `CALL sp_GetReporte_TransaccionesTienda(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        `CALL sp_GetReporte_TransaccionesTienda(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           body.c_compania,
           body.c_agencia,
@@ -251,6 +252,7 @@ export async function getReporteTransaccion(
           body.c_prestamo,
           body.c_estado,
           body.c_codigousuario,
+          body.c_usuariooperacion
         ]
       );
       await conn.end();
@@ -258,7 +260,7 @@ export async function getReporteTransaccion(
       if (!transaccionRes[0][0]) {
         return res
           .status(200)
-          .json({ message: "No se encontró transacciones" });
+          .json({ message: "No se encontró transacciones", data: [] });
       }
       return res
         .status(200)
