@@ -409,7 +409,7 @@ export async function cambiarEstadoRemate(req: Request, res: Response): Promise<
             let message = "OK";
             if (responseProcedure && responseProcedure[0].length > 0) {
                 responseProcedure.forEach((element: any) => {
-                if (element[0] && (element[0]?.respuesta.includes("ERROR")))
+                if (element[0] && (element[0]?.respuesta?.includes("ERROR")))
                     message = element[0].respuesta;
                 });
             }
